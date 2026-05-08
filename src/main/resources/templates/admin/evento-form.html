@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-BR"
+      xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: html(tituloPagina=${modoEdicao ? 'Editar evento' : 'Novo evento'}, cssExtra=${ {'/css/dashboard.css'} }, conteudo=~{::section})}">
+<body>
+<section>
+    <section class="container secao admin">
+        <a class="link-voltar" th:href="@{/admin/eventos}">← Voltar</a>
+        <h1 th:text="${modoEdicao ? 'Editar evento' : 'Novo evento'}">Novo evento</h1>
+
+        <form class="formulario formulario--admin"
+              th:action="${modoEdicao ? '/admin/eventos/' + eventoId : '/admin/eventos'}"
+              th:object="${evento}" method="post">
+
+            <div class="campo">
+                <label for="titulo">Título *</label>
+                <input type="text" id="titulo" th:field="*{titulo}" />
+                <small class="campo__erro" th:errors="*{titulo}"></small>
+            </div>
+
+            <div class="campo">
+                <label for="descricao">Descrição *</label>
+                <textarea id="descricao" th:field="*{descricao}" rows="4"></textarea>
+                <small class="campo__erro" th:errors="*{descricao}"></small>
+            </div>
+
+            <div class="grid-2">
+                <div class="campo">
+                    <label for="local">Local *</label>
+                    <input type="text" id="local" th:field="*{local}" />
+                    <small class="campo__erro" th:errors="*{local}"></small>
+                </div>
+
+                <div class="campo">
+                    <label for="dataEvento">Data e hora *</label>
+                    <input type="datetime-local" id="dataEvento" th:field="*{dataEvento}" />
+                    <small class="campo__erro" th:errors="*{dataEvento}"></small>
+                </div>
+            </div>
+
+            <label class="checkbox">
+                <input type="checkbox" th:field="*{ativo}" />
+                Ativo
+            </label>
+
+            <div class="form-acoes">
+                <a class="btn btn--secundario" th:href="@{/admin/eventos}">Cancelar</a>
+                <button type="submit" class="btn btn--primario">Salvar</button>
+            </div>
+        </form>
+    </section>
+</section>
+</body>
+</html>

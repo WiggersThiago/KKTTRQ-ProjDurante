@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-BR"
+      xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: html(tituloPagina='Sobre nós', conteudo=~{::section})}">
+<body>
+<section>
+    <section class="container secao">
+        <h1 th:text="${informacao.nomeONG}">ONG Patinhas</h1>
+
+        <div class="sobre-grid">
+            <div class="sobre-bloco" th:if="${informacao.quemSomos}">
+                <h2>Quem somos</h2>
+                <p th:text="${informacao.quemSomos}"></p>
+            </div>
+
+            <div class="sobre-bloco" th:if="${informacao.proposito}">
+                <h2>Nosso propósito</h2>
+                <p th:text="${informacao.proposito}"></p>
+            </div>
+
+            <div class="sobre-bloco" th:if="${informacao.pixDoacao or informacao.enderecoDoacao}">
+                <h2>Como doar</h2>
+                <p th:if="${informacao.pixDoacao}">
+                    <strong>PIX:</strong> <span th:text="${informacao.pixDoacao}"></span>
+                </p>
+                <p th:if="${informacao.enderecoDoacao}">
+                    <strong>Endereço para doações físicas:</strong><br/>
+                    <span th:text="${informacao.enderecoDoacao}"></span>
+                </p>
+            </div>
+
+            <div class="sobre-bloco">
+                <h2>Contato</h2>
+                <p th:if="${informacao.telefoneContato}">
+                    <strong>Telefone:</strong> <span th:text="${informacao.telefoneContato}"></span>
+                </p>
+                <p th:if="${informacao.emailContato}">
+                    <strong>E-mail:</strong> <span th:text="${informacao.emailContato}"></span>
+                </p>
+                <p>
+                    <a th:if="${informacao.instagram}"
+                       th:href="${informacao.instagram}" target="_blank" rel="noopener">Instagram</a>
+                    <span th:if="${informacao.instagram and informacao.facebook}"> · </span>
+                    <a th:if="${informacao.facebook}"
+                       th:href="${informacao.facebook}" target="_blank" rel="noopener">Facebook</a>
+                </p>
+            </div>
+        </div>
+    </section>
+</section>
+</body>
+</html>

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="pt-BR"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<body>
+
+<header th:fragment="header" class="topo">
+    <div class="container topo__inner">
+        <a class="topo__logo" th:href="@{/}">
+            <span class="topo__logo-icon" aria-hidden="true">🐾</span>
+            <span class="topo__logo-texto">Patinhas</span>
+        </a>
+
+        <nav class="topo__nav">
+            <a th:href="@{/}">Início</a>
+            <a th:href="@{/animais}">Animais</a>
+            <a th:href="@{/denuncia}">Denúncia</a>
+            <a th:href="@{/sobre}">Sobre</a>
+
+            <th:block sec:authorize="hasRole('ADMIN')">
+                <a th:href="@{/admin/dashboard}" class="topo__link-admin">Painel</a>
+                <form th:action="@{/logout}" method="post" class="topo__logout-form">
+                    <button type="submit" class="topo__logout">Sair</button>
+                </form>
+            </th:block>
+
+            <th:block sec:authorize="!isAuthenticated()">
+                <a th:href="@{/login}" class="topo__link-login">Entrar</a>
+            </th:block>
+        </nav>
+    </div>
+</header>
+
+</body>
+</html>

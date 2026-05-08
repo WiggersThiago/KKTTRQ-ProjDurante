@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt-BR"
+      xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: html(tituloPagina='ONG Patinhas — Adote um amigo', conteudo=~{::section})}">
+<body>
+<section>
+
+    <section class="hero">
+        <div class="container hero__inner">
+            <div class="hero__texto">
+                <h1>Adote um amigo. <br/>Mude duas vidas.</h1>
+                <p>
+                    Conheça os animais resgatados pela
+                    <strong th:text="${informacao.nomeONG}">ONG Patinhas</strong>
+                    e ajude a encontrar um lar cheio de amor para cada um deles.
+                </p>
+                <div class="hero__acoes">
+                    <a class="btn btn--primario" th:href="@{/animais}">Ver animais</a>
+                    <a class="btn btn--secundario" th:href="@{/denuncia}">Fazer denúncia</a>
+                </div>
+            </div>
+            <div class="hero__ilustracao" aria-hidden="true">
+                <span class="hero__pata">🐾</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="container secao">
+        <div class="secao__cabecalho">
+            <h2>Animais em destaque</h2>
+            <a class="link-mais" th:href="@{/animais}">Ver todos →</a>
+        </div>
+
+        <div class="grid-animais" th:if="${not #lists.isEmpty(animaisDestaque)}">
+            <article class="card-animal" th:each="animal : ${animaisDestaque}">
+                <div class="card-animal__foto"
+                     th:style="${animal.fotoUrl} ? 'background-image:url(' + ${animal.fotoUrl} + ')' : ''">
+                    <span th:if="${animal.fotoUrl == null}" class="card-animal__placeholder">🐶</span>
+                </div>
+                <div class="card-animal__corpo">
+                    <h3 th:text="${animal.nome}">Nome</h3>
+                    <p class="card-animal__meta">
+                        <span th:text="${animal.porte.descricao}">Médio</span> ·
+                        <span th:text="${animal.sexo.descricao}">Macho</span> ·
+                        <span th:text="${animal.idade} + ' anos'">2 anos</span>
+                    </p>
+                    <span class="badge"
+                          th:classappend="'badge--' + ${#strings.toLowerCase(animal.statusAdocao.name())}"
+                          th:text="${animal.statusAdocao.descricao}">Disponível</span>
+                </div>
+            </article>
+        </div>
+
+        <p th:if="${#lists.isEmpty(animaisDestaque)}" class="vazio">
+            Nenhum animal cadastrado no momento. Volte em breve!
+        </p>
+    </section>
+
+    <section class="container secao" th:if="${not #lists.isEmpty(proximosEventos)}">
+        <div class="secao__cabecalho">
+            <h2>Próximos eventos</h2>
+        </div>
+        <div class="grid-eventos">
+            <article class="card-evento" th:each="evento : ${proximosEventos}">
+                <div class="card-evento__data">
+                    <span class="card-evento__dia"
+                          th:text="${#temporals.format(evento.dataEvento, 'dd')}">12</span>
+                    <span class="card-evento__mes"
+                          th:text="${#temporals.format(evento.dataEvento, 'MMM')}">Mar</span>
+                </div>
+                <div class="card-evento__corpo">
+                    <h3 th:text="${evento.titulo}">Título</h3>
+                    <p th:text="${evento.local}">Local</p>
+                    <p class="card-evento__desc" th:text="${evento.descricao}">Descrição</p>
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <section class="container secao secao--cta">
+        <div class="cta">
+            <h2>Quer ajudar?</h2>
+            <p>Você pode adotar, doar ou ser voluntário. Toda ajuda faz diferença.</p>
+            <a class="btn btn--primario" th:href="@{/sobre}">Saiba como contribuir</a>
+        </div>
+    </section>
+
+</section>
+</body>
+</html>

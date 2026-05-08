@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-BR"
+      xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: html(tituloPagina='Denúncias', cssExtra=${ {'/css/dashboard.css'} }, conteudo=~{::section})}">
+<body>
+<section>
+    <section class="container secao admin">
+        <header class="admin__header">
+            <h1>Denúncias recebidas</h1>
+            <p class="texto-apoio">Acompanhe e atualize o status das denúncias anônimas.</p>
+        </header>
+
+        <form class="filtros" th:action="@{/admin/denuncias}" method="get">
+            <div class="filtros__campo">
+                <label for="status">Status</label>
+                <select id="status" name="status">
+                    <option value="">Todos</option>
+                    <option th:each="s : ${statusList}"
+                            th:value="${s.name()}"
+                            th:text="${s.descricao}"
+                            th:selected="${statusFiltro != null and statusFiltro.name() == s.name()}"></option>
+                </select>
+            </div>
+            <button class="btn btn--primario" type="submit">Filtrar</button>
+        </form>
+
+        <div class="tabela-wrapper">
+            <table class="tabela">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Local</th>
+                        <th>Data ocorrido</th>
+                        <th>Enviada em</th>
+                        <th>Status</th>
+                        <th>Ação</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="d : ${denuncias}">
+                        <td th:text="${d.id}">1</td>
+                        <td th:text="${d.local}">Local</td>
+                        <td th:text="${d.dataOcorrido} != null ? ${#temporals.format(d.dataOcorrido, 'dd/MM/yyyy')} : '—'">—</td>
+                        <td th:text="${#temporals.format(d.dataEnvio, 'dd/MM/yyyy HH:mm')}">—</td>
+                        <td>
+                            <span class="badge"
+                                  th:classappend="'badge--status-' + ${#strings.toLowerCase(d.status.name())}"
+                                  th:text="${d.status.descricao}">Pendente</span>
+                        </td>
+                        <td>
+                            <a class="btn btn--pequeno" th:href="@{|/admin/denuncias/${d.id}|}">Ver detalhes</a>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(denuncias)}">
+                        <td colspan="6" class="vazio">Nenhuma denúncia encontrada.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</section>
+</body>
+</html>

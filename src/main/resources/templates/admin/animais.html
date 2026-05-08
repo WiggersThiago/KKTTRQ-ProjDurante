@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-BR"
+      xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: html(tituloPagina='Gerenciar animais', cssExtra=${ {'/css/dashboard.css'} }, conteudo=~{::section})}">
+<body>
+<section>
+    <section class="container secao admin">
+        <header class="admin__header admin__header--linha">
+            <div>
+                <h1>Animais</h1>
+                <p class="texto-apoio">Gerencie os animais cadastrados na ONG.</p>
+            </div>
+            <a class="btn btn--primario" th:href="@{/admin/animais/novo}">+ Novo animal</a>
+        </header>
+
+        <div class="alerta alerta--sucesso" th:if="${sucesso}" th:text="${sucesso}"></div>
+
+        <div class="tabela-wrapper">
+            <table class="tabela">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nome</th>
+                        <th>Idade</th>
+                        <th>Porte</th>
+                        <th>Sexo</th>
+                        <th>Status</th>
+                        <th>Ativo</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="animal : ${animais}">
+                        <td th:text="${animal.id}">1</td>
+                        <td th:text="${animal.nome}">Nome</td>
+                        <td th:text="${animal.idade}">3</td>
+                        <td th:text="${animal.porte.descricao}">Médio</td>
+                        <td th:text="${animal.sexo.descricao}">Macho</td>
+                        <td>
+                            <span class="badge"
+                                  th:classappend="'badge--' + ${#strings.toLowerCase(animal.statusAdocao.name())}"
+                                  th:text="${animal.statusAdocao.descricao}">Disponível</span>
+                        </td>
+                        <td th:text="${animal.ativo ? 'Sim' : 'Não'}">Sim</td>
+                        <td class="acoes">
+                            <a class="btn btn--pequeno" th:href="@{|/admin/animais/${animal.id}/editar|}">Editar</a>
+                            <form th:action="@{|/admin/animais/${animal.id}/remover|}" method="post"
+                                  th:if="${animal.ativo}"
+                                  onsubmit="return confirm('Remover este animal?');">
+                                <button type="submit" class="btn btn--pequeno btn--perigo">Remover</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(animais)}">
+                        <td colspan="8" class="vazio">Nenhum animal cadastrado.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</section>
+</body>
+</html>

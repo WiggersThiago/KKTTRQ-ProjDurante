@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="pt-BR"
+      xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: html(tituloPagina='Denúncia anônima', conteudo=~{::section})}">
+<body>
+<section>
+    <section class="container secao secao--centralizada">
+        <div class="card-form">
+            <h1>Faça uma denúncia anônima</h1>
+            <p class="texto-apoio">
+                Nenhum dado pessoal seu será solicitado ou armazenado.
+                Sua identidade está totalmente protegida.
+            </p>
+
+            <div class="alerta alerta--sucesso" th:if="${sucesso}" th:text="${sucesso}"></div>
+
+            <form th:action="@{/denuncia}" th:object="${denuncia}" method="post" class="formulario">
+                <div class="campo">
+                    <label for="descricao">Descrição da denúncia *</label>
+                    <textarea id="descricao" th:field="*{descricao}" rows="6"
+                              placeholder="Descreva com o máximo de detalhes possível..."></textarea>
+                    <small class="campo__erro" th:errors="*{descricao}"></small>
+                </div>
+                <div class="campo">
+                    <label for="local">Local *</label>
+                    <input type="text" id="local" th:field="*{local}"
+                           placeholder="Endereço, bairro, cidade ou ponto de referência" />
+                    <small class="campo__erro" th:errors="*{local}"></small>
+                </div>
+                <div class="campo">
+                    <label for="dataOcorrido">Data do ocorrido</label>
+                    <input type="date" id="dataOcorrido" th:field="*{dataOcorrido}" />
+                    <small class="campo__erro" th:errors="*{dataOcorrido}"></small>
+                </div>
+
+                <button type="submit" class="btn btn--primario btn--bloco">Enviar anonimamente</button>
+            </form>
+        </div>
+    </section>
+</section>
+</body>
+</html>

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="pt-BR"
+      xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: html(tituloPagina='Painel administrativo', cssExtra=${ {'/css/dashboard.css'} }, conteudo=~{::section})}">
+<body>
+<section>
+    <section class="container secao admin">
+        <header class="admin__header">
+            <h1>Painel Administrativo</h1>
+            <p class="texto-apoio">Bem-vindo(a) à área administrativa da ONG Patinhas.</p>
+        </header>
+
+        <nav class="admin__menu">
+            <a th:href="@{/admin/animais}">Animais</a>
+            <a th:href="@{/admin/eventos}">Eventos</a>
+            <a th:href="@{/admin/denuncias}">Denúncias</a>
+            <a th:href="@{/admin/informacoes}">Informações da ONG</a>
+        </nav>
+
+        <div class="dashboard-cards">
+            <div class="dash-card">
+                <span class="dash-card__icone">🐶</span>
+                <span class="dash-card__numero" th:text="${totalAnimais}">0</span>
+                <span class="dash-card__label">Animais ativos</span>
+            </div>
+            <div class="dash-card">
+                <span class="dash-card__icone">💚</span>
+                <span class="dash-card__numero" th:text="${animaisDisponiveis}">0</span>
+                <span class="dash-card__label">Disponíveis para adoção</span>
+            </div>
+            <div class="dash-card">
+                <span class="dash-card__icone">📅</span>
+                <span class="dash-card__numero" th:text="${eventosAtivos}">0</span>
+                <span class="dash-card__label">Eventos ativos</span>
+            </div>
+            <div class="dash-card dash-card--alerta">
+                <span class="dash-card__icone">⚠️</span>
+                <span class="dash-card__numero" th:text="${denunciasPendentes}">0</span>
+                <span class="dash-card__label">Denúncias pendentes</span>
+            </div>
+        </div>
+    </section>
+</section>
+</body>
+</html>

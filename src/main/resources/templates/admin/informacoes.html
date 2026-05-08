@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="pt-BR"
+      xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: html(tituloPagina='Informações da ONG', cssExtra=${ {'/css/dashboard.css'} }, conteudo=~{::section})}">
+<body>
+<section>
+    <section class="container secao admin">
+        <header class="admin__header">
+            <h1>Informações institucionais</h1>
+            <p class="texto-apoio">Esses dados aparecem na página pública "Sobre".</p>
+        </header>
+
+        <div class="alerta alerta--sucesso" th:if="${sucesso}" th:text="${sucesso}"></div>
+
+        <form class="formulario formulario--admin"
+              th:action="@{/admin/informacoes}"
+              th:object="${informacao}" method="post">
+
+            <div class="campo">
+                <label for="nomeONG">Nome da ONG *</label>
+                <input type="text" id="nomeONG" th:field="*{nomeONG}" />
+                <small class="campo__erro" th:errors="*{nomeONG}"></small>
+            </div>
+
+            <div class="campo">
+                <label for="quemSomos">Quem somos</label>
+                <textarea id="quemSomos" th:field="*{quemSomos}" rows="5"></textarea>
+            </div>
+
+            <div class="campo">
+                <label for="proposito">Propósito</label>
+                <textarea id="proposito" th:field="*{proposito}" rows="5"></textarea>
+            </div>
+
+            <div class="grid-2">
+                <div class="campo">
+                    <label for="pixDoacao">PIX para doações</label>
+                    <input type="text" id="pixDoacao" th:field="*{pixDoacao}" />
+                </div>
+                <div class="campo">
+                    <label for="enderecoDoacao">Endereço para doações</label>
+                    <input type="text" id="enderecoDoacao" th:field="*{enderecoDoacao}" />
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="campo">
+                    <label for="telefoneContato">Telefone</label>
+                    <input type="text" id="telefoneContato" th:field="*{telefoneContato}" />
+                </div>
+                <div class="campo">
+                    <label for="emailContato">E-mail</label>
+                    <input type="email" id="emailContato" th:field="*{emailContato}" />
+                    <small class="campo__erro" th:errors="*{emailContato}"></small>
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="campo">
+                    <label for="instagram">Instagram (URL)</label>
+                    <input type="url" id="instagram" th:field="*{instagram}" />
+                </div>
+                <div class="campo">
+                    <label for="facebook">Facebook (URL)</label>
+                    <input type="url" id="facebook" th:field="*{facebook}" />
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn--primario">Salvar</button>
+        </form>
+    </section>
+</section>
+</body>
+</html>

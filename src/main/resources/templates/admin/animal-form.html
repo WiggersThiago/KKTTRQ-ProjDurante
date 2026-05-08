@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="pt-BR"
+      xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: html(tituloPagina=${modoEdicao ? 'Editar animal' : 'Novo animal'}, cssExtra=${ {'/css/dashboard.css'} }, conteudo=~{::section})}">
+<body>
+<section>
+    <section class="container secao admin">
+        <a class="link-voltar" th:href="@{/admin/animais}">← Voltar</a>
+        <h1 th:text="${modoEdicao ? 'Editar animal' : 'Novo animal'}">Novo animal</h1>
+
+        <form class="formulario formulario--admin"
+              th:action="${modoEdicao ? '/admin/animais/' + animalId : '/admin/animais'}"
+              th:object="${animal}" method="post">
+
+            <div class="campo">
+                <label for="nome">Nome *</label>
+                <input type="text" id="nome" th:field="*{nome}" />
+                <small class="campo__erro" th:errors="*{nome}"></small>
+            </div>
+
+            <div class="grid-2">
+                <div class="campo">
+                    <label for="idade">Idade *</label>
+                    <input type="number" id="idade" th:field="*{idade}" min="0" />
+                    <small class="campo__erro" th:errors="*{idade}"></small>
+                </div>
+
+                <div class="campo">
+                    <label for="porte">Porte *</label>
+                    <select id="porte" th:field="*{porte}">
+                        <option value="">Selecione...</option>
+                        <option th:each="p : ${portes}" th:value="${p}" th:text="${p.descricao}"></option>
+                    </select>
+                    <small class="campo__erro" th:errors="*{porte}"></small>
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="campo">
+                    <label for="sexo">Sexo *</label>
+                    <select id="sexo" th:field="*{sexo}">
+                        <option value="">Selecione...</option>
+                        <option th:each="s : ${sexos}" th:value="${s}" th:text="${s.descricao}"></option>
+                    </select>
+                    <small class="campo__erro" th:errors="*{sexo}"></small>
+                </div>
+
+                <div class="campo">
+                    <label for="statusAdocao">Status</label>
+                    <select id="statusAdocao" th:field="*{statusAdocao}">
+                        <option value="">Selecione...</option>
+                        <option th:each="st : ${statusList}" th:value="${st}" th:text="${st.descricao}"></option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="campo">
+                <label for="descricao">Descrição</label>
+                <textarea id="descricao" th:field="*{descricao}" rows="4"></textarea>
+                <small class="campo__erro" th:errors="*{descricao}"></small>
+            </div>
+
+            <div class="campo">
+                <label for="fotoUrl">URL da foto</label>
+                <input type="url" id="fotoUrl" th:field="*{fotoUrl}" placeholder="https://..." />
+                <small class="campo__erro" th:errors="*{fotoUrl}"></small>
+            </div>
+
+            <div class="grid-2">
+                <label class="checkbox">
+                    <input type="checkbox" th:field="*{castrado}" />
+                    Castrado
+                </label>
+
+                <label class="checkbox">
+                    <input type="checkbox" th:field="*{vacinado}" />
+                    Vacinado
+                </label>
+            </div>
+
+            <div class="form-acoes">
+                <a class="btn btn--secundario" th:href="@{/admin/animais}">Cancelar</a>
+                <button type="submit" class="btn btn--primario">Salvar</button>
+            </div>
+        </form>
+    </section>
+</section>
+</body>
+</html>

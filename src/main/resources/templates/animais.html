@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="pt-BR"
+      xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: html(tituloPagina='Animais para adoção', conteudo=~{::section})}">
+<body>
+<section>
+    <section class="container secao">
+        <h1>Animais para adoção</h1>
+        <p class="texto-apoio">Conheça nossos amigos que esperam por um lar.</p>
+
+        <form class="filtros" th:action="@{/animais}" method="get">
+            <div class="filtros__campo">
+                <label for="nome">Nome</label>
+                <input type="text" id="nome" name="nome"
+                       th:value="${nomeFiltro}"
+                       placeholder="Buscar por nome..." />
+            </div>
+            <div class="filtros__campo">
+                <label for="status">Status</label>
+                <select id="status" name="status">
+                    <option value="">Todos</option>
+                    <option th:each="s : ${statusList}"
+                            th:value="${s.name()}"
+                            th:text="${s.descricao}"
+                            th:selected="${statusFiltro != null and statusFiltro.name() == s.name()}"></option>
+                </select>
+            </div>
+            <button type="submit" class="btn btn--primario">Filtrar</button>
+        </form>
+
+        <div class="grid-animais" th:if="${not #lists.isEmpty(animais)}">
+            <article class="card-animal" th:each="animal : ${animais}">
+                <div class="card-animal__foto"
+                     th:style="${animal.fotoUrl} ? 'background-image:url(' + ${animal.fotoUrl} + ')' : ''">
+                    <span th:if="${animal.fotoUrl == null}" class="card-animal__placeholder">🐾</span>
+                </div>
+                <div class="card-animal__corpo">
+                    <h3 th:text="${animal.nome}">Nome</h3>
+                    <p class="card-animal__meta">
+                        <span th:text="${animal.porte.descricao}">Médio</span> ·
+                        <span th:text="${animal.sexo.descricao}">Macho</span> ·
+                        <span th:text="${animal.idade} + ' anos'">2 anos</span>
+                    </p>
+                    <p th:text="${animal.descricao}" class="card-animal__desc">Descrição curta.</p>
+                    <div class="card-animal__rodape">
+                        <span class="badge"
+                              th:classappend="'badge--' + ${#strings.toLowerCase(animal.statusAdocao.name())}"
+                              th:text="${animal.statusAdocao.descricao}">Disponível</span>
+                        <span class="tags">
+                            <span th:if="${animal.castrado}" class="tag">Castrado</span>
+                            <span th:if="${animal.vacinado}" class="tag">Vacinado</span>
+                        </span>
+                    </div>
+                </div>
+            </article>
+        </div>
+
+        <p th:if="${#lists.isEmpty(animais)}" class="vazio">
+            Nenhum animal encontrado com os filtros selecionados.
+        </p>
+    </section>
+</section>
+</body>
+</html>

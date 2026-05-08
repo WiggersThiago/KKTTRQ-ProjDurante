@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="pt-BR"
+      xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: html(tituloPagina=${animal.nome}, conteudo=~{::section})}">
+<body>
+<section>
+    <section class="container secao">
+        <a class="link-voltar" th:href="@{/animais}">← Voltar para todos os animais</a>
+
+        <div class="detalhe-animal">
+            <div class="detalhe-animal__foto"
+                 th:style="${animal.fotoUrl} ? 'background-image:url(' + ${animal.fotoUrl} + ')' : ''">
+                <span th:if="${animal.fotoUrl == null}" class="card-animal__placeholder">🐾</span>
+            </div>
+            <div class="detalhe-animal__info">
+                <h1 th:text="${animal.nome}">Nome</h1>
+                <span class="badge"
+                      th:classappend="'badge--' + ${#strings.toLowerCase(animal.statusAdocao.name())}"
+                      th:text="${animal.statusAdocao.descricao}">Disponível</span>
+
+                <ul class="detalhe-animal__metadados">
+                    <li><strong>Idade:</strong> <span th:text="${animal.idade} + ' anos'"></span></li>
+                    <li><strong>Porte:</strong> <span th:text="${animal.porte.descricao}"></span></li>
+                    <li><strong>Sexo:</strong> <span th:text="${animal.sexo.descricao}"></span></li>
+                    <li><strong>Castrado:</strong> <span th:text="${animal.castrado ? 'Sim' : 'Não'}"></span></li>
+                    <li><strong>Vacinado:</strong> <span th:text="${animal.vacinado ? 'Sim' : 'Não'}"></span></li>
+                </ul>
+
+                <h2>Sobre</h2>
+                <p th:text="${animal.descricao} ?: 'Sem descrição cadastrada.'"></p>
+
+                <a class="btn btn--primario" th:href="@{/sobre}">Quero adotar / Saber mais</a>
+            </div>
+        </div>
+    </section>
+</section>
+</body>
+</html>

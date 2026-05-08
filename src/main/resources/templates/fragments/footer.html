@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<footer th:fragment="footer" class="rodape">
+    <div class="container rodape__inner">
+        <div class="rodape__col">
+            <h4>ONG Patinhas</h4>
+            <p>Uma vida, um lar, uma chance. Junte-se a nós nessa missão.</p>
+        </div>
+        <div class="rodape__col">
+            <h4>Links</h4>
+            <ul>
+                <li><a th:href="@{/animais}">Animais para adoção</a></li>
+                <li><a th:href="@{/denuncia}">Faça uma denúncia</a></li>
+                <li><a th:href="@{/sobre}">Sobre a ONG</a></li>
+            </ul>
+        </div>
+        <div class="rodape__col">
+            <h4>Contato</h4>
+            <p>Quer ajudar? Entre em contato pela nossa página "Sobre".</p>
+        </div>
+    </div>
+    <div class="rodape__bottom">
+        <small>© <span th:text="${#dates.format(#dates.createNow(), 'yyyy')}">2025</span> ONG Patinhas — Todos os direitos reservados.</small>
+    </div>
+</footer>
+
+</body>
+</html>

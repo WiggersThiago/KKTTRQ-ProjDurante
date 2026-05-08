@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="pt-BR"
+      xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: html(tituloPagina='Entrar', conteudo=~{::section})}">
+<body>
+<section>
+    <section class="container secao secao--centralizada">
+        <div class="card-login">
+            <h1>Acesso administrativo</h1>
+            <p class="texto-apoio">Entre com sua conta de administrador da ONG.</p>
+
+            <div class="alerta alerta--erro" th:if="${erro}" th:text="${erro}"></div>
+            <div class="alerta alerta--sucesso" th:if="${mensagem}" th:text="${mensagem}"></div>
+
+            <form th:action="@{/login}" method="post" class="formulario">
+                <div class="campo">
+                    <label for="email">E-mail</label>
+                    <input type="email" id="email" name="email" required autofocus />
+                </div>
+                <div class="campo">
+                    <label for="senha">Senha</label>
+                    <input type="password" id="senha" name="senha" required />
+                </div>
+                <button type="submit" class="btn btn--primario btn--bloco">Entrar</button>
+            </form>
+        </div>
+    </section>
+</section>
+</body>
+</html>

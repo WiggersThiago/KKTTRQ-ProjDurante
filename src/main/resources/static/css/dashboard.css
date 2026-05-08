@@ -1,0 +1,133 @@
+/* =====================================================
+   ONG Patinhas - Estilos do painel administrativo
+===================================================== */
+
+.admin {
+    background: #fff;
+    border-radius: var(--raio-grande);
+    box-shadow: var(--sombra);
+    margin-top: 1.5rem;
+    padding: 2rem;
+}
+
+.admin__header {
+    margin-bottom: 1.5rem;
+}
+.admin__header--linha {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.admin__menu {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    background: var(--cor-fundo);
+    padding: 0.75rem;
+    border-radius: var(--raio);
+    margin-bottom: 1.5rem;
+}
+.admin__menu a {
+    padding: 0.5rem 0.9rem;
+    border-radius: var(--raio);
+    background: #fff;
+    color: var(--cor-texto);
+    font-weight: 600;
+    box-shadow: var(--sombra);
+    transition: background var(--transicao), color var(--transicao);
+}
+.admin__menu a:hover {
+    background: var(--cor-primaria);
+    color: #fff;
+}
+
+/* ============ Dashboard cards ============ */
+.dashboard-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+}
+.dash-card {
+    background: linear-gradient(135deg, #fff8f1, #ffe7cf);
+    border-radius: var(--raio);
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    box-shadow: var(--sombra);
+    border-left: 6px solid var(--cor-primaria);
+}
+.dash-card--alerta {
+    background: linear-gradient(135deg, #fff5e0, #ffe1c1);
+    border-left-color: var(--cor-erro);
+}
+.dash-card__icone { font-size: 2rem; }
+.dash-card__numero { font-size: 2rem; font-weight: 700; }
+.dash-card__label { color: var(--cor-texto-suave); font-weight: 500; }
+
+/* ============ Tabelas ============ */
+.tabela-wrapper {
+    overflow-x: auto;
+}
+.tabela {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border-radius: var(--raio);
+    overflow: hidden;
+    box-shadow: var(--sombra);
+}
+.tabela thead {
+    background: var(--cor-secundaria);
+    color: #fff;
+}
+.tabela th, .tabela td {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--cor-borda);
+    vertical-align: middle;
+}
+.tabela tbody tr:hover { background: var(--cor-fundo); }
+.acoes {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+.acoes form { margin: 0; }
+
+/* ============ Forms admin ============ */
+.formulario--admin {
+    max-width: 720px;
+    background: #fff;
+    padding: 1.5rem;
+    border-radius: var(--raio);
+    box-shadow: var(--sombra);
+}
+.grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+.form-acoes {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+    margin-top: 1rem;
+}
+
+.card {
+    background: #fff;
+    padding: 1.25rem;
+    border-radius: var(--raio);
+    box-shadow: var(--sombra);
+    margin-bottom: 1.5rem;
+}
+
+@media (max-width: 700px) {
+    .grid-2 { grid-template-columns: 1fr; }
+    .admin { padding: 1.25rem; }
+}

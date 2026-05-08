@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="pt-BR"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title th:text="${tituloPagina} ?: 'ONG Patinhas'">ONG Patinhas</title>
+
+    <link rel="stylesheet" th:href="@{/css/style.css}" />
+    <th:block th:if="${cssExtra}">
+        <link rel="stylesheet" th:each="css : ${cssExtra}" th:href="@{${css}}" />
+    </th:block>
+</head>
+<body>
+
+<div th:replace="~{fragments/header :: header}"></div>
+
+<main class="conteudo">
+    <th:block th:replace="${conteudo}"></th:block>
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+<script th:src="@{/js/app.js}" defer></script>
+<th:block th:if="${jsExtra}">
+    <script th:each="js : ${jsExtra}" th:src="@{${js}}" defer></script>
+</th:block>
+</body>
+</html>

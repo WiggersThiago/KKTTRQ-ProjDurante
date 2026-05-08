@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-BR"
+      xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: html(tituloPagina='Detalhes da denúncia', cssExtra=${ {'/css/dashboard.css'} }, conteudo=~{::section})}">
+<body>
+<section>
+    <section class="container secao admin">
+        <a class="link-voltar" th:href="@{/admin/denuncias}">← Voltar</a>
+        <h1>Denúncia #<span th:text="${denuncia.id}">1</span></h1>
+
+        <div class="alerta alerta--sucesso" th:if="${sucesso}" th:text="${sucesso}"></div>
+
+        <div class="card">
+            <p><strong>Local:</strong> <span th:text="${denuncia.local}"></span></p>
+            <p>
+                <strong>Data do ocorrido:</strong>
+                <span th:text="${denuncia.dataOcorrido} != null
+                    ? ${#temporals.format(denuncia.dataOcorrido, 'dd/MM/yyyy')}
+                    : 'Não informada'"></span>
+            </p>
+            <p>
+                <strong>Enviada em:</strong>
+                <span th:text="${#temporals.format(denuncia.dataEnvio, 'dd/MM/yyyy HH:mm')}"></span>
+            </p>
+            <p>
+                <strong>Status atual:</strong>
+                <span class="badge"
+                      th:classappend="'badge--status-' + ${#strings.toLowerCase(denuncia.status.name())}"
+                      th:text="${denuncia.status.descricao}">Pendente</span>
+            </p>
+            <h3>Descrição</h3>
+            <p th:text="${denuncia.descricao}"></p>
+        </div>
+
+        <h2>Atualizar status</h2>
+        <form class="formulario formulario--admin"
+              th:action="@{|/admin/denuncias/${denuncia.id}|}"
+              th:object="${atualizacao}" method="post">
+
+            <div class="campo">
+                <label for="status">Novo status *</label>
+                <select id="status" th:field="*{status}">
+                    <option th:each="s : ${statusList}" th:value="${s}" th:text="${s.descricao}"></option>
+                </select>
+                <small class="campo__erro" th:errors="*{status}"></small>
+            </div>
+
+            <div class="campo">
+                <label for="observacoesInternas">Observações internas</label>
+                <textarea id="observacoesInternas" th:field="*{observacoesInternas}" rows="4"
+                          placeholder="Anotações para uso interno da ONG..."></textarea>
+                <small class="campo__erro" th:errors="*{observacoesInternas}"></small>
+            </div>
+
+            <button type="submit" class="btn btn--primario">Atualizar denúncia</button>
+        </form>
+    </section>
+</section>
+</body>
+</html>
