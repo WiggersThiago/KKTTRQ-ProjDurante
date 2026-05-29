@@ -5,31 +5,45 @@
 <body>
 <section>
     <section class="container secao">
-        <h1 th:text="${informacao.nomeONG}">ONG Patinhas</h1>
+        <header class="sobre__cabecalho">
+            <img th:replace="~{fragments/brand :: logo('marca-logo marca-logo--secao')}" />
+            <h1 th:text="${informacao.nomeONG}">ONG Patinhas</h1>
+        </header>
 
-        <div class="sobre-grid">
+        <div class="sobre-grid sobre-grid--topo">
             <div class="sobre-bloco" th:if="${informacao.quemSomos}">
+                <span class="sobre-bloco__icone" aria-hidden="true">🤝</span>
                 <h2>Quem somos</h2>
                 <p th:text="${informacao.quemSomos}"></p>
             </div>
 
             <div class="sobre-bloco" th:if="${informacao.proposito}">
+                <span class="sobre-bloco__icone" aria-hidden="true">🐾</span>
                 <h2>Nosso propósito</h2>
                 <p th:text="${informacao.proposito}"></p>
             </div>
 
-            <div class="sobre-bloco" th:if="${informacao.pixDoacao or informacao.enderecoDoacao}">
+            <div class="sobre-bloco" th:if="${!#strings.isEmpty(informacao.pixDoacao) or !#strings.isEmpty(informacao.enderecoDoacao)}">
+                <span class="sobre-bloco__icone" aria-hidden="true">🦴</span>
                 <h2>Como doar</h2>
-                <p th:if="${informacao.pixDoacao}">
-                    <strong>PIX:</strong> <span th:text="${informacao.pixDoacao}"></span>
-                </p>
-                <p th:if="${informacao.enderecoDoacao}">
+                <div class="pix-destaque" th:if="${informacao.pixDoacao}">
+                    <span class="pix-destaque__label">Chave PIX</span>
+                    <div class="pix-destaque__linha">
+                        <strong class="pix-destaque__chave" th:text="${informacao.pixDoacao}">pix@exemplo.com</strong>
+                        <button type="button" class="btn btn--pequeno btn-copiar-pix"
+                                th:attr="data-pix=${informacao.pixDoacao}">Copiar</button>
+                    </div>
+                </div>
+                <p th:if="${informacao.enderecoDoacao}" class="sobre-bloco__endereco">
                     <strong>Endereço para doações físicas:</strong><br/>
                     <span th:text="${informacao.enderecoDoacao}"></span>
                 </p>
             </div>
+        </div>
 
-            <div class="sobre-bloco">
+        <div class="sobre-bloco sobre-bloco--contato">
+            <div class="sobre-bloco__contato-info">
+                <span class="sobre-bloco__icone" aria-hidden="true">💬</span>
                 <h2>Contato</h2>
                 <p th:if="${informacao.telefoneContato}">
                     <strong>Telefone:</strong> <span th:text="${informacao.telefoneContato}"></span>
@@ -37,13 +51,17 @@
                 <p th:if="${informacao.emailContato}">
                     <strong>E-mail:</strong> <span th:text="${informacao.emailContato}"></span>
                 </p>
-                <p>
+                <p class="sobre-bloco__redes">
                     <a th:if="${informacao.instagram}"
                        th:href="${informacao.instagram}" target="_blank" rel="noopener">Instagram</a>
-                    <span th:if="${informacao.instagram and informacao.facebook}"> · </span>
+                    <span th:if="${!#strings.isEmpty(informacao.instagram) and !#strings.isEmpty(informacao.facebook)}"> · </span>
                     <a th:if="${informacao.facebook}"
                        th:href="${informacao.facebook}" target="_blank" rel="noopener">Facebook</a>
                 </p>
+            </div>
+            <div class="sobre-bloco__contato-cta">
+                <p>Quer adotar, doar ou ser voluntário? Estamos de coração aberto para conversar.</p>
+                <a class="btn btn--primario" th:href="@{/animais}">Ver animais para adoção</a>
             </div>
         </div>
     </section>

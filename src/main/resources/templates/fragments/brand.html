@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<img th:fragment="logo (className)"
+     th:src="@{/images/logo.png}"
+     th:class="${className}"
+     alt="ONG Patinhas"
+     width="120"
+     height="40"
+     decoding="async" />
+
+<img th:fragment="trayicon (className)"
+     th:src="@{/images/trayicon.png}"
+     th:class="${className}"
+     alt=""
+     aria-hidden="true"
+     width="32"
+     height="32"
+     decoding="async" />
+
+</body>
+</html>

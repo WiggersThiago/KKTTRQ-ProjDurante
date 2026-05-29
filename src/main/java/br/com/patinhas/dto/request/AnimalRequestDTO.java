@@ -43,6 +43,7 @@ public class AnimalRequestDTO {
     @NotNull(message = "Informe se o animal é vacinado.")
     private Boolean vacinado;
 
-    @Size(max = 500, message = "A URL da foto deve ter no máximo 500 caracteres.")
-    private String fotoUrl;
+    private Boolean destaque;
+
+    private Boolean ativo;
 }

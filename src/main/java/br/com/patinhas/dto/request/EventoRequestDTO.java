@@ -1,6 +1,5 @@
 package br.com.patinhas.dto.request;
 
-import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -33,7 +32,6 @@ public class EventoRequestDTO {
     private String local;
 
     @NotNull(message = "A data do evento é obrigatória.")
-    @Future(message = "A data do evento deve ser futura.")
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime dataEvento;
 

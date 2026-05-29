@@ -7,8 +7,8 @@
 <header th:fragment="header" class="topo">
     <div class="container topo__inner">
         <a class="topo__logo" th:href="@{/}">
-            <span class="topo__logo-icon" aria-hidden="true">🐾</span>
-            <span class="topo__logo-texto">Patinhas</span>
+            <img th:replace="~{fragments/brand :: trayicon('marca-trayicon marca-trayicon--topo')}" />
+            <span class="topo__logo-texto">Patinhas Amigas</span>
         </a>
 
         <nav class="topo__nav">

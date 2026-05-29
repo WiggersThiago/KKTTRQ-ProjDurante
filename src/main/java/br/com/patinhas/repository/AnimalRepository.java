@@ -16,6 +16,8 @@ public interface AnimalRepository extends JpaRepository<Animal, Long> {
 
     List<Animal> findAllByAtivoTrueOrderByDataCadastroDesc();
 
+    List<Animal> findAllByOrderByAtivoDescDataCadastroDesc();
+
     Page<Animal> findAllByAtivoTrueOrderByDataCadastroDesc(Pageable pageable);
 
     List<Animal> findAllByStatusAdocaoAndAtivoTrueOrderByDataCadastroDesc(StatusAdocao statusAdocao);
@@ -24,13 +26,15 @@ public interface AnimalRepository extends JpaRepository<Animal, Long> {
 
     long countByAtivoTrue();
 
+    List<Animal> findAllByAtivoTrueAndDestaqueTrueOrderByDataCadastroDesc();
+
     @Query("""
             SELECT a FROM Animal a
             WHERE a.ativo = true
-              AND (:nome IS NULL OR LOWER(a.nome) LIKE LOWER(CONCAT('%', :nome, '%')))
+              AND (:nomePattern IS NULL OR LOWER(a.nome) LIKE :nomePattern)
               AND (:status IS NULL OR a.statusAdocao = :status)
             ORDER BY a.dataCadastro DESC
             """)
-    List<Animal> buscarComFiltros(@Param("nome") String nome,
+    List<Animal> buscarComFiltros(@Param("nomePattern") String nomePattern,
                                   @Param("status") StatusAdocao status);
 }

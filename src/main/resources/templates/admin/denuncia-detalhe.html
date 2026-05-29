@@ -4,8 +4,13 @@
       th:replace="~{layout/base :: html(tituloPagina='Detalhes da denúncia', cssExtra=${ {'/css/dashboard.css'} }, conteudo=~{::section})}">
 <body>
 <section>
-    <section class="container secao admin">
-        <a class="link-voltar" th:href="@{/admin/denuncias}">← Voltar</a>
+    <section class="container secao admin admin--centro">
+        <nav class="admin-breadcrumb" aria-label="Navegação">
+            <a th:href="@{/admin/dashboard}">Painel</a>
+            <span class="admin-breadcrumb__sep">/</span>
+            <a th:href="@{/admin/denuncias}">← Voltar às denúncias</a>
+        </nav>
+
         <h1>Denúncia #<span th:text="${denuncia.id}">1</span></h1>
 
         <div class="alerta alerta--sucesso" th:if="${sucesso}" th:text="${sucesso}"></div>
@@ -32,13 +37,39 @@
             <p th:text="${denuncia.descricao}"></p>
         </div>
 
-        <h2>Atualizar status</h2>
+        <h2>Histórico de atualizações</h2>
+        <div class="card" th:if="${!#lists.isEmpty(historico)}">
+            <ul class="historico">
+                <li class="historico__item" th:each="h : ${historico}">
+                    <div class="historico__meta">
+                        <span th:text="${#temporals.format(h.registradoEm, 'dd/MM/yyyy HH:mm')}">01/01/2026</span>
+                        <span th:if="${h.registradoPor}" th:text="'por ' + ${h.registradoPor}">por admin</span>
+                    </div>
+                    <p class="historico__status" th:if="${h.statusAnterior != null}">
+                        <span th:text="${h.statusAnterior.descricao}">Pendente</span>
+                        →
+                        <span th:text="${h.statusNovo.descricao}">Em análise</span>
+                    </p>
+                    <p class="historico__status" th:if="${h.statusAnterior == null and !#strings.isEmpty(h.anotacao)}">
+                        Anotação registrada
+                    </p>
+                    <p class="historico__status" th:if="${h.statusAnterior == null and #strings.isEmpty(h.anotacao)}">
+                        <span th:text="'Status: ' + ${h.statusNovo.descricao}">Status: Pendente</span>
+                    </p>
+                    <p class="historico__anotacao" th:if="${!#strings.isEmpty(h.anotacao)}"
+                       th:text="${h.anotacao}">Anotação</p>
+                </li>
+            </ul>
+        </div>
+        <p class="historico__vazio" th:if="${#lists.isEmpty(historico)}">Nenhuma atualização registrada ainda.</p>
+
+        <h2>Registrar atualização</h2>
         <form class="formulario formulario--admin"
               th:action="@{|/admin/denuncias/${denuncia.id}|}"
               th:object="${atualizacao}" method="post">
 
             <div class="campo">
-                <label for="status">Novo status *</label>
+                <label for="status">Status *</label>
                 <select id="status" th:field="*{status}">
                     <option th:each="s : ${statusList}" th:value="${s}" th:text="${s.descricao}"></option>
                 </select>
@@ -46,13 +77,17 @@
             </div>
 
             <div class="campo">
-                <label for="observacoesInternas">Observações internas</label>
+                <label for="observacoesInternas">Nova anotação</label>
                 <textarea id="observacoesInternas" th:field="*{observacoesInternas}" rows="4"
-                          placeholder="Anotações para uso interno da ONG..."></textarea>
+                          placeholder="Descreva o que foi feito ou observado nesta atualização..."></textarea>
+                <small class="texto-apoio">Opcional. Fica registrada no histórico desta denúncia.</small>
                 <small class="campo__erro" th:errors="*{observacoesInternas}"></small>
             </div>
 
-            <button type="submit" class="btn btn--primario">Atualizar denúncia</button>
+            <div class="form-acoes">
+                <a class="btn btn--texto" th:href="@{/admin/denuncias}">Cancelar</a>
+                <button type="submit" class="btn btn--primario">Salvar atualização</button>
+            </div>
         </form>
     </section>
 </section>

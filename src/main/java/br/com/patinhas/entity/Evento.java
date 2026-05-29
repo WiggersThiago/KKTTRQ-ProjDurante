@@ -39,6 +39,9 @@ public class Evento {
     @Builder.Default
     private Boolean ativo = true;
 
+    @Column(name = "foto_url", length = 500)
+    private String fotoUrl;
+
     @PrePersist
     protected void onCreate() {
         if (this.ativo == null) {

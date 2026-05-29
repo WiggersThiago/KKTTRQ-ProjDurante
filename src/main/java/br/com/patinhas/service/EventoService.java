@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -19,6 +20,7 @@ import java.util.List;
 public class EventoService {
 
     private final EventoRepository eventoRepository;
+    private final ImageStorageService imageStorageService;
 
     @Transactional(readOnly = true)
     public List<EventoResponseDTO> listarProximos() {
@@ -36,7 +38,7 @@ public class EventoService {
 
     @Transactional(readOnly = true)
     public List<EventoResponseDTO> listarAdmin() {
-        return eventoRepository.findAllByOrderByDataEventoDesc().stream()
+        return eventoRepository.findAllByOrderByAtivoDescDataEventoDesc().stream()
                 .map(EventoResponseDTO::fromEntity)
                 .toList();
     }
@@ -54,6 +56,11 @@ public class EventoService {
 
     @Transactional
     public EventoResponseDTO cadastrar(EventoRequestDTO dto) {
+        return cadastrar(dto, null);
+    }
+
+    @Transactional
+    public EventoResponseDTO cadastrar(EventoRequestDTO dto, MultipartFile imagem) {
         Evento evento = Evento.builder()
                 .titulo(dto.getTitulo())
                 .descricao(dto.getDescricao())
@@ -61,12 +68,18 @@ public class EventoService {
                 .dataEvento(dto.getDataEvento())
                 .ativo(dto.getAtivo() == null ? true : dto.getAtivo())
                 .build();
+        evento.setFotoUrl(imageStorageService.salvar(imagem, "eventos"));
         log.info("Cadastrando novo evento: {}", dto.getTitulo());
         return EventoResponseDTO.fromEntity(eventoRepository.save(evento));
     }
 
     @Transactional
     public EventoResponseDTO atualizar(Long id, EventoRequestDTO dto) {
+        return atualizar(id, dto, null, false);
+    }
+
+    @Transactional
+    public EventoResponseDTO atualizar(Long id, EventoRequestDTO dto, MultipartFile imagem, boolean removerImagem) {
         Evento evento = buscarEntidade(id);
         evento.setTitulo(dto.getTitulo());
         evento.setDescricao(dto.getDescricao());
@@ -75,11 +88,26 @@ public class EventoService {
         if (dto.getAtivo() != null) {
             evento.setAtivo(dto.getAtivo());
         }
+        atualizarImagem(evento, imagem, removerImagem);
         return EventoResponseDTO.fromEntity(eventoRepository.save(evento));
     }
 
+    private void atualizarImagem(Evento evento, MultipartFile imagem, boolean removerImagem) {
+        if (removerImagem) {
+            imageStorageService.remover(evento.getFotoUrl());
+            evento.setFotoUrl(null);
+            return;
+        }
+        if (imagem != null && !imagem.isEmpty()) {
+            String novoCaminho = imageStorageService.salvar(imagem, "eventos");
+            imageStorageService.substituir(evento.getFotoUrl(), novoCaminho);
+            evento.setFotoUrl(novoCaminho);
+        }
+    }
+
     @Transactional
-    public void remover(Long id) {
+    public void desativar(Long id) {
+        log.info("Desativando evento id={}", id);
         Evento evento = buscarEntidade(id);
         evento.setAtivo(false);
         eventoRepository.save(evento);

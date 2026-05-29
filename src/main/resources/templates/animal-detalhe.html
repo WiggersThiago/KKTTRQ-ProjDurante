@@ -10,7 +10,9 @@
         <div class="detalhe-animal">
             <div class="detalhe-animal__foto"
                  th:style="${animal.fotoUrl} ? 'background-image:url(' + ${animal.fotoUrl} + ')' : ''">
-                <span th:if="${animal.fotoUrl == null}" class="card-animal__placeholder">🐾</span>
+                <span th:if="${animal.fotoUrl == null}" class="card-animal__placeholder">
+                    <img th:replace="~{fragments/brand :: trayicon('marca-trayicon marca-trayicon--placeholder')}" />
+                </span>
             </div>
             <div class="detalhe-animal__info">
                 <h1 th:text="${animal.nome}">Nome</h1>

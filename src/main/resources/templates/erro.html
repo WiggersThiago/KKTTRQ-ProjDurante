@@ -6,6 +6,7 @@
 <section>
     <section class="container secao secao--centralizada">
         <div class="card-erro">
+            <img th:replace="~{fragments/brand :: trayicon('marca-trayicon marca-trayicon--erro')}" />
             <h1>Ops!</h1>
             <p th:if="${codigo == '403'}">Você não tem permissão para acessar esta página.</p>
             <p th:if="${codigo != '403'}">Algo deu errado. Tente novamente mais tarde.</p>

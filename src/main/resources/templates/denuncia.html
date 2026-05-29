@@ -14,11 +14,11 @@
 
             <div class="alerta alerta--sucesso" th:if="${sucesso}" th:text="${sucesso}"></div>
 
-            <form th:action="@{/denuncia}" th:object="${denuncia}" method="post" class="formulario">
+            <form th:action="@{/denuncia}" th:object="${denuncia}" method="post" class="formulario formulario--fofo">
                 <div class="campo">
                     <label for="descricao">Descrição da denúncia *</label>
                     <textarea id="descricao" th:field="*{descricao}" rows="6"
-                              placeholder="Descreva com o máximo de detalhes possível..."></textarea>
+                              placeholder="Conte-nos o que está acontecendo (características do animal, situação do local, etc.)..."></textarea>
                     <small class="campo__erro" th:errors="*{descricao}"></small>
                 </div>
                 <div class="campo">

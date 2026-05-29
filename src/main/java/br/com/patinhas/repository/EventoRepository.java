@@ -13,6 +13,10 @@ public interface EventoRepository extends JpaRepository<Evento, Long> {
 
     List<Evento> findAllByAtivoTrueOrderByDataEventoAsc();
 
+    List<Evento> findAllByAtivoTrueOrderByDataEventoDesc();
+
+    List<Evento> findAllByOrderByAtivoDescDataEventoDesc();
+
     List<Evento> findAllByOrderByDataEventoDesc();
 
     @Query("""

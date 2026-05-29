@@ -5,7 +5,10 @@
 <body>
 <section>
     <section class="container secao admin">
-        <header class="admin__header">
+        <header class="admin__header admin__header--dashboard">
+            <div class="admin__header-marca">
+                <img th:replace="~{fragments/brand :: logo('marca-logo marca-logo--admin')}" />
+            </div>
             <h1>Painel Administrativo</h1>
             <p class="texto-apoio">Bem-vindo(a) à área administrativa da ONG Patinhas.</p>
         </header>

@@ -58,8 +58,8 @@ public class AnimalApiController {
     }
 
     @DeleteMapping("/api/v1/admin/animais/{id}")
-    public ApiResponse<Void> remover(@PathVariable Long id) {
-        animalService.remover(id);
-        return ApiResponse.ok("Animal removido.", null);
+    public ApiResponse<Void> desativar(@PathVariable Long id) {
+        animalService.desativar(id);
+        return ApiResponse.ok("Animal desativado.", null);
     }
 }

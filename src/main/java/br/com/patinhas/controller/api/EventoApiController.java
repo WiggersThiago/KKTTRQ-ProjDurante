@@ -47,8 +47,8 @@ public class EventoApiController {
     }
 
     @DeleteMapping("/api/v1/admin/eventos/{id}")
-    public ApiResponse<Void> remover(@PathVariable Long id) {
-        eventoService.remover(id);
-        return ApiResponse.ok("Evento removido.", null);
+    public ApiResponse<Void> desativar(@PathVariable Long id) {
+        eventoService.desativar(id);
+        return ApiResponse.ok("Evento desativado.", null);
     }
 }

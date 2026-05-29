@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR"
       xmlns:th="http://www.thymeleaf.org"
-      th:replace="~{layout/base :: html(tituloPagina='ONG Patinhas — Adote um amigo', conteudo=~{::section})}">
+      th:replace="~{layout/base :: html(tituloPagina='ONG Patinhas Amigas — Adote um amigo', conteudo=~{::section})}">
 <body>
 <section>
 
@@ -11,7 +11,7 @@
                 <h1>Adote um amigo. <br/>Mude duas vidas.</h1>
                 <p>
                     Conheça os animais resgatados pela
-                    <strong th:text="${informacao.nomeONG}">ONG Patinhas</strong>
+                    <strong th:text="${informacao.nomeONG}">Patinhas Amigas</strong>
                     e ajude a encontrar um lar cheio de amor para cada um deles.
                 </p>
                 <div class="hero__acoes">
@@ -20,7 +20,9 @@
                 </div>
             </div>
             <div class="hero__ilustracao" aria-hidden="true">
-                <span class="hero__pata">🐾</span>
+                <div class="hero__foto-blob"
+                     th:style="'background-image: url(' + @{/images/hero.jpg} + ');'">
+                </div>
             </div>
         </div>
     </section>
@@ -28,14 +30,16 @@
     <section class="container secao">
         <div class="secao__cabecalho">
             <h2>Animais em destaque</h2>
-            <a class="link-mais" th:href="@{/animais}">Ver todos →</a>
+            <a class="link-mais" th:href="@{/animais}" th:if="${not #lists.isEmpty(animaisDestaque)}">Ver todos →</a>
         </div>
 
         <div class="grid-animais" th:if="${not #lists.isEmpty(animaisDestaque)}">
             <article class="card-animal" th:each="animal : ${animaisDestaque}">
                 <div class="card-animal__foto"
                      th:style="${animal.fotoUrl} ? 'background-image:url(' + ${animal.fotoUrl} + ')' : ''">
-                    <span th:if="${animal.fotoUrl == null}" class="card-animal__placeholder">🐶</span>
+                    <span th:if="${animal.fotoUrl == null}" class="card-animal__placeholder">
+                        <img th:replace="~{fragments/brand :: trayicon('marca-trayicon marca-trayicon--placeholder')}" />
+                    </span>
                 </div>
                 <div class="card-animal__corpo">
                     <h3 th:text="${animal.nome}">Nome</h3>
@@ -51,8 +55,8 @@
             </article>
         </div>
 
-        <p th:if="${#lists.isEmpty(animaisDestaque)}" class="vazio">
-            Nenhum animal cadastrado no momento. Volte em breve!
+        <p class="destaque-vazio__mensagem-simples" th:if="${#lists.isEmpty(animaisDestaque)}">
+            Ah que pena! Nenhum animalzinho destacado no momento 🥺
         </p>
     </section>
 
@@ -61,7 +65,19 @@
             <h2>Próximos eventos</h2>
         </div>
         <div class="grid-eventos">
-            <article class="card-evento" th:each="evento : ${proximosEventos}">
+            <article class="card-evento card-evento--clicavel"
+                     th:each="evento : ${proximosEventos}"
+                     role="button"
+                     tabindex="0"
+                     th:attr="
+                        data-titulo=${evento.titulo},
+                        data-local=${evento.local},
+                        data-descricao=${evento.descricao},
+                        data-foto=${evento.fotoUrl != null ? evento.fotoUrl : ''},
+                        data-data=${#temporals.format(evento.dataEvento, 'dd/MM/yyyy')},
+                        data-hora=${#temporals.format(evento.dataEvento, 'HH:mm')},
+                        data-dia=${#temporals.format(evento.dataEvento, 'dd')},
+                        data-mes=${#temporals.format(evento.dataEvento, 'MMM')}">
                 <div class="card-evento__data">
                     <span class="card-evento__dia"
                           th:text="${#temporals.format(evento.dataEvento, 'dd')}">12</span>
@@ -70,18 +86,55 @@
                 </div>
                 <div class="card-evento__corpo">
                     <h3 th:text="${evento.titulo}">Título</h3>
-                    <p th:text="${evento.local}">Local</p>
+                    <p class="card-evento__local" th:text="${evento.local}">Local</p>
                     <p class="card-evento__desc" th:text="${evento.descricao}">Descrição</p>
+                    <span class="card-evento__mais">Clique para ver detalhes →</span>
                 </div>
             </article>
         </div>
     </section>
 
-    <section class="container secao secao--cta">
-        <div class="cta">
+    <div id="modal-evento"
+         class="modal-evento"
+         aria-hidden="true">
+        <div class="modal-evento__overlay" data-fechar-modal-evento></div>
+        <div class="modal-evento__conteudo" role="dialog" aria-modal="true" aria-labelledby="modal-evento-titulo">
+            <button type="button" class="modal-evento__fechar" data-fechar-modal-evento aria-label="Fechar">&times;</button>
+
+            <div class="modal-evento__foto" id="modal-evento-foto">
+                <span class="modal-evento__placeholder" id="modal-evento-placeholder" hidden>
+                    <span class="modal-evento__badge-data" id="modal-evento-badge-dia">01</span>
+                    <span class="modal-evento__badge-mes" id="modal-evento-badge-mes">JUN</span>
+                </span>
+            </div>
+
+            <h2 id="modal-evento-titulo"></h2>
+
+            <ul class="modal-evento__lista">
+                <li>
+                    <strong>Data</strong>
+                    <span id="modal-evento-data"></span>
+                </li>
+                <li>
+                    <strong>Horário</strong>
+                    <span id="modal-evento-hora"></span>
+                </li>
+                <li>
+                    <strong>Local</strong>
+                    <span id="modal-evento-local"></span>
+                </li>
+            </ul>
+
+            <h3 class="modal-evento__subtitulo">Sobre o evento</h3>
+            <p class="modal-evento__descricao" id="modal-evento-descricao"></p>
+        </div>
+    </div>
+
+    <section class="secao secao--cta">
+        <div class="container cta">
             <h2>Quer ajudar?</h2>
             <p>Você pode adotar, doar ou ser voluntário. Toda ajuda faz diferença.</p>
-            <a class="btn btn--primario" th:href="@{/sobre}">Saiba como contribuir</a>
+            <a class="btn btn--claro" th:href="@{/sobre}">Saiba como contribuir</a>
         </div>
     </section>
 

@@ -66,6 +66,10 @@ public class Animal {
     @Builder.Default
     private Boolean ativo = true;
 
+    @Column(nullable = false)
+    @Builder.Default
+    private Boolean destaque = false;
+
     @PrePersist
     protected void onCreate() {
         this.dataCadastro = LocalDateTime.now();
@@ -74,6 +78,9 @@ public class Animal {
         }
         if (this.ativo == null) {
             this.ativo = true;
+        }
+        if (this.destaque == null) {
+            this.destaque = false;
         }
     }
 }

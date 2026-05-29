@@ -5,6 +5,7 @@
 <body>
 <section>
     <section class="container secao admin">
+        <div th:replace="~{fragments/admin-nav :: voltarPainel}"></div>
         <header class="admin__header admin__header--linha">
             <div>
                 <h1>Animais</h1>
@@ -25,12 +26,14 @@
                         <th>Porte</th>
                         <th>Sexo</th>
                         <th>Status</th>
+                        <th>Destaque</th>
                         <th>Ativo</th>
                         <th>Ações</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr th:each="animal : ${animais}">
+                    <tr th:each="animal : ${animais}"
+                        th:classappend="${!animal.ativo} ? 'tabela__linha--inativa' : ''">
                         <td th:text="${animal.id}">1</td>
                         <td th:text="${animal.nome}">Nome</td>
                         <td th:text="${animal.idade}">3</td>
@@ -41,18 +44,19 @@
                                   th:classappend="'badge--' + ${#strings.toLowerCase(animal.statusAdocao.name())}"
                                   th:text="${animal.statusAdocao.descricao}">Disponível</span>
                         </td>
+                        <td th:text="${animal.destaque ? 'Sim' : 'Não'}">Não</td>
                         <td th:text="${animal.ativo ? 'Sim' : 'Não'}">Sim</td>
                         <td class="acoes">
                             <a class="btn btn--pequeno" th:href="@{|/admin/animais/${animal.id}/editar|}">Editar</a>
-                            <form th:action="@{|/admin/animais/${animal.id}/remover|}" method="post"
+                            <form th:action="@{|/admin/animais/${animal.id}/desativar|}" method="post"
                                   th:if="${animal.ativo}"
-                                  onsubmit="return confirm('Remover este animal?');">
-                                <button type="submit" class="btn btn--pequeno btn--perigo">Remover</button>
+                                  onsubmit="return confirm('Desativar este animal? Ele sairá do site, mas permanecerá no histórico.');">
+                                <button type="submit" class="btn btn--pequeno btn--aviso">Desativar</button>
                             </form>
                         </td>
                     </tr>
                     <tr th:if="${#lists.isEmpty(animais)}">
-                        <td colspan="8" class="vazio">Nenhum animal cadastrado.</td>
+                        <td colspan="9" class="vazio">Nenhum animal cadastrado.</td>
                     </tr>
                 </tbody>
             </table>

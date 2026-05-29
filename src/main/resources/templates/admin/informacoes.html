@@ -5,6 +5,7 @@
 <body>
 <section>
     <section class="container secao admin">
+        <div th:replace="~{fragments/admin-nav :: voltarPainel}"></div>
         <header class="admin__header">
             <h1>Informações institucionais</h1>
             <p class="texto-apoio">Esses dados aparecem na página pública "Sobre".</p>
@@ -45,8 +46,10 @@
 
             <div class="grid-2">
                 <div class="campo">
-                    <label for="telefoneContato">Telefone</label>
-                    <input type="text" id="telefoneContato" th:field="*{telefoneContato}" />
+                    <label for="telefoneContato">WhatsApp / Telefone (com DDD)</label>
+                    <input type="text" id="telefoneContato" th:field="*{telefoneContato}"
+                           placeholder="Ex: (11) 99999-9999" />
+                    <small class="texto-apoio">Usado no botão de adoção via WhatsApp na página de animais.</small>
                 </div>
                 <div class="campo">
                     <label for="emailContato">E-mail</label>

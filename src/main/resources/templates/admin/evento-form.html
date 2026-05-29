@@ -4,13 +4,18 @@
       th:replace="~{layout/base :: html(tituloPagina=${modoEdicao ? 'Editar evento' : 'Novo evento'}, cssExtra=${ {'/css/dashboard.css'} }, conteudo=~{::section})}">
 <body>
 <section>
-    <section class="container secao admin">
-        <a class="link-voltar" th:href="@{/admin/eventos}">← Voltar</a>
+    <section class="container secao admin admin--centro">
+        <nav class="admin-breadcrumb" aria-label="Navegação">
+            <a th:href="@{/admin/dashboard}">Painel</a>
+            <span class="admin-breadcrumb__sep">/</span>
+            <a th:href="@{/admin/eventos}">← Voltar aos eventos</a>
+        </nav>
+
         <h1 th:text="${modoEdicao ? 'Editar evento' : 'Novo evento'}">Novo evento</h1>
 
         <form class="formulario formulario--admin"
               th:action="${modoEdicao ? '/admin/eventos/' + eventoId : '/admin/eventos'}"
-              th:object="${evento}" method="post">
+              th:object="${evento}" method="post" enctype="multipart/form-data">
 
             <div class="campo">
                 <label for="titulo">Título *</label>
@@ -38,14 +43,37 @@
                 </div>
             </div>
 
-            <label class="checkbox">
+            <label class="switch-campo">
                 <input type="checkbox" th:field="*{ativo}" />
-                Ativo
+                <span>Evento ativo (visível no site)</span>
             </label>
 
+            <div class="campo campo-imagem">
+                <label for="imagem">Imagem do evento</label>
+
+                <div class="imagem-atual" th:if="${modoEdicao and !#strings.isEmpty(fotoAtual)}">
+                    <img th:src="${fotoAtual}" alt="Imagem atual do evento" class="imagem-atual__preview"/>
+                    <div class="imagem-atual__acoes">
+                        <a class="btn btn--pequeno"
+                           th:href="@{|/admin/eventos/${eventoId}/imagem/download|}">
+                            Baixar imagem
+                        </a>
+                        <label class="switch-campo">
+                            <input type="checkbox" name="removerImagem" value="true"/>
+                            <span>Remover imagem atual</span>
+                        </label>
+                    </div>
+                </div>
+
+                <input type="file" id="imagem" name="imagem" accept="image/jpeg,image/png,image/webp,image/gif"/>
+                <small class="texto-apoio">JPG, PNG, WEBP ou GIF — até 5 MB.</small>
+                <small class="campo__erro" th:if="${erroImagem}" th:text="${erroImagem}"></small>
+            </div>
+
             <div class="form-acoes">
-                <a class="btn btn--secundario" th:href="@{/admin/eventos}">Cancelar</a>
-                <button type="submit" class="btn btn--primario">Salvar</button>
+                <a class="btn btn--texto" th:href="@{/admin/eventos}">Cancelar</a>
+                <button type="submit" class="btn btn--primario"
+                        th:text="${modoEdicao ? 'Salvar alterações' : 'Criar evento'}">Criar evento</button>
             </div>
         </form>
     </section>

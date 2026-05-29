@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -22,6 +23,16 @@ import java.util.List;
 public class AnimalService {
 
     private final AnimalRepository animalRepository;
+    private final ImageStorageService imageStorageService;
+
+    @Transactional(readOnly = true)
+    public List<AnimalResponseDTO> listarDestaque() {
+        return animalRepository.findAllByAtivoTrueAndDestaqueTrueOrderByDataCadastroDesc()
+                .stream()
+                .limit(6)
+                .map(AnimalResponseDTO::fromEntity)
+                .toList();
+    }
 
     @Transactional(readOnly = true)
     public List<AnimalResponseDTO> listarDisponiveis() {
@@ -42,7 +53,7 @@ public class AnimalService {
 
     @Transactional(readOnly = true)
     public List<AnimalResponseDTO> listarAdmin() {
-        return animalRepository.findAll().stream()
+        return animalRepository.findAllByOrderByAtivoDescDataCadastroDesc().stream()
                 .map(AnimalResponseDTO::fromEntity)
                 .toList();
     }
@@ -60,7 +71,10 @@ public class AnimalService {
 
     @Transactional(readOnly = true)
     public List<AnimalResponseDTO> filtrar(String nome, StatusAdocao status) {
-        return animalRepository.buscarComFiltros(nome, status)
+        String nomePattern = (nome == null || nome.isBlank())
+                ? null
+                : "%" + nome.toLowerCase() + "%";
+        return animalRepository.buscarComFiltros(nomePattern, status)
                 .stream()
                 .map(AnimalResponseDTO::fromEntity)
                 .toList();
@@ -68,6 +82,11 @@ public class AnimalService {
 
     @Transactional
     public AnimalResponseDTO cadastrar(AnimalRequestDTO dto) {
+        return cadastrar(dto, null);
+    }
+
+    @Transactional
+    public AnimalResponseDTO cadastrar(AnimalRequestDTO dto, MultipartFile imagem) {
         log.info("Cadastrando novo animal: {}", dto.getNome());
         Animal animal = Animal.builder()
                 .nome(dto.getNome())
@@ -78,14 +97,20 @@ public class AnimalService {
                 .statusAdocao(dto.getStatusAdocao() == null ? StatusAdocao.DISPONIVEL : dto.getStatusAdocao())
                 .castrado(Boolean.TRUE.equals(dto.getCastrado()))
                 .vacinado(Boolean.TRUE.equals(dto.getVacinado()))
-                .fotoUrl(dto.getFotoUrl())
+                .destaque(Boolean.TRUE.equals(dto.getDestaque()))
                 .ativo(true)
                 .build();
+        animal.setFotoUrl(imageStorageService.salvar(imagem, "animais"));
         return AnimalResponseDTO.fromEntity(animalRepository.save(animal));
     }
 
     @Transactional
     public AnimalResponseDTO atualizar(Long id, AnimalRequestDTO dto) {
+        return atualizar(id, dto, null, false);
+    }
+
+    @Transactional
+    public AnimalResponseDTO atualizar(Long id, AnimalRequestDTO dto, MultipartFile imagem, boolean removerImagem) {
         log.info("Atualizando animal id={}", id);
         Animal animal = buscarEntidade(id);
         animal.setNome(dto.getNome());
@@ -98,8 +123,25 @@ public class AnimalService {
         }
         animal.setCastrado(Boolean.TRUE.equals(dto.getCastrado()));
         animal.setVacinado(Boolean.TRUE.equals(dto.getVacinado()));
-        animal.setFotoUrl(dto.getFotoUrl());
+        animal.setDestaque(Boolean.TRUE.equals(dto.getDestaque()));
+        if (dto.getAtivo() != null) {
+            animal.setAtivo(dto.getAtivo());
+        }
+        atualizarImagem(animal, imagem, removerImagem);
         return AnimalResponseDTO.fromEntity(animalRepository.save(animal));
+    }
+
+    private void atualizarImagem(Animal animal, MultipartFile imagem, boolean removerImagem) {
+        if (removerImagem) {
+            imageStorageService.remover(animal.getFotoUrl());
+            animal.setFotoUrl(null);
+            return;
+        }
+        if (imagem != null && !imagem.isEmpty()) {
+            String novoCaminho = imageStorageService.salvar(imagem, "animais");
+            imageStorageService.substituir(animal.getFotoUrl(), novoCaminho);
+            animal.setFotoUrl(novoCaminho);
+        }
     }
 
     @Transactional
@@ -110,13 +152,14 @@ public class AnimalService {
     }
 
     /**
-     * Remoção lógica: marca o animal como inativo. Mantém o histórico para a ONG.
+     * Desativa o cadastro (remoção lógica). O registro permanece no histórico da listagem admin.
      */
     @Transactional
-    public void remover(Long id) {
-        log.info("Removendo (logicamente) animal id={}", id);
+    public void desativar(Long id) {
+        log.info("Desativando animal id={}", id);
         Animal animal = buscarEntidade(id);
         animal.setAtivo(false);
+        animal.setDestaque(false);
         animalRepository.save(animal);
     }
 

@@ -22,6 +22,7 @@ public class EventoResponseDTO {
     private String local;
     private LocalDateTime dataEvento;
     private Boolean ativo;
+    private String fotoUrl;
 
     public static EventoResponseDTO fromEntity(Evento evento) {
         if (evento == null) {
@@ -34,6 +35,7 @@ public class EventoResponseDTO {
                 .local(evento.getLocal())
                 .dataEvento(evento.getDataEvento())
                 .ativo(evento.getAtivo())
+                .fotoUrl(evento.getFotoUrl())
                 .build();
     }
 }

@@ -19,8 +19,7 @@ public class HomeController {
 
     @GetMapping({"/", "/home"})
     public String home(Model model) {
-        model.addAttribute("animaisDestaque",
-                animalService.listarDisponiveis().stream().limit(6).toList());
+        model.addAttribute("animaisDestaque", animalService.listarDestaque());
         model.addAttribute("proximosEventos", eventoService.listarProximos());
         model.addAttribute("informacao", informacaoONGService.obter());
         return "index";

@@ -5,12 +5,13 @@
 <body>
 <section>
     <section class="container secao admin">
-        <a class="link-voltar" th:href="@{/admin/animais}">← Voltar</a>
+        <div th:replace="~{fragments/admin-nav :: voltarPainel}"></div>
+        <a class="link-voltar" th:href="@{/admin/animais}">← Voltar aos animais</a>
         <h1 th:text="${modoEdicao ? 'Editar animal' : 'Novo animal'}">Novo animal</h1>
 
         <form class="formulario formulario--admin"
               th:action="${modoEdicao ? '/admin/animais/' + animalId : '/admin/animais'}"
-              th:object="${animal}" method="post">
+              th:object="${animal}" method="post" enctype="multipart/form-data">
 
             <div class="campo">
                 <label for="nome">Nome *</label>
@@ -60,10 +61,26 @@
                 <small class="campo__erro" th:errors="*{descricao}"></small>
             </div>
 
-            <div class="campo">
-                <label for="fotoUrl">URL da foto</label>
-                <input type="url" id="fotoUrl" th:field="*{fotoUrl}" placeholder="https://..." />
-                <small class="campo__erro" th:errors="*{fotoUrl}"></small>
+            <div class="campo campo-imagem">
+                <label for="imagem">Foto do animal</label>
+
+                <div class="imagem-atual" th:if="${modoEdicao and !#strings.isEmpty(fotoAtual)}">
+                    <img th:src="${fotoAtual}" alt="Foto atual do animal" class="imagem-atual__preview"/>
+                    <div class="imagem-atual__acoes">
+                        <a class="btn btn--pequeno"
+                           th:href="@{|/admin/animais/${animalId}/imagem/download|}">
+                            Baixar imagem
+                        </a>
+                        <label class="checkbox">
+                            <input type="checkbox" name="removerImagem" value="true"/>
+                            Remover imagem atual
+                        </label>
+                    </div>
+                </div>
+
+                <input type="file" id="imagem" name="imagem" accept="image/jpeg,image/png,image/webp,image/gif"/>
+                <small class="texto-apoio">JPG, PNG, WEBP ou GIF — até 5 MB.</small>
+                <small class="campo__erro" th:if="${erroImagem}" th:text="${erroImagem}"></small>
             </div>
 
             <div class="grid-2">
@@ -77,6 +94,16 @@
                     Vacinado
                 </label>
             </div>
+
+            <label class="checkbox">
+                <input type="checkbox" th:field="*{destaque}" />
+                Exibir na página inicial (destaque)
+            </label>
+
+            <label class="switch-campo" th:if="${modoEdicao}">
+                <input type="checkbox" th:field="*{ativo}" />
+                <span>Cadastro ativo (visível no site)</span>
+            </label>
 
             <div class="form-acoes">
                 <a class="btn btn--secundario" th:href="@{/admin/animais}">Cancelar</a>

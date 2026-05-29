@@ -4,19 +4,23 @@
       th:replace="~{layout/base :: html(tituloPagina='Gerenciar eventos', cssExtra=${ {'/css/dashboard.css'} }, conteudo=~{::section})}">
 <body>
 <section>
-    <section class="container secao admin">
-        <header class="admin__header admin__header--linha">
-            <div>
-                <h1>Eventos</h1>
-                <p class="texto-apoio">Gerencie eventos e campanhas da ONG.</p>
-            </div>
+    <section class="container secao admin admin--centro">
+        <nav class="admin-breadcrumb" aria-label="Navegação">
+            <a th:href="@{/admin/dashboard}">← Painel</a>
+            <span class="admin-breadcrumb__sep">/</span>
+            <span class="admin-breadcrumb__atual">Eventos</span>
+        </nav>
+
+        <header class="admin__header admin__header--centro">
+            <h1>Eventos</h1>
+            <p class="texto-apoio">Gerencie eventos e campanhas da ONG.</p>
             <a class="btn btn--primario" th:href="@{/admin/eventos/novo}">+ Novo evento</a>
         </header>
 
         <div class="alerta alerta--sucesso" th:if="${sucesso}" th:text="${sucesso}"></div>
 
         <div class="tabela-wrapper">
-            <table class="tabela">
+            <table class="tabela tabela--eventos">
                 <thead>
                     <tr>
                         <th>ID</th>
@@ -28,18 +32,19 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr th:each="evento : ${eventos}">
-                        <td th:text="${evento.id}">1</td>
-                        <td th:text="${evento.titulo}">Título</td>
-                        <td th:text="${evento.local}">Local</td>
-                        <td th:text="${#temporals.format(evento.dataEvento, 'dd/MM/yyyy HH:mm')}">01/01/2026</td>
-                        <td th:text="${evento.ativo ? 'Sim' : 'Não'}">Sim</td>
-                        <td class="acoes">
+                    <tr th:each="evento : ${eventos}"
+                        th:classappend="${!evento.ativo} ? 'tabela__linha--inativa' : ''">
+                        <td class="td-id" th:text="${evento.id}">1</td>
+                        <td class="td-titulo" th:text="${evento.titulo}">Título</td>
+                        <td class="td-local" th:text="${evento.local}">Local</td>
+                        <td class="td-data" th:text="${#temporals.format(evento.dataEvento, 'dd/MM/yyyy HH:mm')}">01/01/2026</td>
+                        <td class="td-ativo" th:text="${evento.ativo ? 'Sim' : 'Não'}">Sim</td>
+                        <td class="td-acoes acoes">
                             <a class="btn btn--pequeno" th:href="@{|/admin/eventos/${evento.id}/editar|}">Editar</a>
-                            <form th:action="@{|/admin/eventos/${evento.id}/remover|}" method="post"
+                            <form th:action="@{|/admin/eventos/${evento.id}/desativar|}" method="post"
                                   th:if="${evento.ativo}"
-                                  onsubmit="return confirm('Remover este evento?');">
-                                <button type="submit" class="btn btn--pequeno btn--perigo">Remover</button>
+                                  onsubmit="return confirm('Desativar este evento? Ele sairá do site, mas permanecerá no histórico.');">
+                                <button type="submit" class="btn btn--pequeno btn--aviso">Desativar</button>
                             </form>
                         </td>
                     </tr>

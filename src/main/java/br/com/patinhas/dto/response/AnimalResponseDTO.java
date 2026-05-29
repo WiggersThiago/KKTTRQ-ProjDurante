@@ -31,6 +31,7 @@ public class AnimalResponseDTO {
     private String fotoUrl;
     private LocalDateTime dataCadastro;
     private Boolean ativo;
+    private Boolean destaque;
 
     public static AnimalResponseDTO fromEntity(Animal animal) {
         if (animal == null) {
@@ -49,6 +50,7 @@ public class AnimalResponseDTO {
                 .fotoUrl(animal.getFotoUrl())
                 .dataCadastro(animal.getDataCadastro())
                 .ativo(animal.getAtivo())
+                .destaque(animal.getDestaque())
                 .build();
     }
 }

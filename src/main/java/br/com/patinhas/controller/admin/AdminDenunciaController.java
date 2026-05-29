@@ -39,10 +39,10 @@ public class AdminDenunciaController {
         if (!model.containsAttribute("atualizacao")) {
             DenunciaUpdateStatusDTO dto = new DenunciaUpdateStatusDTO();
             dto.setStatus(denuncia.getStatus());
-            dto.setObservacoesInternas(denuncia.getObservacoesInternas());
             model.addAttribute("atualizacao", dto);
         }
         model.addAttribute("statusList", StatusDenuncia.values());
+        model.addAttribute("historico", denunciaService.listarHistorico(id));
         return "admin/denuncia-detalhe";
     }
 
@@ -55,6 +55,7 @@ public class AdminDenunciaController {
         if (bindingResult.hasErrors()) {
             model.addAttribute("denuncia", denunciaService.buscarPorId(id));
             model.addAttribute("statusList", StatusDenuncia.values());
+            model.addAttribute("historico", denunciaService.listarHistorico(id));
             return "admin/denuncia-detalhe";
         }
         denunciaService.atualizarStatus(id, dto);
