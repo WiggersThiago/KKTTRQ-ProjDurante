@@ -5,26 +5,6 @@ Construído com **Spring Boot 3 + Java 21** seguindo arquitetura MVC tradicional
 com camadas bem separadas, autenticação por sessão, banco PostgreSQL e
 templates Thymeleaf para o frontend base.
 
-> Este repositório contém **toda a base do backend pronta** para que a equipe
-> de frontend continue o desenvolvimento das telas e o time de produto siga
-> evoluindo as regras de negócio.
-
----
-
-## Sumário
-
-1. [Tecnologias utilizadas](#1-tecnologias-utilizadas)
-2. [Pré-requisitos](#2-pré-requisitos)
-3. [Como rodar o projeto](#3-como-rodar-o-projeto)
-4. [Como configurar o PostgreSQL](#4-como-configurar-o-postgresql)
-5. [Arquitetura](#5-arquitetura)
-6. [Estrutura de pastas](#6-estrutura-de-pastas)
-7. [Entidades do domínio](#7-entidades-do-domínio)
-8. [Rotas (Web e API)](#8-rotas-web-e-api)
-9. [Autenticação e segurança](#9-autenticação-e-segurança)
-10. [Fluxo do sistema](#10-fluxo-do-sistema)
-11. [Próximos passos recomendados](#11-próximos-passos-recomendados)
-
 ---
 
 ## 1. Tecnologias utilizadas
@@ -49,24 +29,14 @@ templates Thymeleaf para o frontend base.
 
 Antes de rodar o projeto, instale:
 
-### 2.1 Obrigatórios
+### -> Obrigatórios
 
 - **JDK 21** (qualquer distribuição: Temurin, Liberica, Microsoft, Zulu...)
   - Verifique: `java -version` deve mostrar 21.x
 - **PostgreSQL 14 ou superior**
-  - Pode ser instalado nativamente ou via Docker (instruções abaixo).
-- **Git** (para versionamento)
 
 > 💡 **Não é preciso instalar o Maven manualmente**: o projeto já inclui o
 > `mvnw` (Maven Wrapper). Use `./mvnw` no Linux/Mac ou `mvnw.cmd` no Windows.
-
-### 2.2 Recomendados
-
-- **IDE**: IntelliJ IDEA, Eclipse, VS Code ou Spring Tool Suite.
-- **Plugin Lombok** instalado e habilitado na sua IDE.
-  - IntelliJ: já vem nativamente desde 2020.x — basta habilitar
-    *Annotation Processing* em `Settings → Build → Compiler → Annotation Processors`.
-- **DBeaver** ou **pgAdmin** para inspecionar o banco.
 
 ---
 
@@ -74,30 +44,13 @@ Antes de rodar o projeto, instale:
 
 ### Passo 1 — Clonar o repositório
 
-```bash
-git clone <url-do-repositorio>
-cd patinhas
-```
-
 ### Passo 2 — Subir o PostgreSQL e criar o banco
-
-Veja a [seção 4](#4-como-configurar-o-postgresql) para instruções detalhadas.
 O nome do banco esperado é `patinhas`.
 
 ### Passo 3 — Configurar credenciais
-
-Edite o arquivo `src/main/resources/application.properties` e ajuste:
-
-```properties
-spring.datasource.url=jdbc:postgresql://localhost:5432/patinhas
-spring.datasource.username=postgres
-spring.datasource.password=suaSenha
-```
-
-> ⚠️ Em produção use variáveis de ambiente em vez de senha em texto plano.
+Edite o arquivo `src/main/resources/application.properties` e ajuste;
 
 ### Passo 4 — Rodar a aplicação
-
 **Windows (PowerShell):**
 
 ```powershell
@@ -120,27 +73,21 @@ java -jar target/patinhas-0.0.1-SNAPSHOT.jar
 A aplicação sobe em **http://localhost:8080**.
 
 ### Passo 5 — Login administrativo
-
 Na primeira execução, o `DataSeeder` cria:
-
 - Um administrador padrão.
 - Um registro de informações institucionais default.
-
 | Campo  | Valor padrão               |
 |--------|----------------------------|
 | E-mail | `admin@patinhas.org`        |
 | Senha  | `admin123`                  |
 
-Acesse: **http://localhost:8080/login**
-
-> 🔐 **Troque essa senha imediatamente** (via banco ou criando uma rotina
-> "trocar senha" no painel) antes de subir para qualquer ambiente real.
+> 🔐 **Troque essa senha imediatamente** (via banco)
 
 ---
 
 ## 4. Como configurar o PostgreSQL
 
-### Opção A — PostgreSQL nativo
+### PostgreSQL nativo
 
 1. Instale o PostgreSQL ([downloads oficiais](https://www.postgresql.org/download/)).
 2. Acesse o `psql` como superusuário:
@@ -157,24 +104,6 @@ Acesse: **http://localhost:8080/login**
    GRANT ALL PRIVILEGES ON DATABASE patinhas TO patinhas_user;
    ```
 5. Atualize `application.properties` com `username` e `password` do usuário criado.
-
-### Opção B — PostgreSQL via Docker (rápido)
-
-```bash
-docker run -d --name patinhas-db \
-  -e POSTGRES_DB=patinhas \
-  -e POSTGRES_USER=postgres \
-  -e POSTGRES_PASSWORD=suaSenha \
-  -p 5432:5432 \
-  postgres:16
-```
-
-Para parar / iniciar depois:
-
-```bash
-docker stop patinhas-db
-docker start patinhas-db
-```
 
 ### Schema
 
@@ -315,7 +244,7 @@ patinhas/
     │           ├── css/{style.css, dashboard.css}
     │           ├── js/app.js
     │           └── img/
-    └── test/                                   ← testes (a expandir)
+    └── test/                                   ← testes 
 ```
 
 ---
@@ -550,48 +479,6 @@ Na primeira execução, o `DataSeeder`:
 
 - Cria o admin padrão (configurável em `application.properties`).
 - Cria um registro inicial em `informacao_ong` com placeholders.
-
----
-
-## 11. Próximos passos recomendados
-
-A base está pronta para que o projeto evolua. Sugestões de evolução:
-
-### 11.1 Frontend / UX
-
-- Construir telas refinadas a partir dos templates Thymeleaf existentes.
-- Adicionar paginação e ordenação na listagem de animais.
-- Galeria de fotos por animal (várias imagens).
-- Tela "Como adotar" com formulário de pré-cadastro de adotantes.
-
-### 11.2 Domínio
-
-- Entidade **Adocao** vinculando `Usuario` adotante a `Animal`.
-- Entidade **Voluntario** com inscrição pelo site.
-- Entidade **Doacao** com histórico/recibos.
-- Entidade **Vacina** detalhando o histórico de saúde do animal.
-
-### 11.3 Infraestrutura
-
-- **Flyway** ou **Liquibase** para versionar o schema.
-- Upload de imagens (S3, Cloudinary, MinIO).
-- Envio de e-mails (Spring Mail) — confirmação de adoção, recebimento de denúncia, etc.
-- **Docker Compose** para subir Postgres + app.
-- Pipeline CI (GitHub Actions): build + testes + análise estática.
-
-### 11.4 Segurança
-
-- Recuperação de senha por e-mail.
-- Trocar `ddl-auto=update` por `validate` em produção.
-- Política de senhas (mínimo de caracteres, complexidade).
-- Auditoria (`@CreatedBy`, `@LastModifiedBy`, Hibernate Envers).
-- 2FA para administradores.
-
-### 11.5 Testes
-
-- Testes unitários nos services (regras de negócio).
-- Testes de integração nos controllers (Spring MockMvc).
-- Testes end-to-end com Selenium ou Playwright para o fluxo Thymeleaf.
 
 ---
 
