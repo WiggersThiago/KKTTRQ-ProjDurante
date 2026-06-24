@@ -92,9 +92,10 @@ public class AdminEventoController {
                             BindingResult bindingResult,
                             Model model,
                             RedirectAttributes redirectAttributes) {
+        var existente = eventoService.buscarPorId(id);
         if (bindingResult.hasErrors()) {
             model.addAttribute("eventoId", id);
-            model.addAttribute("fotoAtual", eventoService.buscarPorId(id).getFotoUrl());
+            model.addAttribute("fotoAtual", existente.getFotoUrl());
             model.addAttribute("modoEdicao", true);
             return "admin/evento-form";
         }
@@ -105,7 +106,7 @@ public class AdminEventoController {
         } catch (BusinessException e) {
             model.addAttribute("erroImagem", e.getMessage());
             model.addAttribute("eventoId", id);
-            model.addAttribute("fotoAtual", eventoService.buscarPorId(id).getFotoUrl());
+            model.addAttribute("fotoAtual", existente.getFotoUrl());
             model.addAttribute("modoEdicao", true);
             return "admin/evento-form";
         }

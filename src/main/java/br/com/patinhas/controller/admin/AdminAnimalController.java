@@ -104,9 +104,10 @@ public class AdminAnimalController {
                             BindingResult bindingResult,
                             Model model,
                             RedirectAttributes redirectAttributes) {
+        var existente = animalService.buscarPorId(id);
         if (bindingResult.hasErrors()) {
             model.addAttribute("animalId", id);
-            model.addAttribute("fotoAtual", animalService.buscarPorId(id).getFotoUrl());
+            model.addAttribute("fotoAtual", existente.getFotoUrl());
             model.addAttribute("modoEdicao", true);
             adicionarEnumsAoModel(model);
             return "admin/animal-form";
@@ -118,7 +119,7 @@ public class AdminAnimalController {
         } catch (BusinessException e) {
             model.addAttribute("erroImagem", e.getMessage());
             model.addAttribute("animalId", id);
-            model.addAttribute("fotoAtual", animalService.buscarPorId(id).getFotoUrl());
+            model.addAttribute("fotoAtual", existente.getFotoUrl());
             model.addAttribute("modoEdicao", true);
             adicionarEnumsAoModel(model);
             return "admin/animal-form";
