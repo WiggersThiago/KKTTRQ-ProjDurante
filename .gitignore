@@ -32,6 +32,9 @@ build/
 ### VS Code ###
 .vscode/
 
+### Variáveis de ambiente locais ###
+.env
+
 ### Uploads locais ###
 images/**
 !images/.gitkeep

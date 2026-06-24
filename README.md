@@ -47,8 +47,37 @@ Antes de rodar o projeto, instale:
 ### Passo 2 — Subir o PostgreSQL e criar o banco
 O nome do banco esperado é `patinhas`.
 
-### Passo 3 — Configurar credenciais
-Edite o arquivo `src/main/resources/application.properties` e ajuste;
+### Passo 3 — Configurar variáveis de ambiente
+
+As credenciais sensíveis **não ficam no repositório**. Copie o template e defina os valores localmente:
+
+```bash
+cp .env.example .env
+```
+
+Edite o `.env` e preencha:
+
+| Variável               | Descrição                                              |
+|------------------------|--------------------------------------------------------|
+| `DB_USERNAME`          | Usuário do PostgreSQL                                  |
+| `DB_PASSWORD`          | Senha do PostgreSQL                                    |
+| `ADMIN_SENHA_INICIAL`  | Senha do admin criado na primeira execução (`DataSeeder`) |
+
+**Windows (PowerShell):**
+
+```powershell
+$env:DB_USERNAME = "postgres"
+$env:DB_PASSWORD = "sua_senha_postgres"
+$env:ADMIN_SENHA_INICIAL = "sua_senha_admin"
+```
+
+**Linux / Mac:**
+
+```bash
+export DB_USERNAME="postgres"
+export DB_PASSWORD="sua_senha_postgres"
+export ADMIN_SENHA_INICIAL="sua_senha_admin"
+```
 
 ### Passo 4 — Rodar a aplicação
 **Windows (PowerShell):**
@@ -79,9 +108,9 @@ Na primeira execução, o `DataSeeder` cria:
 | Campo  | Valor padrão               |
 |--------|----------------------------|
 | E-mail | `admin@patinhas.org`        |
-| Senha  | `admin123`                  |
+| Senha  | valor de `ADMIN_SENHA_INICIAL` |
 
-> 🔐 **Troque essa senha imediatamente** (via banco)
+> 🔐 **Use uma senha forte em `ADMIN_SENHA_INICIAL`** e troque-a após o primeiro acesso, se necessário.
 
 ---
 
@@ -103,7 +132,7 @@ Na primeira execução, o `DataSeeder` cria:
    CREATE USER patinhas_user WITH ENCRYPTED PASSWORD 'umaSenhaSegura';
    GRANT ALL PRIVILEGES ON DATABASE patinhas TO patinhas_user;
    ```
-5. Atualize `application.properties` com `username` e `password` do usuário criado.
+5. Defina `DB_USERNAME` e `DB_PASSWORD` com as credenciais do usuário criado (via `.env` ou variáveis de ambiente).
 
 ### Schema
 
@@ -477,7 +506,7 @@ Todas as respostas seguem o envelope `ApiResponse<T>`:
 
 Na primeira execução, o `DataSeeder`:
 
-- Cria o admin padrão (configurável em `application.properties`).
+- Cria o admin padrão (credenciais via variável `ADMIN_SENHA_INICIAL`).
 - Cria um registro inicial em `informacao_ong` com placeholders.
 
 ---
