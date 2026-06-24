@@ -7,6 +7,8 @@ import br.com.patinhas.entity.enums.StatusAdocao;
 import br.com.patinhas.service.AnimalService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,10 +29,12 @@ public class AnimalApiController {
     private final AnimalService animalService;
 
     @GetMapping("/api/v1/public/animais")
-    public ApiResponse<List<AnimalResponseDTO>> listarPublicos(
+    public ApiResponse<Page<AnimalResponseDTO>> listarPublicos(
             @RequestParam(required = false) StatusAdocao status,
-            @RequestParam(required = false) String nome) {
-        return ApiResponse.ok(animalService.filtrar(nome, status));
+            @RequestParam(required = false) String nome,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "12") int size) {
+        return ApiResponse.ok(animalService.filtrar(nome, status, PageRequest.of(page, size)));
     }
 
     @GetMapping("/api/v1/public/animais/{id}")

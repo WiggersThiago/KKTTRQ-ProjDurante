@@ -580,6 +580,33 @@ h2 { font-size: 1.5rem; margin: 0 0 0.5rem; }
     min-width: 200px;
 }
 
+/* ============ Paginação ============ */
+.paginacao {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin: 2rem 0 1rem;
+}
+.paginacao__btn {
+    padding: 0.5rem 1rem;
+    border-radius: var(--raio-botao);
+    background: #fff;
+    border: 1px solid var(--cor-borda);
+    color: var(--cor-texto);
+    font-weight: 600;
+    transition: background var(--transicao), color var(--transicao);
+}
+.paginacao__btn:hover {
+    background: var(--cor-primaria);
+    border-color: var(--cor-primaria);
+    color: #fff;
+}
+.paginacao__info {
+    color: var(--cor-texto-suave);
+    font-size: 0.95rem;
+}
+
 /* ============ Formulários ============ */
 .formulario {
     display: flex;

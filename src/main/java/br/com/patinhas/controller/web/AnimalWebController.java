@@ -6,6 +6,7 @@ import br.com.patinhas.service.AnimalService;
 import br.com.patinhas.service.InformacaoONGService;
 import br.com.patinhas.util.WhatsappUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,11 +25,16 @@ public class AnimalWebController {
     @GetMapping
     public String listar(@RequestParam(required = false) String nome,
                          @RequestParam(required = false) StatusAdocao status,
+                         @RequestParam(defaultValue = "0") int page,
+                         @RequestParam(defaultValue = "12") int size,
                          Model model) {
         var informacao = informacaoONGService.obter();
-        model.addAttribute("animais", animalService.filtrar(
+        var pagina = animalService.filtrar(
                 (nome == null || nome.isBlank()) ? null : nome.trim(),
-                status));
+                status,
+                PageRequest.of(page, size));
+        model.addAttribute("animais", pagina.getContent());
+        model.addAttribute("pagina", pagina);
         model.addAttribute("statusFiltro", status);
         model.addAttribute("nomeFiltro", nome);
         model.addAttribute("statusList", StatusAdocao.values());

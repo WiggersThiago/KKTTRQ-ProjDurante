@@ -70,6 +70,17 @@
             </article>
         </div>
 
+        <nav class="paginacao" th:if="${pagina.totalPages > 1}" aria-label="Paginação de animais">
+            <a class="paginacao__btn"
+               th:if="${pagina.hasPrevious()}"
+               th:href="@{/animais(nome=${nomeFiltro}, status=${statusFiltro}, page=${pagina.number - 1}, size=${pagina.size})}">← Anterior</a>
+            <span class="paginacao__info"
+                  th:text="'Página ' + (${pagina.number} + 1) + ' de ' + ${pagina.totalPages}">Página 1 de 1</span>
+            <a class="paginacao__btn"
+               th:if="${pagina.hasNext()}"
+               th:href="@{/animais(nome=${nomeFiltro}, status=${statusFiltro}, page=${pagina.number + 1}, size=${pagina.size})}">Próxima →</a>
+        </nav>
+
         <div class="estado-vazio-pagina" th:if="${#lists.isEmpty(animais)}">
             <div class="destaque-vazio__mensagem">
                 <img th:replace="~{fragments/brand :: trayicon('marca-trayicon marca-trayicon--vazio-grande')}" />

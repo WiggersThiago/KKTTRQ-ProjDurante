@@ -8,6 +8,8 @@ import br.com.patinhas.exception.ResourceNotFoundException;
 import br.com.patinhas.repository.AnimalRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -35,20 +37,14 @@ public class AnimalService {
     }
 
     @Transactional(readOnly = true)
-    public List<AnimalResponseDTO> listarDisponiveis() {
-        return animalRepository
-                .findAllByStatusAdocaoAndAtivoTrueOrderByDataCadastroDesc(StatusAdocao.DISPONIVEL)
-                .stream()
-                .map(AnimalResponseDTO::fromEntity)
-                .toList();
+    public Page<AnimalResponseDTO> listarDisponiveis(Pageable pageable) {
+        return animalRepository.findAllByAtivoTrueOrderByDataCadastroDesc(pageable)
+                .map(AnimalResponseDTO::fromEntity);
     }
 
     @Transactional(readOnly = true)
     public List<AnimalResponseDTO> listarTodosAtivos() {
-        return animalRepository.findAllByAtivoTrueOrderByDataCadastroDesc()
-                .stream()
-                .map(AnimalResponseDTO::fromEntity)
-                .toList();
+        return listarDisponiveis(Pageable.unpaged()).getContent();
     }
 
     @Transactional(readOnly = true)
@@ -70,14 +66,16 @@ public class AnimalService {
     }
 
     @Transactional(readOnly = true)
-    public List<AnimalResponseDTO> filtrar(String nome, StatusAdocao status) {
+    public Page<AnimalResponseDTO> filtrar(String nome, StatusAdocao status, Pageable pageable) {
+        boolean semFiltros = (nome == null || nome.isBlank()) && status == null;
+        if (semFiltros) {
+            return listarDisponiveis(pageable);
+        }
         String nomePattern = (nome == null || nome.isBlank())
                 ? null
                 : "%" + nome.toLowerCase() + "%";
-        return animalRepository.buscarComFiltros(nomePattern, status)
-                .stream()
-                .map(AnimalResponseDTO::fromEntity)
-                .toList();
+        return animalRepository.buscarComFiltros(nomePattern, status, pageable)
+                .map(AnimalResponseDTO::fromEntity);
     }
 
     @Transactional
