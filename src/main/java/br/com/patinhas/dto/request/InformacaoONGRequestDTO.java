@@ -16,6 +16,8 @@ import lombok.Setter;
 @AllArgsConstructor
 public class InformacaoONGRequestDTO {
 
+    private Long id;
+
     @NotBlank(message = "O nome da ONG é obrigatório.")
     @Size(max = 150)
     private String nomeONG;

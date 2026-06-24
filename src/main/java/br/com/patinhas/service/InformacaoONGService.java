@@ -3,6 +3,7 @@ package br.com.patinhas.service;
 import br.com.patinhas.dto.request.InformacaoONGRequestDTO;
 import br.com.patinhas.dto.response.InformacaoONGResponseDTO;
 import br.com.patinhas.entity.InformacaoONG;
+import br.com.patinhas.exception.ResourceNotFoundException;
 import br.com.patinhas.repository.InformacaoONGRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,30 +21,27 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class InformacaoONGService {
 
+    private static final String NOME_ONG_PADRAO = "ONG Patinhas";
+    private static final String QUEM_SOMOS_PADRAO = "Em breve traremos mais informações sobre nossa ONG.";
+
     private final InformacaoONGRepository informacaoONGRepository;
 
     @Transactional(readOnly = true)
     public InformacaoONGResponseDTO obter() {
-        return informacaoONGRepository.findFirstByOrderByIdAsc()
-                .map(InformacaoONGResponseDTO::fromEntity)
-                .orElse(InformacaoONGResponseDTO.builder()
-                        .nomeONG("ONG Patinhas")
-                        .quemSomos("Em breve traremos mais informações sobre nossa ONG.")
-                        .build());
+        return InformacaoONGResponseDTO.fromEntity(buscarOuCriarPadrao());
     }
 
     @Transactional(readOnly = true)
     public InformacaoONG obterEntidade() {
-        return informacaoONGRepository.findFirstByOrderByIdAsc()
-                .orElseGet(() -> InformacaoONG.builder()
-                        .nomeONG("ONG Patinhas")
-                        .build());
+        return buscarOuCriarPadrao();
     }
 
     @Transactional
     public InformacaoONGResponseDTO atualizar(InformacaoONGRequestDTO dto) {
-        InformacaoONG info = informacaoONGRepository.findFirstByOrderByIdAsc()
-                .orElseGet(InformacaoONG::new);
+        InformacaoONG info = dto.getId() != null
+                ? informacaoONGRepository.findById(dto.getId())
+                        .orElseThrow(() -> new ResourceNotFoundException("Informação da ONG", dto.getId()))
+                : buscarOuCriarPadrao();
 
         info.setNomeONG(dto.getNomeONG());
         info.setQuemSomos(dto.getQuemSomos());
@@ -57,5 +55,17 @@ public class InformacaoONGService {
 
         log.info("Atualizando informações institucionais da ONG: {}", dto.getNomeONG());
         return InformacaoONGResponseDTO.fromEntity(informacaoONGRepository.save(info));
+    }
+
+    private InformacaoONG buscarOuCriarPadrao() {
+        return informacaoONGRepository.findFirstByOrderByIdAsc()
+                .orElseGet(this::criarEntidadePadrao);
+    }
+
+    private InformacaoONG criarEntidadePadrao() {
+        return InformacaoONG.builder()
+                .nomeONG(NOME_ONG_PADRAO)
+                .quemSomos(QUEM_SOMOS_PADRAO)
+                .build();
     }
 }

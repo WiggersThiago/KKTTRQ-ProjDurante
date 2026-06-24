@@ -17,6 +17,8 @@
               th:action="@{/admin/informacoes}"
               th:object="${informacao}" method="post">
 
+            <input type="hidden" th:field="*{id}" />
+
             <div class="campo">
                 <label for="nomeONG">Nome da ONG *</label>
                 <input type="text" id="nomeONG" th:field="*{nomeONG}" />

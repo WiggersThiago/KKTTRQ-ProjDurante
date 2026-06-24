@@ -27,6 +27,7 @@ public class AdminInformacaoONGController {
     public String editar(Model model) {
         InformacaoONG info = informacaoONGService.obterEntidade();
         InformacaoONGRequestDTO dto = InformacaoONGRequestDTO.builder()
+                .id(info.getId())
                 .nomeONG(info.getNomeONG())
                 .quemSomos(info.getQuemSomos())
                 .proposito(info.getProposito())
