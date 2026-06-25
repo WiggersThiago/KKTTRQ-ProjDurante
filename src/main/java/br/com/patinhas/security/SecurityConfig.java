@@ -95,8 +95,22 @@ public class SecurityConfig {
             .exceptionHandling(ex -> ex
                 .accessDeniedPage("/erro?codigo=403")
             )
-            // CSRF habilitado por padrão (form-based). Desabilitamos apenas para a API
-            // pública usada por integrações externas (denúncia anônima, etc.)
+            // --- Estratégia CSRF (habilitado por padrão; desabilitamos apenas onde indicado) ---
+            //
+            // 1) /api/v1/public/** — CSRF DESABILITADO
+            //    Endpoints anônimos para integrações externas (ex.: POST /denuncias sem sessão).
+            //    Não há cookie de sessão autenticada a proteger; exigir token bloquearia clientes
+            //    não-browser.
+            //
+            // 2) /api/v1/admin/** — CSRF ATIVO (não entra em ignoringRequestMatchers)
+            //    Mutações (POST/PUT/DELETE) são chamadas pelo painel admin via sessão do browser.
+            //    Sem CSRF, páginas maliciosas poderiam forçar ações em nome de um admin logado.
+            //    O JS do painel envia o token no header X-CSRF-TOKEN (ver static/js/admin-api.js).
+            //
+            // 3) /admin/** (páginas MVC) — CSRF ATIVO
+            //    Formulários server-side recebem o parâmetro _csrf via Thymeleaf/Spring Security.
+            //
+            // 4) Demais rotas (login, logout, forms públicos) — CSRF ATIVO (padrão do Spring Security).
             .csrf(csrf -> csrf
                 .ignoringRequestMatchers("/api/v1/public/**")
             )

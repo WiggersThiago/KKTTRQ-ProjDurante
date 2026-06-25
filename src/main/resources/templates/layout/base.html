@@ -5,6 +5,8 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta sec:authorize="hasRole('ADMIN')" name="_csrf" th:content="${_csrf.token}" />
+    <meta sec:authorize="hasRole('ADMIN')" name="_csrf_header" th:content="${_csrf.headerName}" />
     <title th:text="${tituloPagina} ?: 'Patinhas Amigas'">Patinhas Amigas</title>
 
     <link rel="icon" type="image/png" th:href="@{/images/trayicon.png}" />
@@ -26,6 +28,7 @@
 <div th:replace="~{fragments/footer :: footer}"></div>
 
 <script th:src="@{/js/app.js}" defer></script>
+<script sec:authorize="hasRole('ADMIN')" th:src="@{/js/admin-api.js}" defer></script>
 <th:block th:if="${jsExtra}">
     <script th:each="js : ${jsExtra}" th:src="@{${js}}" defer></script>
 </th:block>
