@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="pt-BR"
+      xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: html(tituloPagina='Interesse em adoção', conteudo=~{::section})}">
+<body>
+<section>
+    <section class="container secao secao--centralizada">
+
+        <div class="card-form card-form--adocao">
+
+            <a class="link-voltar"
+               th:href="@{/animais/{id}(id=${animal.id})}">
+                ← Voltar para o animal
+            </a>
+
+            <h1>Tenho interesse em adotar</h1>
+
+            <p class="texto-apoio">
+                Que bom que você se interessou por um dos nossos animais!
+                Preencha o formulário abaixo e a ONG entrará em contato
+                para conversar sobre a adoção.
+            </p>
+
+            <div class="adocao-animal">
+                <div class="adocao-animal__foto"
+                     th:style="${animal.fotoUrl} ? 'background-image:url(' + ${animal.fotoUrl} + ')' : ''">
+
+                    <span th:if="${animal.fotoUrl == null}"
+                          class="card-animal__placeholder">
+                        <img th:replace="~{fragments/brand :: trayicon('marca-trayicon marca-trayicon--placeholder')}" />
+                    </span>
+
+                </div>
+
+                <div class="adocao-animal__info">
+                    <small>Animal de interesse</small>
+
+                    <h2 th:text="${animal.nome}">
+                        Nome do animal
+                    </h2>
+
+                    <p>
+                        <span th:text="${animal.porte.descricao}">Porte</span>
+                        ·
+                        <span th:text="${animal.sexo.descricao}">Sexo</span>
+                        ·
+                        <span th:text="${animal.idade} + ' anos'">2 anos</span>
+                    </p>
+
+                    <span class="badge"
+                          th:classappend="'badge--' + ${#strings.toLowerCase(animal.statusAdocao.name())}"
+                          th:text="${animal.statusAdocao.descricao}">
+                        Disponível
+                    </span>
+                </div>
+            </div>
+            <div class="alerta alerta--sucesso"
+                 th:if="${sucesso}"
+                 th:text="${sucesso}">
+                Sua solicitação foi enviada com sucesso! A ONG entrará em contato com você.
+            </div>
+            <form th:action="@{/animais/{animalId}/adotar(animalId=${animal.id})}"
+                  th:object="${solicitacao}"
+                  method="post"
+                  class="formulario formulario--fofo">
+
+                <input type="hidden" th:field="*{animalId}" />
+
+                <h2>Seus dados</h2>
+
+                <div class="campo">
+                    <label for="nome">Nome completo *</label>
+                    <input type="text"
+                           id="nome"
+                           th:field="*{nome}"
+                           placeholder="Digite seu nome completo" />
+                    <small class="campo__erro"
+                           th:errors="*{nome}"></small>
+                </div>
+
+                <div class="campo">
+                    <label for="telefone">Telefone / WhatsApp *</label>
+                    <input type="tel"
+                           id="telefone"
+                           th:field="*{telefone}"
+                           placeholder="(00) 00000-0000" />
+                    <small class="campo__erro"
+                           th:errors="*{telefone}"></small>
+                </div>
+
+                <div class="campo">
+                    <label for="email">E-mail *</label>
+                    <input type="email"
+                           id="email"
+                           th:field="*{email}"
+                           placeholder="seuemail@exemplo.com" />
+                    <small class="campo__erro"
+                           th:errors="*{email}"></small>
+                </div>
+
+                <div class="campo">
+                    <label for="cidade">Cidade *</label>
+                    <input type="text"
+                           id="cidade"
+                           th:field="*{cidade}"
+                           placeholder="Digite sua cidade" />
+                    <small class="campo__erro"
+                           th:errors="*{cidade}"></small>
+                </div>
+
+                <h2>Sobre a adoção</h2>
+
+                <div class="campo">
+                    <label for="motivoAdocao">
+                        Por que você deseja adotar?
+                    </label>
+
+                    <textarea id="motivoAdocao"
+                              th:field="*{motivoAdocao}"
+                              rows="4"
+                              placeholder="Conte um pouco sobre o que te motivou a adotar..."></textarea>
+
+                    <small class="campo__erro"
+                           th:errors="*{motivoAdocao}"></small>
+                </div>
+
+                <div class="campo">
+                    <label for="possuiOutrosAnimais">
+                        Você possui outros animais?
+                    </label>
+
+                    <select id="possuiOutrosAnimais"
+                            th:field="*{possuiOutrosAnimais}">
+                        <option value="">Selecione uma opção</option>
+                        <option value="true">Sim</option>
+                        <option value="false">Não</option>
+                    </select>
+                </div>
+
+                <div class="campo">
+                    <label for="possuiEspacoAdequado">
+                        Possui espaço adequado para o animal?
+                    </label>
+
+                    <select id="possuiEspacoAdequado"
+                            th:field="*{possuiEspacoAdequado}">
+                        <option value="">Selecione uma opção</option>
+                        <option value="true">Sim</option>
+                        <option value="false">Não</option>
+                    </select>
+                </div>
+
+                <div class="campo">
+                    <label for="todosConcordam">
+                        Todos da casa estão de acordo com a adoção?
+                    </label>
+
+                    <select id="todosConcordam"
+                            th:field="*{todosConcordam}">
+                        <option value="">Selecione uma opção</option>
+                        <option value="true">Sim</option>
+                        <option value="false">Não</option>
+                    </select>
+                </div>
+
+                <div class="campo">
+                    <label for="jaTeveAnimais">
+                        Já teve animais anteriormente?
+                    </label>
+
+                    <select id="jaTeveAnimais"
+                            th:field="*{jaTeveAnimais}">
+                        <option value="">Selecione uma opção</option>
+                        <option value="true">Sim</option>
+                        <option value="false">Não</option>
+                    </select>
+                </div>
+
+                <div class="campo">
+                    <label for="observacoes">Observações</label>
+
+                    <textarea id="observacoes"
+                              th:field="*{observacoes}"
+                              rows="4"
+                              placeholder="Tem alguma informação que gostaria de contar para a ONG?"></textarea>
+
+                    <small class="campo__erro"
+                           th:errors="*{observacoes}"></small>
+                </div>
+
+                <p class="texto-apoio">
+                    Os dados informados serão utilizados pela ONG para entrar
+                    em contato sobre o processo de adoção.
+                </p>
+
+                <button type="submit"
+                        class="btn btn--primario btn--bloco">
+                    Enviar interesse em adotar
+                </button>
+
+            </form>
+
+        </div>
+
+    </section>
+</section>
+</body>
+</html>

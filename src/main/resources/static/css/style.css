@@ -1115,3 +1115,92 @@ body.modal-aberto {
     .topo__nav { gap: 0.5rem; font-size: 0.95rem; }
     h1 { font-size: 1.6rem; }
 }
+/* ============ Solicitação de adoção ============ */
+
+.card-form--adocao {
+    max-width: 720px;
+}
+
+.card-form--adocao h1 {
+    margin-top: 1rem;
+}
+
+.card-form--adocao h2 {
+    margin-top: 1.75rem;
+    margin-bottom: 0.75rem;
+}
+
+/* Animal escolhido */
+.adocao-animal {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 1.5rem 0;
+    padding: 1rem;
+    border: 1px solid var(--cor-borda);
+    border-radius: var(--raio-grande);
+    background: #fff;
+}
+
+.adocao-animal__foto {
+    width: 100px;
+    height: 100px;
+    flex-shrink: 0;
+    border-radius: var(--raio);
+    background-color: #ffe5d0;
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.adocao-animal__foto .marca-trayicon {
+    width: 55px;
+    height: 55px;
+}
+
+.adocao-animal__info {
+    flex: 1;
+}
+
+.adocao-animal__info small {
+    display: block;
+    margin-bottom: 0.2rem;
+    color: var(--cor-texto-secundario);
+}
+
+.adocao-animal__info h2 {
+    margin: 0 0 0.35rem;
+}
+
+.adocao-animal__info p {
+    margin: 0 0 0.75rem;
+    color: var(--cor-texto-secundario);
+}
+
+/* Formulário */
+.card-form--adocao .formulario {
+    margin-top: 1rem;
+}
+
+.card-form--adocao .texto-apoio {
+    margin-bottom: 1rem;
+}
+
+/* Ajuste para celular */
+@media (max-width: 600px) {
+    .card-form--adocao {
+        padding: 1.25rem;
+    }
+
+    .adocao-animal {
+        align-items: flex-start;
+    }
+
+    .adocao-animal__foto {
+        width: 80px;
+        height: 80px;
+    }
+}

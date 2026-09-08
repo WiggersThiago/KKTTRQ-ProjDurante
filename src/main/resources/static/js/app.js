@@ -100,7 +100,6 @@
         document.getElementById('modal-animal-sexo').textContent = card.dataset.sexo || '—';
         document.getElementById('modal-animal-descricao').textContent = descricao;
         document.getElementById('modal-animal-status').textContent = card.dataset.status || '—';
-        document.getElementById('modal-whatsapp-nome').textContent = nome;
 
         const fotoEl = document.getElementById('modal-animal-foto');
         const placeholder = document.getElementById('modal-animal-placeholder');
@@ -115,18 +114,12 @@
         document.getElementById('modal-animal-castrado-linha').hidden = card.dataset.castrado !== 'true';
         document.getElementById('modal-animal-vacinado-linha').hidden = card.dataset.vacinado !== 'true';
 
-        const btnWhatsapp = document.getElementById('modal-whatsapp-btn');
-        const aviso = document.getElementById('modal-whatsapp-aviso');
-        const mensagem = 'Oi! tenho interesse em adotar ' + nome + '!';
+       const btnAdotar = document.getElementById('modal-adotar-btn');
+const animalId = card.dataset.id;
 
-        if (whatsappNumero) {
-            btnWhatsapp.href = 'https://wa.me/' + whatsappNumero + '?text=' + encodeURIComponent(mensagem);
-            btnWhatsapp.hidden = false;
-            aviso.hidden = true;
-        } else {
-            btnWhatsapp.hidden = true;
-            aviso.hidden = false;
-        }
+if (btnAdotar && animalId) {
+    btnAdotar.href = '/animais/' + animalId + '/adotar';
+}
 
         modal.classList.add('modal-animal--aberto');
         modal.setAttribute('aria-hidden', 'false');
