@@ -205,6 +205,7 @@ patinhas/
     │   │   │   ├── web/                        ← controllers públicos (Thymeleaf)
     │   │   │   │   ├── HomeController.java
     │   │   │   │   ├── AnimalWebController.java
+    │   │   │   │   ├── SolicitacaoAdocaoWebController.java
     │   │   │   │   └── DenunciaWebController.java
     │   │   │   ├── admin/                      ← controllers do painel
     │   │   │   │   ├── AdminDashboardController.java
@@ -214,6 +215,7 @@ patinhas/
     │   │   │   │   └── AdminInformacaoONGController.java
     │   │   │   └── api/                        ← endpoints REST (JSON)
     │   │   │       ├── AnimalApiController.java
+    │   │   │       ├── SolicitacaoAdocaoApiController.java
     │   │   │       ├── DenunciaApiController.java
     │   │   │       ├── EventoApiController.java
     │   │   │       ├── InformacaoONGApiController.java
@@ -225,13 +227,14 @@ patinhas/
     │   │   │
     │   │   ├── entity/
     │   │   │   ├── Animal.java
+    │   │   │   ├── SolicitacaoAdocao.java
     │   │   │   ├── Usuario.java
     │   │   │   ├── Denuncia.java
     │   │   │   ├── Evento.java
     │   │   │   ├── InformacaoONG.java
     │   │   │   └── enums/                      ← PorteAnimal, SexoAnimal,
     │   │   │                                     StatusAdocao, RoleUsuario,
-    │   │   │                                     StatusDenuncia
+    │   │   │                                     StatusDenuncia, StatusSolicitacaoAdocao
     │   │   ├── repository/                     ← interfaces JpaRepository
     │   │   ├── service/                        ← regras de negócio
     │   │   │
@@ -256,6 +259,7 @@ patinhas/
     │       │   ├── index.html
     │       │   ├── animais.html
     │       │   ├── animal-detalhe.html
+    │       │   ├── solicitacao-adocao.html
     │       │   ├── denuncia.html
     │       │   ├── login.html
     │       │   ├── sobre.html
@@ -354,6 +358,22 @@ Registro **único** com os dados institucionais exibidos na página "Sobre".
 | instagram       | String(255)  |
 | facebook        | String(255)  |
 
+### 7.6 `SolicitacaoAdocao`
+
+Pedido de interesse enviado pelo visitante. Ainda **não** é gerido no admin (mês 2).
+
+| Campo                 | Tipo                         | Observações                          |
+|-----------------------|------------------------------|--------------------------------------|
+| id                    | Long                         | PK                                   |
+| nome, telefone, email, cidade | String                | dados do interessado                 |
+| motivoAdocao          | String(2000)                 | obrigatório                          |
+| possuiOutrosAnimais etc. | Boolean                   | respostas do formulário              |
+| dataSolicitacao       | LocalDateTime                | preenchida automaticamente           |
+| status                | `StatusSolicitacaoAdocao`    | default **Nova**                     |
+| animal                | `Animal`                     | animal de interesse                  |
+
+Status: `NOVA` / `EM_ANALISE` / `CONTATADO` / `APROVADA` / `CONCLUIDA` / `RECUSADA`.
+
 ---
 
 ## 8. Rotas (Web e API)
@@ -366,6 +386,8 @@ Registro **único** com os dados institucionais exibidos na página "Sobre".
 | GET    | `/home`          | Idem                                      |
 | GET    | `/animais`       | Lista pública de animais (com filtros)    |
 | GET    | `/animais/{id}`  | Detalhe do animal                         |
+| GET    | `/animais/{id}/adotar` | Formulário de interesse em adoção    |
+| POST   | `/animais/{id}/adotar` | Submete a solicitação de adoção      |
 | GET    | `/sobre`         | Informações institucionais                |
 | GET    | `/denuncia`      | Formulário de denúncia anônima            |
 | POST   | `/denuncia`      | Submete denúncia anônima                  |
@@ -420,6 +442,7 @@ Todas as respostas seguem o envelope `ApiResponse<T>`:
 | GET    | `/api/v1/public/eventos/proximos`  | Eventos futuros                               |
 | GET    | `/api/v1/public/informacoes`       | Informações institucionais                    |
 | POST   | `/api/v1/public/denuncias`         | Cria denúncia anônima (CSRF dispensado)       |
+| POST   | `/api/v1/public/solicitacoes-adocao` | Cria solicitação de adoção (CSRF dispensado) |
 
 #### Administrativas (`/api/v1/admin/**` — exigem ROLE_ADMIN)
 
@@ -490,6 +513,7 @@ Todas as respostas seguem o envelope `ApiResponse<T>`:
 2. Pode navegar até `/animais` para ver a lista completa, com filtros.
 3. Pode acessar `/sobre` para conhecer a ONG.
 4. Pode enviar uma denúncia em `/denuncia` (totalmente anônima).
+5. Pode pedir para adotar em `/animais/{id}/adotar`. O pedido fica com status **Nova** até o admin tratar (mês 2).
 
 ### 10.2 Administrador
 

@@ -61,17 +61,16 @@
             return;
         }
 
-        const whatsappNumero = modal.dataset.whatsapp || '';
         const cards = document.querySelectorAll('.card-animal--clicavel');
 
         cards.forEach(function (card) {
             card.addEventListener('click', function () {
-                abrirModalAnimal(card, modal, whatsappNumero);
+                abrirModalAnimal(card, modal);
             });
             card.addEventListener('keydown', function (e) {
                 if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
-                    abrirModalAnimal(card, modal, whatsappNumero);
+                    abrirModalAnimal(card, modal);
                 }
             });
         });
@@ -89,7 +88,7 @@
         });
     }
 
-    function abrirModalAnimal(card, modal, whatsappNumero) {
+    function abrirModalAnimal(card, modal) {
         const nome = card.dataset.nome || '';
         const foto = card.dataset.foto || '';
         const descricao = card.dataset.descricao || 'Sem descrição disponível no momento.';
@@ -114,12 +113,12 @@
         document.getElementById('modal-animal-castrado-linha').hidden = card.dataset.castrado !== 'true';
         document.getElementById('modal-animal-vacinado-linha').hidden = card.dataset.vacinado !== 'true';
 
-       const btnAdotar = document.getElementById('modal-adotar-btn');
-const animalId = card.dataset.id;
+        const btnAdotar = document.getElementById('modal-adotar-btn');
+        const animalId = card.dataset.id;
 
-if (btnAdotar && animalId) {
-    btnAdotar.href = '/animais/' + animalId + '/adotar';
-}
+        if (btnAdotar && animalId) {
+            btnAdotar.href = '/animais/' + animalId + '/adotar';
+        }
 
         modal.classList.add('modal-animal--aberto');
         modal.setAttribute('aria-hidden', 'false');

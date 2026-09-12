@@ -37,15 +37,20 @@ public class SolicitacaoAdocaoRequestDTO {
     @NotNull(message = "O animal de interesse é obrigatório.")
     private Long animalId;
 
+    @NotBlank(message = "Informe o motivo da adoção.")
     @Size(max = 2000, message = "O motivo deve ter no máximo 2000 caracteres.")
     private String motivoAdocao;
 
+    @NotNull(message = "Informe se possui outros animais.")
     private Boolean possuiOutrosAnimais;
 
+    @NotNull(message = "Informe se possui espaço adequado.")
     private Boolean possuiEspacoAdequado;
 
+    @NotNull(message = "Informe se todos da casa concordam com a adoção.")
     private Boolean todosConcordam;
 
+    @NotNull(message = "Informe se já teve animais.")
     private Boolean jaTeveAnimais;
 
     @Size(max = 2000, message = "As observações devem ter no máximo 2000 caracteres.")

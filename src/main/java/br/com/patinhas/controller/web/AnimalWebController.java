@@ -3,8 +3,6 @@ package br.com.patinhas.controller.web;
 import br.com.patinhas.entity.enums.StatusAdocao;
 import br.com.patinhas.exception.ResourceNotFoundException;
 import br.com.patinhas.service.AnimalService;
-import br.com.patinhas.service.InformacaoONGService;
-import br.com.patinhas.util.WhatsappUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
@@ -20,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class AnimalWebController {
 
     private final AnimalService animalService;
-    private final InformacaoONGService informacaoONGService;
 
     @GetMapping
     public String listar(@RequestParam(required = false) String nome,
@@ -28,7 +25,6 @@ public class AnimalWebController {
                          @RequestParam(defaultValue = "0") int page,
                          @RequestParam(defaultValue = "12") int size,
                          Model model) {
-        var informacao = informacaoONGService.obter();
         var pagina = animalService.filtrar(
                 (nome == null || nome.isBlank()) ? null : nome.trim(),
                 status,
@@ -38,7 +34,6 @@ public class AnimalWebController {
         model.addAttribute("statusFiltro", status);
         model.addAttribute("nomeFiltro", nome);
         model.addAttribute("statusList", StatusAdocao.values());
-        model.addAttribute("whatsappNumero", WhatsappUtil.formatarNumero(informacao.getTelefoneContato()));
         return "animais";
     }
 

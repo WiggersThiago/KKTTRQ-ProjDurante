@@ -1,5 +1,6 @@
 package br.com.patinhas.entity;
 
+import br.com.patinhas.entity.enums.StatusSolicitacaoAdocao;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -54,6 +55,11 @@ public class SolicitacaoAdocao {
     @Column(name = "data_solicitacao", nullable = false, updatable = false)
     private LocalDateTime dataSolicitacao;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    @Builder.Default
+    private StatusSolicitacaoAdocao status = StatusSolicitacaoAdocao.NOVA;
+
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "animal_id", nullable = false)
     private Animal animal;
@@ -61,5 +67,8 @@ public class SolicitacaoAdocao {
     @PrePersist
     protected void onCreate() {
         this.dataSolicitacao = LocalDateTime.now();
+        if (this.status == null) {
+            this.status = StatusSolicitacaoAdocao.NOVA;
+        }
     }
 }

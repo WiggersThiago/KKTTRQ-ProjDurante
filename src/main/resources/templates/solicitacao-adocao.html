@@ -59,6 +59,9 @@
                  th:text="${sucesso}">
                 Sua solicitação foi enviada com sucesso! A ONG entrará em contato com você.
             </div>
+            <div class="alerta alerta--erro"
+                 th:if="${erro}"
+                 th:text="${erro}"></div>
             <form th:action="@{/animais/{animalId}/adotar(animalId=${animal.id})}"
                   th:object="${solicitacao}"
                   method="post"
@@ -112,7 +115,7 @@
 
                 <div class="campo">
                     <label for="motivoAdocao">
-                        Por que você deseja adotar?
+                        Por que você deseja adotar? *
                     </label>
 
                     <textarea id="motivoAdocao"
@@ -126,7 +129,7 @@
 
                 <div class="campo">
                     <label for="possuiOutrosAnimais">
-                        Você possui outros animais?
+                        Você possui outros animais? *
                     </label>
 
                     <select id="possuiOutrosAnimais"
@@ -135,11 +138,13 @@
                         <option value="true">Sim</option>
                         <option value="false">Não</option>
                     </select>
+                    <small class="campo__erro"
+                           th:errors="*{possuiOutrosAnimais}"></small>
                 </div>
 
                 <div class="campo">
                     <label for="possuiEspacoAdequado">
-                        Possui espaço adequado para o animal?
+                        Possui espaço adequado para o animal? *
                     </label>
 
                     <select id="possuiEspacoAdequado"
@@ -148,11 +153,13 @@
                         <option value="true">Sim</option>
                         <option value="false">Não</option>
                     </select>
+                    <small class="campo__erro"
+                           th:errors="*{possuiEspacoAdequado}"></small>
                 </div>
 
                 <div class="campo">
                     <label for="todosConcordam">
-                        Todos da casa estão de acordo com a adoção?
+                        Todos da casa estão de acordo com a adoção? *
                     </label>
 
                     <select id="todosConcordam"
@@ -161,11 +168,13 @@
                         <option value="true">Sim</option>
                         <option value="false">Não</option>
                     </select>
+                    <small class="campo__erro"
+                           th:errors="*{todosConcordam}"></small>
                 </div>
 
                 <div class="campo">
                     <label for="jaTeveAnimais">
-                        Já teve animais anteriormente?
+                        Já teve animais anteriormente? *
                     </label>
 
                     <select id="jaTeveAnimais"
@@ -174,6 +183,8 @@
                         <option value="true">Sim</option>
                         <option value="false">Não</option>
                     </select>
+                    <small class="campo__erro"
+                           th:errors="*{jaTeveAnimais}"></small>
                 </div>
 
                 <div class="campo">

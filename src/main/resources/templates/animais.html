@@ -99,8 +99,7 @@
 
     <div id="modal-animal"
          class="modal-animal"
-         aria-hidden="true"
-         th:attr="data-whatsapp=${whatsappNumero}">
+         aria-hidden="true">
         <div class="modal-animal__overlay" data-fechar-modal></div>
         <div class="modal-animal__conteudo" role="dialog" aria-modal="true" aria-labelledby="modal-animal-titulo">
             <button type="button" class="modal-animal__fechar" data-fechar-modal aria-label="Fechar">&times;</button>
@@ -127,14 +126,10 @@
             <p class="modal-animal__descricao" id="modal-animal-descricao"></p>
 
           <a id="modal-adotar-btn"
-   class="btn btn--primario"
-   href="#">
-    Tenho interesse em adotar
-</a>
-
-            <p id="modal-whatsapp-aviso" class="modal-animal__aviso" hidden>
-                WhatsApp da ONG ainda não cadastrado. Configure em Admin → Informações da ONG.
-            </p>
+             class="btn btn--primario"
+             href="#">
+            Tenho interesse em adotar
+          </a>
         </div>
     </div>
 </section>

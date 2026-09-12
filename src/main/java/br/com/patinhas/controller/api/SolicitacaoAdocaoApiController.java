@@ -1,7 +1,8 @@
 package br.com.patinhas.controller.api;
 
 import br.com.patinhas.dto.request.SolicitacaoAdocaoRequestDTO;
-import br.com.patinhas.entity.SolicitacaoAdocao;
+import br.com.patinhas.dto.response.ApiResponse;
+import br.com.patinhas.dto.response.SolicitacaoAdocaoResponseDTO;
 import br.com.patinhas.service.SolicitacaoAdocaoService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -15,14 +16,13 @@ public class SolicitacaoAdocaoApiController {
 
     private final SolicitacaoAdocaoService solicitacaoAdocaoService;
 
- 
     @PostMapping("/api/v1/public/solicitacoes-adocao")
-    public ResponseEntity<SolicitacaoAdocao> criar(
+    public ResponseEntity<ApiResponse<SolicitacaoAdocaoResponseDTO>> criar(
             @Valid @RequestBody SolicitacaoAdocaoRequestDTO dto) {
 
-        SolicitacaoAdocao solicitacao = solicitacaoAdocaoService.cadastrar(dto);
+        SolicitacaoAdocaoResponseDTO solicitacao = solicitacaoAdocaoService.cadastrar(dto);
 
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(solicitacao);
+                .body(ApiResponse.ok("Solicitação de adoção registrada.", solicitacao));
     }
 }
