@@ -2,14 +2,18 @@ package br.com.patinhas.dto.request;
 
 import br.com.patinhas.entity.enums.PorteAnimal;
 import br.com.patinhas.entity.enums.SexoAnimal;
+import br.com.patinhas.entity.enums.SituacaoAnimal;
 import br.com.patinhas.entity.enums.StatusAdocao;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
 @Getter
 @Setter
 @Builder
@@ -26,6 +30,11 @@ public class AnimalRequestDTO {
     @Max(value = 50, message = "A idade informada é inválida.")
     private Integer idade;
 
+
+    @NotBlank(message = "A espécie do animal é obrigatória.")
+    @Size(max = 100, message = "A espécie deve ter no máximo 100 caracteres.")
+    private String especie;
+
     @Size(max = 1000, message = "A descrição deve ter no máximo 1000 caracteres.")
     private String descricao;
 
@@ -36,6 +45,11 @@ public class AnimalRequestDTO {
     private SexoAnimal sexo;
 
     private StatusAdocao statusAdocao;
+   
+    @NotNull(message = "A situação do animal é obrigatória.")
+    private SituacaoAnimal situacaoAnimal;
+
+
 
     @NotNull(message = "Informe se o animal é castrado.")
     private Boolean castrado;

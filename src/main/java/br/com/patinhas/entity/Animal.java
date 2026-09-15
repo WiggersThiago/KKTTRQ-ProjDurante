@@ -1,12 +1,30 @@
 package br.com.patinhas.entity;
 
+import java.time.LocalDateTime;
+
 import br.com.patinhas.entity.enums.PorteAnimal;
 import br.com.patinhas.entity.enums.SexoAnimal;
+import br.com.patinhas.entity.enums.SituacaoAnimal;
 import br.com.patinhas.entity.enums.StatusAdocao;
-import jakarta.persistence.*;
-import lombok.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
-import java.time.LocalDateTime;
 
 /**
  * Representa um animal cadastrado pela ONG para adoção.
@@ -32,6 +50,10 @@ public class Animal {
     @Column(nullable = false)
     private Integer idade;
 
+    @ManyToOne
+    @JoinColumn(name = "especie_id")
+    private Especie especie;
+
     @Column(length = 1000)
     private String descricao;
 
@@ -48,6 +70,11 @@ public class Animal {
     @Builder.Default
     private StatusAdocao statusAdocao = StatusAdocao.DISPONIVEL;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "situacao_animal", length = 20)
+    @Builder.Default
+    private SituacaoAnimal situacaoAnimal = SituacaoAnimal.NORMAL;
+
     @Column(nullable = false)
     @Builder.Default
     private Boolean castrado = false;
@@ -61,6 +88,12 @@ public class Animal {
 
     @Column(name = "data_cadastro", nullable = false, updatable = false)
     private LocalDateTime dataCadastro;
+
+    @Column(name = "data_disponivel")
+    private LocalDateTime dataDisponivel;
+
+    @Column(name = "data_adocao")
+    private LocalDateTime dataAdocao;
 
     @Column(nullable = false)
     @Builder.Default

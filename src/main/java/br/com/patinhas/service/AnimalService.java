@@ -1,5 +1,13 @@
 package br.com.patinhas.service;
 
+import java.util.List;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
 import br.com.patinhas.dto.request.AnimalRequestDTO;
 import br.com.patinhas.dto.response.AnimalResponseDTO;
 import br.com.patinhas.entity.Animal;
@@ -8,13 +16,6 @@ import br.com.patinhas.exception.ResourceNotFoundException;
 import br.com.patinhas.repository.AnimalRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
 
 /**
  * Camada de regras de negócio para Animais.
@@ -26,6 +27,7 @@ public class AnimalService {
 
     private final AnimalRepository animalRepository;
     private final ImageStorageService imageStorageService;
+    private final EspecieService especieService;
 
     @Transactional(readOnly = true)
     public List<AnimalResponseDTO> listarDestaque() {
@@ -86,13 +88,18 @@ public class AnimalService {
     @Transactional
     public AnimalResponseDTO cadastrar(AnimalRequestDTO dto, MultipartFile imagem) {
         log.info("Cadastrando novo animal: {}", dto.getNome());
+        var especie = especieService.buscarOuCriar(dto.getEspecie());
+
         Animal animal = Animal.builder()
+
                 .nome(dto.getNome())
                 .idade(dto.getIdade())
+                .especie(especie)
                 .descricao(dto.getDescricao())
                 .porte(dto.getPorte())
                 .sexo(dto.getSexo())
                 .statusAdocao(dto.getStatusAdocao() == null ? StatusAdocao.DISPONIVEL : dto.getStatusAdocao())
+                .situacaoAnimal(dto.getSituacaoAnimal())
                 .castrado(Boolean.TRUE.equals(dto.getCastrado()))
                 .vacinado(Boolean.TRUE.equals(dto.getVacinado()))
                 .destaque(Boolean.TRUE.equals(dto.getDestaque()))
@@ -111,14 +118,17 @@ public class AnimalService {
     public AnimalResponseDTO atualizar(Long id, AnimalRequestDTO dto, MultipartFile imagem, boolean removerImagem) {
         log.info("Atualizando animal id={}", id);
         Animal animal = buscarEntidade(id);
+        var especie = especieService.buscarOuCriar(dto.getEspecie());
         animal.setNome(dto.getNome());
         animal.setIdade(dto.getIdade());
         animal.setDescricao(dto.getDescricao());
         animal.setPorte(dto.getPorte());
         animal.setSexo(dto.getSexo());
+        animal.setEspecie(especie);
         if (dto.getStatusAdocao() != null) {
             animal.setStatusAdocao(dto.getStatusAdocao());
         }
+        animal.setSituacaoAnimal(dto.getSituacaoAnimal());
         animal.setCastrado(Boolean.TRUE.equals(dto.getCastrado()));
         animal.setVacinado(Boolean.TRUE.equals(dto.getVacinado()));
         animal.setDestaque(Boolean.TRUE.equals(dto.getDestaque()));
