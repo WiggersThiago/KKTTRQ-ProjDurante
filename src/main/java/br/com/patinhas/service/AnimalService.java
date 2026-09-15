@@ -1,5 +1,6 @@
 package br.com.patinhas.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -89,6 +90,9 @@ public class AnimalService {
     public AnimalResponseDTO cadastrar(AnimalRequestDTO dto, MultipartFile imagem) {
         log.info("Cadastrando novo animal: {}", dto.getNome());
         var especie = especieService.buscarOuCriar(dto.getEspecie());
+        StatusAdocao status = dto.getStatusAdocao() == null
+        ? StatusAdocao.DISPONIVEL
+        : dto.getStatusAdocao();
 
         Animal animal = Animal.builder()
 
@@ -98,7 +102,10 @@ public class AnimalService {
                 .descricao(dto.getDescricao())
                 .porte(dto.getPorte())
                 .sexo(dto.getSexo())
-                .statusAdocao(dto.getStatusAdocao() == null ? StatusAdocao.DISPONIVEL : dto.getStatusAdocao())
+                .statusAdocao(status)
+                .dataDisponivel(status == StatusAdocao.DISPONIVEL
+                    ? LocalDateTime.now()
+                    : null)
                 .situacaoAnimal(dto.getSituacaoAnimal())
                 .castrado(Boolean.TRUE.equals(dto.getCastrado()))
                 .vacinado(Boolean.TRUE.equals(dto.getVacinado()))
@@ -126,8 +133,8 @@ public class AnimalService {
         animal.setSexo(dto.getSexo());
         animal.setEspecie(especie);
         if (dto.getStatusAdocao() != null) {
-            animal.setStatusAdocao(dto.getStatusAdocao());
-        }
+        aplicarStatusAdocao(animal, dto.getStatusAdocao());
+}
         animal.setSituacaoAnimal(dto.getSituacaoAnimal());
         animal.setCastrado(Boolean.TRUE.equals(dto.getCastrado()));
         animal.setVacinado(Boolean.TRUE.equals(dto.getVacinado()));
@@ -152,10 +159,23 @@ public class AnimalService {
         }
     }
 
+    private void aplicarStatusAdocao(Animal animal, StatusAdocao novoStatus) {
+
+    if (novoStatus == StatusAdocao.DISPONIVEL && animal.getDataDisponivel() == null) {
+        animal.setDataDisponivel(LocalDateTime.now());
+    }
+    
+    if (novoStatus == StatusAdocao.ADOTADO && animal.getDataAdocao() == null) {
+    animal.setDataAdocao(LocalDateTime.now());
+    }  
+     animal.setStatusAdocao(novoStatus);
+
+
+}
     @Transactional
     public void atualizarStatus(Long id, StatusAdocao novoStatus) {
         Animal animal = buscarEntidade(id);
-        animal.setStatusAdocao(novoStatus);
+        aplicarStatusAdocao(animal, novoStatus);
         animalRepository.save(animal);
     }
 
