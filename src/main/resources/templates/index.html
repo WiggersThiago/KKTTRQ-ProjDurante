@@ -34,7 +34,21 @@
         </div>
 
         <div class="grid-animais" th:if="${not #lists.isEmpty(animaisDestaque)}">
-            <article class="card-animal" th:each="animal : ${animaisDestaque}">
+            <article class="card-animal card-animal--clicavel"
+                th:each="animal : ${animaisDestaque}"
+                role="button"
+                tabindex="0"
+                th:attr="
+                    data-id=${animal.id},
+                    data-nome=${animal.nome},
+                    data-idade=${animal.idade},
+                    data-porte=${animal.porte.descricao},
+                    data-sexo=${animal.sexo.descricao},
+                    data-status=${animal.statusAdocao.descricao},
+                    data-descricao=${animal.descricao != null ? animal.descricao : ''},
+                    data-foto=${animal.fotoUrl != null ? animal.fotoUrl : ''},
+                    data-castrado=${animal.castrado},
+                    data-vacinado=${animal.vacinado}">
                 <div class="card-animal__foto"
                      th:style="${animal.fotoUrl} ? 'background-image:url(' + ${animal.fotoUrl} + ')' : ''">
                     <span th:if="${animal.fotoUrl == null}" class="card-animal__placeholder">
@@ -59,6 +73,56 @@
             Ah que pena! Nenhum animalzinho destacado no momento 🥺
         </p>
     </section>
+
+            <div id="modal-animal"
+            class="modal-animal"
+            aria-hidden="true">
+
+            <div class="modal-animal__overlay" data-fechar-modal></div>
+
+            <div class="modal-animal__conteudo"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="modal-animal-titulo">
+
+                <button type="button"
+                        class="modal-animal__fechar"
+                        data-fechar-modal
+                        aria-label="Fechar">&times;</button>
+
+                <div class="modal-animal__foto" id="modal-animal-foto">
+                    <span class="card-animal__placeholder"
+                        id="modal-animal-placeholder"
+                        hidden>
+                        <img th:replace="~{fragments/brand :: trayicon('marca-trayicon marca-trayicon--placeholder')}" />
+                    </span>
+                </div>
+
+                <h2 id="modal-animal-titulo"></h2>
+
+                <p class="modal-animal__status">
+                    <span class="badge" id="modal-animal-status"></span>
+                </p>
+
+                <ul class="modal-animal__lista">
+                    <li><strong>Idade:</strong> <span id="modal-animal-idade"></span></li>
+                    <li><strong>Porte:</strong> <span id="modal-animal-porte"></span></li>
+                    <li><strong>Sexo:</strong> <span id="modal-animal-sexo"></span></li>
+                    <li id="modal-animal-castrado-linha" hidden><strong>Castrado</strong></li>
+                    <li id="modal-animal-vacinado-linha" hidden><strong>Vacinado</strong></li>
+                </ul>
+
+                <p class="modal-animal__descricao" id="modal-animal-descricao"></p>
+
+                <a id="modal-adotar-btn"
+                class="btn btn--primario"
+                href="#">
+                    Tenho interesse em adotar
+                </a>
+
+            </div>
+        </div>
+
 
     <section class="container secao" th:if="${not #lists.isEmpty(proximosEventos)}">
         <div class="secao__cabecalho">

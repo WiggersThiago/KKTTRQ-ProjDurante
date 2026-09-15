@@ -1,14 +1,8 @@
 package br.com.patinhas.controller.admin;
 
-import br.com.patinhas.dto.request.AnimalRequestDTO;
-import br.com.patinhas.entity.enums.PorteAnimal;
-import br.com.patinhas.entity.enums.SexoAnimal;
-import br.com.patinhas.entity.enums.StatusAdocao;
-import br.com.patinhas.exception.BusinessException;
-import br.com.patinhas.service.AnimalService;
-import br.com.patinhas.service.ImageStorageService;
-import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
@@ -18,12 +12,26 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
+import br.com.patinhas.dto.request.AnimalRequestDTO;
+import br.com.patinhas.entity.enums.SituacaoAnimal;
+import br.com.patinhas.entity.enums.PorteAnimal;
+import br.com.patinhas.entity.enums.SexoAnimal;
+import br.com.patinhas.entity.enums.StatusAdocao;
+import br.com.patinhas.exception.BusinessException;
+import br.com.patinhas.service.AnimalService;
+import br.com.patinhas.service.EspecieService;
+import br.com.patinhas.service.ImageStorageService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 
 @Controller
 @RequestMapping("/admin/animais")
@@ -33,6 +41,7 @@ public class AdminAnimalController {
 
     private final AnimalService animalService;
     private final ImageStorageService imageStorageService;
+    private final EspecieService especieService;
 
     @GetMapping
     public String listar(Model model) {
@@ -52,10 +61,10 @@ public class AdminAnimalController {
 
     @PostMapping
     public String salvar(@Valid @ModelAttribute("animal") AnimalRequestDTO dto,
-                         @RequestParam(value = "imagem", required = false) MultipartFile imagem,
-                         BindingResult bindingResult,
-                         Model model,
-                         RedirectAttributes redirectAttributes) {
+                     BindingResult bindingResult,
+                     @RequestParam(value = "imagem", required = false) MultipartFile imagem,
+                     Model model,
+                     RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
             adicionarEnumsAoModel(model);
             model.addAttribute("modoEdicao", false);
@@ -78,11 +87,13 @@ public class AdminAnimalController {
         var animal = animalService.buscarPorId(id);
         AnimalRequestDTO dto = AnimalRequestDTO.builder()
                 .nome(animal.getNome())
+                .especie(animal.getEspecie())
                 .idade(animal.getIdade())
                 .descricao(animal.getDescricao())
                 .porte(animal.getPorte())
                 .sexo(animal.getSexo())
                 .statusAdocao(animal.getStatusAdocao())
+                .situacaoAnimal(animal.getSituacaoAnimal())
                 .castrado(animal.getCastrado())
                 .vacinado(animal.getVacinado())
                 .destaque(animal.getDestaque())
@@ -98,12 +109,12 @@ public class AdminAnimalController {
 
     @PostMapping("/{id}")
     public String atualizar(@PathVariable Long id,
-                            @Valid @ModelAttribute("animal") AnimalRequestDTO dto,
-                            @RequestParam(value = "imagem", required = false) MultipartFile imagem,
-                            @RequestParam(value = "removerImagem", defaultValue = "false") boolean removerImagem,
-                            BindingResult bindingResult,
-                            Model model,
-                            RedirectAttributes redirectAttributes) {
+                        @Valid @ModelAttribute("animal") AnimalRequestDTO dto,
+                        BindingResult bindingResult,
+                        @RequestParam(value = "imagem", required = false) MultipartFile imagem,
+                        @RequestParam(value = "removerImagem", defaultValue = "false") boolean removerImagem,
+                        Model model,
+                        RedirectAttributes redirectAttributes) {
         var existente = animalService.buscarPorId(id);
         if (bindingResult.hasErrors()) {
             model.addAttribute("animalId", id);
@@ -153,5 +164,7 @@ public class AdminAnimalController {
         model.addAttribute("portes", PorteAnimal.values());
         model.addAttribute("sexos", SexoAnimal.values());
         model.addAttribute("statusList", StatusAdocao.values());
+        model.addAttribute("situacoes", SituacaoAnimal.values());
+        model.addAttribute("especies", especieService.listarTodas());
     }
 }

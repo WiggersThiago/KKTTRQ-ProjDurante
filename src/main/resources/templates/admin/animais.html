@@ -22,10 +22,14 @@
                     <tr>
                         <th>ID</th>
                         <th>Nome</th>
+                        <th>Espécie</th>
                         <th>Idade</th>
                         <th>Porte</th>
                         <th>Sexo</th>
                         <th>Status</th>
+                        <th>Situação</th>
+                        <th>Disponível desde</th>
+                        <th>Adotado em</th>
                         <th>Destaque</th>
                         <th>Ativo</th>
                         <th>Ações</th>
@@ -36,6 +40,7 @@
                         th:classappend="${!animal.ativo} ? 'tabela__linha--inativa' : ''">
                         <td th:text="${animal.id}">1</td>
                         <td th:text="${animal.nome}">Nome</td>
+                        <td th:text="${animal.especie != null ? animal.especie : '-'}">Espécie</td>
                         <td th:text="${animal.idade}">3</td>
                         <td th:text="${animal.porte.descricao}">Médio</td>
                         <td th:text="${animal.sexo.descricao}">Macho</td>
@@ -44,6 +49,17 @@
                                   th:classappend="'badge--' + ${#strings.toLowerCase(animal.statusAdocao.name())}"
                                   th:text="${animal.statusAdocao.descricao}">Disponível</span>
                         </td>
+                        <td th:text="${animal.situacaoAnimal != null ? animal.situacaoAnimal.descricao : '-'}">
+                             Normal
+                        </td>
+
+                        <td th:text="${animal.dataDisponivel != null ? #temporals.format(animal.dataDisponivel, 'dd/MM/yyyy HH:mm') : '-'}">
+    -
+                        </td>
+                        <td th:text="${animal.dataAdocao != null ? #temporals.format(animal.dataAdocao, 'dd/MM/yyyy HH:mm') : '-'}">
+    -
+                        </td>
+
                         <td th:text="${animal.destaque ? 'Sim' : 'Não'}">Não</td>
                         <td th:text="${animal.ativo ? 'Sim' : 'Não'}">Sim</td>
                         <td class="acoes">
@@ -56,7 +72,7 @@
                         </td>
                     </tr>
                     <tr th:if="${#lists.isEmpty(animais)}">
-                        <td colspan="9" class="vazio">Nenhum animal cadastrado.</td>
+                        <td colspan="13" class="vazio">Nenhum animal cadastrado.</td>
                     </tr>
                 </tbody>
             </table>

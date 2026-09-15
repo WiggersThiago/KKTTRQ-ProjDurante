@@ -132,6 +132,7 @@ public class AnimalService {
         animal.setPorte(dto.getPorte());
         animal.setSexo(dto.getSexo());
         animal.setEspecie(especie);
+        
         if (dto.getStatusAdocao() != null) {
         aplicarStatusAdocao(animal, dto.getStatusAdocao());
 }

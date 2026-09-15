@@ -11,7 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-
+import br.com.patinhas.service.EspecieService;
 /**
  * Inicializa os dados mínimos do sistema:
  *
@@ -28,6 +28,7 @@ public class DataSeeder implements CommandLineRunner {
     private final UsuarioRepository usuarioRepository;
     private final InformacaoONGRepository informacaoONGRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EspecieService especieService;
 
     @Value("${patinhas.admin.email}")
     private String adminEmail;
@@ -42,6 +43,7 @@ public class DataSeeder implements CommandLineRunner {
     public void run(String... args) {
         criarAdminPadrao();
         criarInformacoesPadrao();
+        criarEspeciesPadrao();
     }
 
     private void criarAdminPadrao() {
@@ -76,5 +78,10 @@ public class DataSeeder implements CommandLineRunner {
                 .build();
         informacaoONGRepository.save(info);
         log.info("Informações institucionais padrão criadas.");
+    }
+    private void criarEspeciesPadrao() {
+        especieService.buscarOuCriar("Cão");
+        especieService.buscarOuCriar("Gato");
+        log.info("Espécies padrão verificadas.");
     }
 }

@@ -12,11 +12,33 @@
         <form class="formulario formulario--admin"
               th:action="${modoEdicao ? '/admin/animais/' + animalId : '/admin/animais'}"
               th:object="${animal}" method="post" enctype="multipart/form-data">
+              
+            <div class="alerta alerta--erro" th:if="${#fields.hasErrors('*')}">
+                <strong>Ops! 😿</strong>
+                <span>Confira os campos obrigatórios antes de salvar.</span>
+            </div>
 
             <div class="campo">
                 <label for="nome">Nome *</label>
                 <input type="text" id="nome" th:field="*{nome}" />
                 <small class="campo__erro" th:errors="*{nome}"></small>
+            </div>
+            <div class="campo">
+                <label for="especie">Espécie *</label>
+
+                <input type="text"
+                    id="especie"
+                    th:field="*{especie}"
+                    list="listaEspecies"
+                    placeholder="Selecione ou digite uma nova espécie" />
+
+                <datalist id="listaEspecies">
+                    <option th:each="e : ${especies}"
+                            th:value="${e.nome}">
+                    </option>
+                </datalist>
+
+                <small class="campo__erro" th:errors="*{especie}"></small>
             </div>
 
             <div class="grid-2">
@@ -54,6 +76,22 @@
                     </select>
                 </div>
             </div>
+
+             <div class="campo">
+                <label for="situacaoAnimal">Situação do animal *</label>
+
+                <select id="situacaoAnimal" th:field="*{situacaoAnimal}">
+                    <option value="">Selecione...</option>
+                    <option th:each="situacao : ${situacoes}"
+                            th:value="${situacao}"
+                            th:text="${situacao.descricao}">
+                    </option>
+                </select>
+
+                <small class="campo__erro" th:errors="*{situacaoAnimal}"></small>
+            </div>
+
+
 
             <div class="campo">
                 <label for="descricao">Descrição</label>
