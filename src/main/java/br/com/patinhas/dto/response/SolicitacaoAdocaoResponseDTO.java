@@ -30,6 +30,7 @@ public class SolicitacaoAdocaoResponseDTO {
     private Boolean jaTeveAnimais;
     private String observacoes;
     private LocalDateTime dataSolicitacao;
+    private LocalDateTime dataConclusao;
     private StatusSolicitacaoAdocao status;
     private Long animalId;
     private String animalNome;
@@ -52,6 +53,7 @@ public class SolicitacaoAdocaoResponseDTO {
                 .jaTeveAnimais(solicitacao.getJaTeveAnimais())
                 .observacoes(solicitacao.getObservacoes())
                 .dataSolicitacao(solicitacao.getDataSolicitacao())
+                .dataConclusao(solicitacao.getDataConclusao())
                 .status(solicitacao.getStatus())
                 .animalId(animal != null ? animal.getId() : null)
                 .animalNome(animal != null ? animal.getNome() : null)

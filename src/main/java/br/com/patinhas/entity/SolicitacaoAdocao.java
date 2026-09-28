@@ -55,6 +55,9 @@ public class SolicitacaoAdocao {
     @Column(name = "data_solicitacao", nullable = false, updatable = false)
     private LocalDateTime dataSolicitacao;
 
+    @Column(name = "data_conclusao")
+    private LocalDateTime dataConclusao;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     @Builder.Default
