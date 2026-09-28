@@ -1,686 +1,133 @@
 <!DOCTYPE html>
 <html lang="pt-BR"
       xmlns:th="http://www.thymeleaf.org"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layout/base}">
-
-<head>
-    <meta charset="UTF-8">
-    <title>Detalhes da Solicitação</title>
-
-    <th:block layout:fragment="cssExtra">
-        <link rel="stylesheet" th:href="@{/css/dashboard.css}">
-
-        <style>
-
-            /* CABEÇALHO */
-
-            .solicitacao-detalhe-header {
-                margin-bottom: 25px;
-            }
-
-            .solicitacao-detalhe-header h1 {
-                margin-bottom: 5px;
-            }
-
-            .solicitacao-detalhe-header p {
-                margin: 0;
-                opacity: 0.75;
-            }
-
-
-            /* BOTÃO VOLTAR */
-
-            .link-voltar--admin {
-                display: inline-block;
-                padding: 10px 16px;
-                margin-bottom: 20px;
-
-                background: #1976d2;
-                color: white;
-
-                border-radius: 8px;
-                text-decoration: none;
-                font-weight: 600;
-
-                transition: background 0.2s ease;
-            }
-
-            .link-voltar--admin:hover {
-                background: #1565c0;
-            }
-
-
-            /* CARDS */
-
-            .solicitacao-card-titulo {
-                margin-top: 0;
-                margin-bottom: 20px;
-            }
-
-
-            /* DADOS */
-
-            .solicitacao-dados {
-                display: grid;
-                grid-template-columns: repeat(2, minmax(0, 1fr));
-                gap: 15px;
-            }
-
-            .solicitacao-dado {
-                padding: 14px;
-                border-radius: 8px;
-                background: #f7f7f7;
-            }
-
-            .solicitacao-dado strong {
-                display: block;
-                margin-bottom: 5px;
-                font-size: 14px;
-                opacity: 0.7;
-            }
-
-
-            /* STATUS */
-
-            .solicitacao-status {
-                display: inline-block;
-                padding: 7px 13px;
-                border-radius: 20px;
-
-                background: #eeeeee;
-                color: #333;
-
-                font-weight: 700;
-                font-size: 14px;
-            }
-
-
-            /* QUESTIONÁRIO */
-
-            .solicitacao-resposta {
-                margin-bottom: 18px;
-            }
-
-            .solicitacao-resposta strong {
-                display: block;
-                margin-bottom: 6px;
-            }
-
-            .solicitacao-resposta-texto {
-                margin: 0;
-                padding: 12px;
-                border-radius: 8px;
-                background: #f7f7f7;
-                line-height: 1.5;
-            }
-
-            .solicitacao-sim-nao {
-                display: inline-block;
-                padding: 5px 10px;
-                border-radius: 15px;
-                background: #eeeeee;
-                font-weight: 600;
-            }
-
-
-            /* FORMULÁRIO */
-
-            .solicitacao-form {
-                display: flex;
-                flex-direction: column;
-                gap: 18px;
-            }
-
-            .solicitacao-form__campo {
-                display: flex;
-                flex-direction: column;
-                gap: 7px;
-            }
-
-            .solicitacao-form label {
-                font-weight: 600;
-            }
-
-            .solicitacao-form select,
-            .solicitacao-form textarea {
-                width: 100%;
-                box-sizing: border-box;
-
-                padding: 11px 12px;
-
-                border: 1px solid #ccc;
-                border-radius: 8px;
-
-                background: white;
-                font-family: inherit;
-                font-size: 15px;
-            }
-
-            .solicitacao-form textarea {
-                resize: vertical;
-                min-height: 110px;
-            }
-
-            .solicitacao-form select:focus,
-            .solicitacao-form textarea:focus {
-                outline: none;
-                border-color: #1976d2;
-            }
-
-
-            /* BOTÃO ATUALIZAR */
-
-            .solicitacao-btn-atualizar {
-                align-self: flex-start;
-
-                padding: 11px 20px;
-
-                border: none;
-                border-radius: 8px;
-
-                background: #f39c12;
-                color: white;
-
-                font-weight: 700;
-                font-size: 15px;
-
-                cursor: pointer;
-
-                transition: background 0.2s ease;
-            }
-
-            .solicitacao-btn-atualizar:hover {
-                background: #d98200;
-            }
-
-
-            /* HISTÓRICO */
-
-            .solicitacao-historico-wrapper {
-                overflow-x: auto;
-            }
-
-            .solicitacao-historico {
-                width: 100%;
-                border-collapse: collapse;
-            }
-
-            .solicitacao-historico th {
-                padding: 14px 12px;
-
-                text-align: left;
-
-                background: #1976d2;
-                color: white;
-
-                font-size: 14px;
-            }
-
-            .solicitacao-historico th:first-child {
-                border-radius: 8px 0 0 8px;
-            }
-
-            .solicitacao-historico th:last-child {
-                border-radius: 0 8px 8px 0;
-            }
-
-            .solicitacao-historico td {
-                padding: 13px 12px;
-
-                border-bottom: 1px solid #eee;
-
-                vertical-align: top;
-            }
-
-            .solicitacao-historico tbody tr:hover {
-                background: #fafafa;
-            }
-
-            .solicitacao-historico-status {
-                font-weight: 600;
-            }
-
-            .solicitacao-historico-data {
-                white-space: nowrap;
-                opacity: 0.8;
-            }
-
-
-            /* RESPONSIVIDADE */
-
-            @media (max-width: 700px) {
-
-                .solicitacao-dados {
-                    grid-template-columns: 1fr;
-                }
-
-                .solicitacao-btn-atualizar {
-                    width: 100%;
-                }
-
-            }
-
-        </style>
-    </th:block>
-</head>
-
+      th:replace="~{layout/base :: html(tituloPagina='Detalhes da solicitação', cssExtra=${ {'/css/dashboard.css'} }, conteudo=~{::section})}">
 <body>
+<section>
+    <section class="container secao admin admin--centro">
+        <nav class="admin-breadcrumb" aria-label="Navegação">
+            <a th:href="@{/admin/dashboard}">Painel</a>
+            <span class="admin-breadcrumb__sep">/</span>
+            <a th:href="@{/admin/solicitacoes}">← Voltar às solicitações</a>
+        </nav>
 
-<div layout:fragment="conteudo">
+        <h1>Solicitação #<span th:text="${solicitacao.id}">1</span></h1>
 
-    <div class="container">
+        <div class="alerta alerta--sucesso" th:if="${sucesso}" th:text="${sucesso}"></div>
+        <div class="alerta alerta--erro" th:if="${erro}" th:text="${erro}"></div>
 
-
-        <!-- CABEÇALHO -->
-
-        <div class="solicitacao-detalhe-header">
-
-            <h1>Solicitação de Adoção</h1>
-
+        <div class="card">
             <p>
-                Detalhes da pessoa interessada e acompanhamento da solicitação.
+                <strong>Status atual:</strong>
+                <span class="badge"
+                      th:classappend="'badge--status-' + ${#strings.toLowerCase(solicitacao.status.name())}"
+                      th:text="${solicitacao.status.descricao}">Nova</span>
             </p>
-
+            <p>
+                <strong>Data da solicitação:</strong>
+                <span th:text="${#temporals.format(solicitacao.dataSolicitacao, 'dd/MM/yyyy HH:mm')}"></span>
+            </p>
+            <p th:if="${solicitacao.dataConclusao != null}">
+                <strong>Data da conclusão:</strong>
+                <span th:text="${#temporals.format(solicitacao.dataConclusao, 'dd/MM/yyyy HH:mm')}"></span>
+            </p>
+            <p>
+                <strong>Animal:</strong>
+                <span th:text="${solicitacao.animalNome}">Animal</span>
+            </p>
         </div>
 
-
-        <!-- VOLTAR -->
-
-        <div th:replace="~{fragments/admin-nav :: voltarPainel}"></div>
-
-
-        <!-- MENSAGENS -->
-
-        <div th:if="${sucesso}"
-             class="alert alert-success"
-             th:text="${sucesso}">
-        </div>
-
-        <div th:if="${erro}"
-             class="alert alert-error"
-             th:text="${erro}">
-        </div>
-
-
-        <!-- DADOS DA SOLICITAÇÃO -->
-
+        <h2>Dados do interessado</h2>
         <div class="card">
-
-            <h2 class="solicitacao-card-titulo">
-                Informações da solicitação
-            </h2>
-
-            <div class="solicitacao-dados">
-
-                <div class="solicitacao-dado">
-
-                    <strong>ID</strong>
-
-                    <span th:text="'#' + ${solicitacao.id}">
-                        #1
-                    </span>
-
-                </div>
-
-
-                <div class="solicitacao-dado">
-
-                    <strong>Data da solicitação</strong>
-
-                    <span th:text="${#temporals.format(
-                        solicitacao.dataSolicitacao,
-                        'dd/MM/yyyy HH:mm'
-                    )}">
-                        27/09/2026 20:00
-                    </span>
-
-                </div>
-
-
-                <div class="solicitacao-dado"
-                     th:if="${solicitacao.dataConclusao != null}">
-
-                    <strong>Data da conclusão</strong>
-
-                    <span th:text="${#temporals.format(
-                        solicitacao.dataConclusao,
-                        'dd/MM/yyyy HH:mm'
-                    )}">
-                        27/09/2026 21:00
-                    </span>
-
-                </div>
-
-
-                <div class="solicitacao-dado">
-
-                    <strong>Status atual</strong>
-
-                    <span class="solicitacao-status"
-                          th:text="${solicitacao.status.descricao}">
-                        Nova
-                    </span>
-
-                </div>
-
-            </div>
-
+            <p><strong>Nome:</strong> <span th:text="${solicitacao.nome}"></span></p>
+            <p><strong>Telefone/WhatsApp:</strong> <span th:text="${solicitacao.telefone}"></span></p>
+            <p><strong>E-mail:</strong>
+                <span th:text="${#strings.isEmpty(solicitacao.email) ? 'Não informado' : solicitacao.email}"></span></p>
+            <p><strong>Cidade:</strong>
+                <span th:text="${#strings.isEmpty(solicitacao.cidade) ? 'Não informado' : solicitacao.cidade}"></span></p>
         </div>
 
-
-        <!-- PESSOA -->
-
+        <h2>Respostas do formulário</h2>
         <div class="card">
-
-            <h2 class="solicitacao-card-titulo">
-                Dados do interessado
-            </h2>
-
-            <div class="solicitacao-dados">
-
-                <div class="solicitacao-dado">
-
-                    <strong>Nome</strong>
-
-                    <span th:text="${solicitacao.nome}">
-                        Nome
-                    </span>
-
-                </div>
-
-
-                <div class="solicitacao-dado">
-
-                    <strong>Telefone/WhatsApp</strong>
-
-                    <span th:text="${solicitacao.telefone}">
-                        (48) 99999-9999
-                    </span>
-
-                </div>
-
-
-                <div class="solicitacao-dado">
-
-                    <strong>E-mail</strong>
-
-                    <span th:text="${solicitacao.email}">
-                        email@teste.com
-                    </span>
-
-                </div>
-
-
-                <div class="solicitacao-dado">
-
-                    <strong>Cidade</strong>
-
-                    <span th:text="${solicitacao.cidade}">
-                        São José
-                    </span>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <!-- ANIMAL -->
-
-        <div class="card">
-
-            <h2 class="solicitacao-card-titulo">
-                Animal de interesse
-            </h2>
-
-            <div class="solicitacao-dados">
-
-                <div class="solicitacao-dado">
-
-                    <strong>Animal</strong>
-
-                    <span th:text="${solicitacao.animalNome}">
-                        Animal
-                    </span>
-
-                </div>
-
-            </div>
-
-        </div>
-
-
-        <!-- QUESTIONÁRIO -->
-
-        <div class="card">
-
-            <h2 class="solicitacao-card-titulo">
-                Respostas do questionário
-            </h2>
-
-
-            <div class="solicitacao-resposta">
-
-                <strong>Motivo da adoção</strong>
-
-                <p class="solicitacao-resposta-texto"
-                   th:text="${solicitacao.motivoAdocao}">
-                    Motivo da adoção
-                </p>
-
-            </div>
-
-
-            <div class="solicitacao-resposta">
-
+            <h3>Motivo da adoção</h3>
+            <p th:text="${#strings.isEmpty(solicitacao.motivoAdocao) ? 'Não informado' : solicitacao.motivoAdocao}">Motivo</p>
+            <p>
                 <strong>Possui outros animais?</strong>
-
-                <span class="solicitacao-sim-nao"
-                      th:text="${solicitacao.possuiOutrosAnimais ? 'Sim' : 'Não'}">
-                    Não
-                </span>
-
-            </div>
-
-
-            <div class="solicitacao-resposta">
-
+                <span th:text="${solicitacao.possuiOutrosAnimais == null ? 'Não informado' : (solicitacao.possuiOutrosAnimais ? 'Sim' : 'Não')}">Não informado</span>
+            </p>
+            <p>
                 <strong>Possui espaço adequado?</strong>
-
-                <span class="solicitacao-sim-nao"
-                      th:text="${solicitacao.possuiEspacoAdequado ? 'Sim' : 'Não'}">
-                    Sim
-                </span>
-
-            </div>
-
-
-            <div class="solicitacao-resposta">
-
+                <span th:text="${solicitacao.possuiEspacoAdequado == null ? 'Não informado' : (solicitacao.possuiEspacoAdequado ? 'Sim' : 'Não')}">Não informado</span>
+            </p>
+            <p>
                 <strong>Todos da casa concordam?</strong>
-
-                <span class="solicitacao-sim-nao"
-                      th:text="${solicitacao.todosConcordam ? 'Sim' : 'Não'}">
-                    Sim
-                </span>
-
-            </div>
-
-
-            <div class="solicitacao-resposta">
-
+                <span th:text="${solicitacao.todosConcordam == null ? 'Não informado' : (solicitacao.todosConcordam ? 'Sim' : 'Não')}">Não informado</span>
+            </p>
+            <p>
                 <strong>Já teve animais?</strong>
-
-                <span class="solicitacao-sim-nao"
-                      th:text="${solicitacao.jaTeveAnimais ? 'Sim' : 'Não'}">
-                    Sim
-                </span>
-
-            </div>
-
-
-            <div class="solicitacao-resposta">
-
-                <strong>Observações</strong>
-
-                <p class="solicitacao-resposta-texto"
-                   th:text="${solicitacao.observacoes}">
-                    Nenhuma observação.
-                </p>
-
-            </div>
-
+                <span th:text="${solicitacao.jaTeveAnimais == null ? 'Não informado' : (solicitacao.jaTeveAnimais ? 'Sim' : 'Não')}">Não informado</span>
+            </p>
+            <h3>Observações</h3>
+            <p th:if="${!#strings.isEmpty(solicitacao.observacoes)}" th:text="${solicitacao.observacoes}"></p>
+            <p th:if="${#strings.isEmpty(solicitacao.observacoes)}">Nenhuma observação.</p>
         </div>
 
-
-        <!-- ALTERAÇÃO DE STATUS -->
-
-        <div class="card">
-
-            <h2 class="solicitacao-card-titulo">
-                Atualizar status
-            </h2>
-
-            <form method="post"
-                  th:action="@{/admin/solicitacoes/{id}(id=${solicitacao.id})}"
-                  th:object="${atualizacao}"
-                  class="solicitacao-form">
-
-
-                <div class="solicitacao-form__campo">
-
-                    <label for="status">
-                        Novo status
-                    </label>
-
-                    <select id="status"
-                            th:field="*{status}">
-
-                        <option th:each="status : ${statusList}"
-                                th:value="${status}"
-                                th:text="${status.descricao}">
-                        </option>
-
-                    </select>
-
-                </div>
-
-
-                <div class="solicitacao-form__campo">
-
-                    <label for="anotacao">
-                        Anotação
-                    </label>
-
-                    <textarea id="anotacao"
-                              th:field="*{anotacao}"
-                              rows="4"
-                              maxlength="2000"
-                              placeholder="Digite uma observação sobre esta alteração...">
-                    </textarea>
-
-                </div>
-
-
-                <button type="submit"
-                        class="solicitacao-btn-atualizar">
-                    Atualizar status
-                </button>
-
-            </form>
-
+        <h2>Histórico de atualizações</h2>
+        <div class="card" th:if="${!#lists.isEmpty(historico)}">
+            <ul class="historico">
+                <li class="historico__item" th:each="h : ${historico}">
+                    <div class="historico__meta">
+                        <span th:text="${#temporals.format(h.registradoEm, 'dd/MM/yyyy HH:mm')}">01/01/2026</span>
+                        <span th:if="${h.registradoPor}" th:text="'por ' + ${h.registradoPor}">por admin</span>
+                    </div>
+                    <p class="historico__status" th:if="${h.statusAnterior != null}">
+                        <span th:text="${h.statusAnterior.descricao}">Nova</span>
+                        →
+                        <span th:text="${h.statusNovo.descricao}">Em análise</span>
+                    </p>
+                    <p class="historico__status" th:if="${h.statusAnterior == null}">
+                        <span th:text="'Status: ' + ${h.statusNovo.descricao}">Status: Nova</span>
+                    </p>
+                    <p class="historico__anotacao" th:if="${!#strings.isEmpty(h.anotacao)}"
+                       th:text="${h.anotacao}">Anotação</p>
+                </li>
+            </ul>
         </div>
+        <p class="historico__vazio" th:if="${#lists.isEmpty(historico)}">Nenhuma atualização registrada ainda.</p>
 
+        <h2 th:if="${!#lists.isEmpty(statusPermitidos)}">Registrar atualização</h2>
+        <form class="formulario formulario--admin"
+              th:if="${!#lists.isEmpty(statusPermitidos)}"
+              th:action="@{/admin/solicitacoes/{id}(id=${solicitacao.id})}"
+              th:object="${atualizacao}" method="post">
 
-        <!-- HISTÓRICO -->
-
-        <div class="card">
-
-            <h2 class="solicitacao-card-titulo">
-                Histórico da solicitação
-            </h2>
-
-
-            <div th:if="${#lists.isEmpty(historico)}">
-
-                <p>
-                    Nenhum histórico encontrado.
-                </p>
-
+            <div class="campo">
+                <label for="status">Status *</label>
+                <select id="status" th:field="*{status}">
+                    <option th:each="s : ${statusPermitidos}" th:value="${s}" th:text="${s.descricao}"></option>
+                </select>
+                <small class="texto-apoio">A esteira segue Nova, Em análise, Contatado, Aprovada e Concluída. Recusar encerra este pedido. Outro interessado no mesmo animal permanece no status em que está.</small>
+                <small class="campo__erro" th:errors="*{status}"></small>
             </div>
 
-
-            <div th:unless="${#lists.isEmpty(historico)}"
-                 class="solicitacao-historico-wrapper">
-
-                <table class="solicitacao-historico">
-
-                    <thead>
-
-                    <tr>
-                        <th>Data</th>
-                        <th>Status anterior</th>
-                        <th>Novo status</th>
-                        <th>Anotação</th>
-                        <th>Registrado por</th>
-                    </tr>
-
-                    </thead>
-
-
-                    <tbody>
-
-                    <tr th:each="item : ${historico}">
-
-                        <td class="solicitacao-historico-data"
-                            th:text="${#temporals.format(
-                                item.registradoEm,
-                                'dd/MM/yyyy HH:mm'
-                            )}">
-                        </td>
-
-
-                        <td>
-
-                            <span th:if="${item.statusAnterior != null}"
-                                  class="solicitacao-historico-status"
-                                  th:text="${item.statusAnterior.descricao}">
-                            </span>
-
-                            <span th:if="${item.statusAnterior == null}">
-                                -
-                            </span>
-
-                        </td>
-
-
-                        <td class="solicitacao-historico-status"
-                            th:text="${item.statusNovo.descricao}">
-                        </td>
-
-
-                        <td th:text="${item.anotacao}">
-                        </td>
-
-
-                        <td th:text="${item.registradoPor}">
-                        </td>
-
-                    </tr>
-
-                    </tbody>
-
-                </table>
-
+            <div class="campo">
+                <label for="anotacao">Nova anotação</label>
+                <textarea id="anotacao" th:field="*{anotacao}" rows="4" maxlength="2000"
+                          placeholder="Descreva o que foi feito ou observado nesta atualização..."></textarea>
+                <small class="texto-apoio">Opcional. Fica registrada no histórico desta solicitação.</small>
+                <small class="campo__erro" th:errors="*{anotacao}"></small>
             </div>
 
-        </div>
+            <div class="form-acoes">
+                <a class="btn btn--texto" th:href="@{/admin/solicitacoes}">Cancelar</a>
+                <button type="submit" class="btn btn--primario">Salvar atualização</button>
+            </div>
+        </form>
 
-    </div>
-
-</div>
-
+        <p class="texto-apoio" th:if="${#lists.isEmpty(statusPermitidos)}">
+            Esta solicitação está encerrada. O status não volta para a esteira.
+        </p>
+    </section>
+</section>
 </body>
 </html>

@@ -18,8 +18,4 @@ public interface SolicitacaoAdocaoRepository extends JpaRepository<SolicitacaoAd
             Long animalId,
             StatusSolicitacaoAdocao status
     );
-    List<SolicitacaoAdocao> findAllByAnimalIdAndStatusNotIn(
-            Long animalId,
-            List<StatusSolicitacaoAdocao> status
-    );
 }

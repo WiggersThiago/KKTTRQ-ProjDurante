@@ -45,14 +45,14 @@ public class SolicitacaoAdocaoService {
         SolicitacaoAdocao solicitacao = SolicitacaoAdocao.builder()
                 .nome(dto.getNome())
                 .telefone(dto.getTelefone())
-                .email(dto.getEmail())
-                .cidade(dto.getCidade())
-                .motivoAdocao(dto.getMotivoAdocao())
+                .email(textoObrigatorioNoBanco(dto.getEmail()))
+                .cidade(textoObrigatorioNoBanco(dto.getCidade()))
+                .motivoAdocao(textoOpcional(dto.getMotivoAdocao()))
                 .possuiOutrosAnimais(dto.getPossuiOutrosAnimais())
                 .possuiEspacoAdequado(dto.getPossuiEspacoAdequado())
                 .todosConcordam(dto.getTodosConcordam())
                 .jaTeveAnimais(dto.getJaTeveAnimais())
-                .observacoes(dto.getObservacoes())
+                .observacoes(textoOpcional(dto.getObservacoes()))
                 .status(StatusSolicitacaoAdocao.NOVA)
                 .animal(animal)
                 .build();
@@ -132,9 +132,9 @@ public class SolicitacaoAdocaoService {
             );
         }
 
-        validarMudancaDeStatus(solicitacao, novoStatus);
+        validarMudancaDeStatus(solicitacao, statusAnterior, novoStatus);
 
-        aplicarRegraDoNovoStatus(solicitacao, novoStatus);
+        aplicarRegraDoNovoStatus(solicitacao, statusAnterior, novoStatus);
 
         solicitacao.setStatus(novoStatus);
 
@@ -155,6 +155,20 @@ public class SolicitacaoAdocaoService {
         );
     }
 
+    private String textoObrigatorioNoBanco(String valor) {
+        if (valor == null || valor.isBlank()) {
+            return "";
+        }
+        return valor.trim();
+    }
+
+    private String textoOpcional(String valor) {
+        if (valor == null || valor.isBlank()) {
+            return null;
+        }
+        return valor.trim();
+    }
+
     private void validarDisponivelParaAdocao(Animal animal) {
 
         if (!Boolean.TRUE.equals(animal.getAtivo())
@@ -166,12 +180,39 @@ public class SolicitacaoAdocaoService {
         }
     }
 
+    public List<StatusSolicitacaoAdocao> proximosStatus(StatusSolicitacaoAdocao atual) {
+        if (atual == null) {
+            return List.of();
+        }
+        return switch (atual) {
+            case NOVA -> List.of(
+                    StatusSolicitacaoAdocao.EM_ANALISE,
+                    StatusSolicitacaoAdocao.RECUSADA);
+            case EM_ANALISE -> List.of(
+                    StatusSolicitacaoAdocao.CONTATADO,
+                    StatusSolicitacaoAdocao.RECUSADA);
+            case CONTATADO -> List.of(
+                    StatusSolicitacaoAdocao.APROVADA,
+                    StatusSolicitacaoAdocao.RECUSADA);
+            case APROVADA -> List.of(
+                    StatusSolicitacaoAdocao.CONCLUIDA,
+                    StatusSolicitacaoAdocao.RECUSADA);
+            case CONCLUIDA, RECUSADA -> List.of();
+        };
+    }
+
     private void validarMudancaDeStatus(
             SolicitacaoAdocao solicitacao,
+            StatusSolicitacaoAdocao statusAnterior,
             StatusSolicitacaoAdocao novoStatus) {
 
-        if (novoStatus == StatusSolicitacaoAdocao.APROVADA) {
+        if (!proximosStatus(statusAnterior).contains(novoStatus)) {
+            throw new BusinessException(
+                    "Essa mudança de status não faz parte da esteira da solicitação."
+            );
+        }
 
+        if (novoStatus == StatusSolicitacaoAdocao.APROVADA) {
             Animal animal = solicitacao.getAnimal();
 
             if (animal.getStatusAdocao() != StatusAdocao.DISPONIVEL) {
@@ -188,63 +229,40 @@ public class SolicitacaoAdocaoService {
 
             if (outraAprovada) {
                 throw new BusinessException(
-                        "Já existe uma solicitação aprovada para este animal."
+                        "Já existe uma solicitação aprovada para este animal. "
+                                + "Recuse a aprovada antes de aprovar outra."
                 );
             }
-        }
-
-        if (novoStatus == StatusSolicitacaoAdocao.CONCLUIDA
-                && solicitacao.getStatus()
-                != StatusSolicitacaoAdocao.APROVADA) {
-
-            throw new BusinessException(
-                    "Somente uma solicitação aprovada pode ser concluída."
-            );
         }
     }
 
     private void aplicarRegraDoNovoStatus(
             SolicitacaoAdocao solicitacao,
+            StatusSolicitacaoAdocao statusAnterior,
             StatusSolicitacaoAdocao novoStatus) {
 
         Animal animal = solicitacao.getAnimal();
 
         if (novoStatus == StatusSolicitacaoAdocao.APROVADA) {
-
             animal.setStatusAdocao(StatusAdocao.EM_PROCESSO);
-
             animalRepository.save(animal);
         }
 
         if (novoStatus == StatusSolicitacaoAdocao.CONCLUIDA) {
-
+            LocalDateTime agora = LocalDateTime.now();
             animal.setStatusAdocao(StatusAdocao.ADOTADO);
-
+            if (animal.getDataAdocao() == null) {
+                animal.setDataAdocao(agora);
+            }
             animalRepository.save(animal);
-
-            solicitacao.setDataConclusao(LocalDateTime.now());
+            solicitacao.setDataConclusao(agora);
         }
 
-        if (novoStatus == StatusSolicitacaoAdocao.RECUSADA) {
-
-            boolean existeOutraSolicitacaoAberta =
-                    solicitacaoAdocaoRepository
-                            .findAllByAnimalIdAndStatusNotIn(
-                                    animal.getId(),
-                                    List.of(
-                                            StatusSolicitacaoAdocao.RECUSADA,
-                                            StatusSolicitacaoAdocao.CONCLUIDA
-                                    )
-                            )
-                            .stream()
-                            .anyMatch(s -> !s.getId().equals(solicitacao.getId()));
-
-            if (!existeOutraSolicitacaoAberta) {
-
-                animal.setStatusAdocao(StatusAdocao.DISPONIVEL);
-
-                animalRepository.save(animal);
-            }
+        if (novoStatus == StatusSolicitacaoAdocao.RECUSADA
+                && statusAnterior == StatusSolicitacaoAdocao.APROVADA
+                && animal.getStatusAdocao() == StatusAdocao.EM_PROCESSO) {
+            animal.setStatusAdocao(StatusAdocao.DISPONIVEL);
+            animalRepository.save(animal);
         }
     }
 

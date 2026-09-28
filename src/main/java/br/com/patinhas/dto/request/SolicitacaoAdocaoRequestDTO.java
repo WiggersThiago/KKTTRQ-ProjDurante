@@ -25,32 +25,25 @@ public class SolicitacaoAdocaoRequestDTO {
     @Size(max = 50, message = "O telefone deve ter no máximo 50 caracteres.")
     private String telefone;
 
-    @NotBlank(message = "O e-mail é obrigatório.")
     @Email(message = "Informe um e-mail válido.")
     @Size(max = 150, message = "O e-mail deve ter no máximo 150 caracteres.")
     private String email;
 
-    @NotBlank(message = "A cidade é obrigatória.")
     @Size(max = 150, message = "A cidade deve ter no máximo 150 caracteres.")
     private String cidade;
 
     @NotNull(message = "O animal de interesse é obrigatório.")
     private Long animalId;
 
-    @NotBlank(message = "Informe o motivo da adoção.")
     @Size(max = 2000, message = "O motivo deve ter no máximo 2000 caracteres.")
     private String motivoAdocao;
 
-    @NotNull(message = "Informe se possui outros animais.")
     private Boolean possuiOutrosAnimais;
 
-    @NotNull(message = "Informe se possui espaço adequado.")
     private Boolean possuiEspacoAdequado;
 
-    @NotNull(message = "Informe se todos da casa concordam com a adoção.")
     private Boolean todosConcordam;
 
-    @NotNull(message = "Informe se já teve animais.")
     private Boolean jaTeveAnimais;
 
     @Size(max = 2000, message = "As observações devem ter no máximo 2000 caracteres.")

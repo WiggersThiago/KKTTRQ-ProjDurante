@@ -1,377 +1,33 @@
 <!DOCTYPE html>
 <html lang="pt-BR"
       xmlns:th="http://www.thymeleaf.org"
-      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{layout/base}">
-
-<head>
-    <meta charset="UTF-8">
-    <title>Solicitações de Adoção</title>
-
-    <th:block layout:fragment="cssExtra">
-        <link rel="stylesheet" th:href="@{/css/dashboard.css}">
-
-        <style>
-
-            /* CABEÇALHO DA PÁGINA */
-
-            .solicitacoes-header {
-                margin-bottom: 25px;
-            }
-
-            .solicitacoes-header h1 {
-                margin-bottom: 5px;
-            }
-
-            .solicitacoes-header p {
-                margin: 0;
-                opacity: 0.75;
-            }
-
-
-            /* BOTÃO VOLTAR AO PAINEL */
-
-            .link-voltar--admin {
-                display: inline-block;
-                padding: 10px 16px;
-                margin-bottom: 20px;
-
-                background: #1976d2;
-                color: white;
-
-                border-radius: 8px;
-                text-decoration: none;
-                font-weight: 600;
-
-                transition: background 0.2s ease;
-            }
-
-            .link-voltar--admin:hover {
-                background: #1565c0;
-            }
-
-
-            /* FILTRO */
-
-            .solicitacoes-filtro {
-                display: flex;
-                align-items: end;
-                gap: 15px;
-                flex-wrap: wrap;
-            }
-
-            .solicitacoes-filtro__campo {
-                display: flex;
-                flex-direction: column;
-                gap: 6px;
-            }
-
-            .solicitacoes-filtro__campo label {
-                font-weight: 600;
-            }
-
-            .solicitacoes-filtro select {
-                min-width: 220px;
-                padding: 10px 12px;
-                border-radius: 8px;
-                border: 1px solid #ccc;
-                background: white;
-            }
-
-            .solicitacoes-filtro__acoes {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-            }
-
-            .solicitacoes-btn {
-                display: inline-block;
-                padding: 10px 18px;
-                border-radius: 8px;
-                border: none;
-                text-decoration: none;
-                cursor: pointer;
-                font-weight: 600;
-            }
-
-            /* FILTRAR */
-
-            .solicitacoes-btn--principal {
-                background: #f39c12;
-                color: white;
-            }
-
-            .solicitacoes-btn--principal:hover {
-                background: #d98200;
-            }
-
-            /* LIMPAR */
-
-            .solicitacoes-btn--secundario {
-                background: #eeeeee;
-                color: #333;
-            }
-
-
-            /* TABELA */
-
-            .solicitacoes-tabela-wrapper {
-                overflow-x: auto;
-            }
-
-            .solicitacoes-tabela {
-                width: 100%;
-                border-collapse: collapse;
-            }
-
-            /* CABEÇALHO DA TABELA */
-
-            .solicitacoes-tabela th {
-                text-align: left;
-                padding: 14px 12px;
-                background: #1976d2;
-                color: white;
-                font-size: 14px;
-            }
-
-            .solicitacoes-tabela th:first-child {
-                border-radius: 8px 0 0 8px;
-            }
-
-            .solicitacoes-tabela th:last-child {
-                border-radius: 0 8px 8px 0;
-            }
-
-            .solicitacoes-tabela td {
-                padding: 14px 12px;
-                border-bottom: 1px solid #eee;
-                vertical-align: middle;
-            }
-
-            .solicitacoes-tabela tbody tr:hover {
-                background: #fafafa;
-            }
-
-
-            /* CONTEÚDO DA TABELA */
-
-            .solicitacoes-id {
-                font-weight: 700;
-                opacity: 0.65;
-            }
-
-            .solicitacoes-nome {
-                font-weight: 600;
-            }
-
-            .solicitacoes-animal {
-                font-weight: 500;
-            }
-
-            .solicitacoes-data {
-                white-space: nowrap;
-                opacity: 0.8;
-            }
-
-
-            /* STATUS */
-
-            .solicitacoes-status {
-                display: inline-block;
-                padding: 6px 11px;
-                border-radius: 20px;
-                font-size: 13px;
-                font-weight: 700;
-                white-space: nowrap;
-                background: #eeeeee;
-            }
-
-
-            /* NENHUMA SOLICITAÇÃO */
-
-            .solicitacoes-vazio {
-                text-align: center;
-                padding: 35px 20px;
-                opacity: 0.7;
-            }
-
-
-            /* BOTÃO VER DETALHES */
-
-            .solicitacoes-acao {
-                display: inline-block;
-                padding: 8px 14px;
-                border-radius: 7px;
-                background: #f1f1f1;
-                color: #333;
-                text-decoration: none;
-                font-weight: 600;
-                white-space: nowrap;
-            }
-
-            .solicitacoes-acao:hover {
-                background: #e2e2e2;
-            }
-
-
-            /* TÍTULOS DOS CARDS */
-
-            .solicitacoes-card-titulo {
-                margin-top: 0;
-                margin-bottom: 18px;
-            }
-
-
-            /* RESPONSIVIDADE */
-
-            @media (max-width: 700px) {
-
-                .solicitacoes-filtro {
-                    align-items: stretch;
-                    flex-direction: column;
-                }
-
-                .solicitacoes-filtro__campo,
-                .solicitacoes-filtro select {
-                    width: 100%;
-                }
-
-                .solicitacoes-filtro__acoes {
-                    width: 100%;
-                }
-
-            }
-
-        </style>
-    </th:block>
-</head>
-
+      th:replace="~{layout/base :: html(tituloPagina='Solicitações', cssExtra=${ {'/css/dashboard.css'} }, conteudo=~{::section})}">
 <body>
-
-<div layout:fragment="conteudo">
-
-    <div class="container">
-
-        <!-- CABEÇALHO -->
-
-        <div class="solicitacoes-header">
-
-            <div>
-                <h1>Solicitações de Adoção</h1>
-
-                <p>
-                    Gerencie as pessoas interessadas em adotar os animais.
-                </p>
-            </div>
-
-        </div>
-
-
-        <!-- VOLTAR AO PAINEL -->
-
+<section>
+    <section class="container secao admin">
         <div th:replace="~{fragments/admin-nav :: voltarPainel}"></div>
+        <header class="admin__header">
+            <h1>Solicitações de adoção</h1>
+            <p class="texto-apoio">Acompanhe quem quer adotar e atualize o status de cada pedido.</p>
+        </header>
 
-
-        <!-- FILTRO -->
-
-        <div class="card">
-
-            <h2 class="solicitacoes-card-titulo">
-                Filtrar solicitações
-            </h2>
-
-            <form method="get"
-                  th:action="@{/admin/solicitacoes}"
-                  class="solicitacoes-filtro">
-
-                <div class="solicitacoes-filtro__campo">
-
-                    <label for="status">
-                        Status
-                    </label>
-
-                    <select id="status" name="status">
-
-                        <option value="">
-                            Todos os status
-                        </option>
-
-                        <option th:each="status : ${statusList}"
-                                th:value="${status}"
-                                th:text="${status.descricao}"
-                                th:selected="${status == statusFiltro}">
-                        </option>
-
-                    </select>
-
-                </div>
-
-
-                <div class="solicitacoes-filtro__acoes">
-
-                    <button type="submit"
-                            class="solicitacoes-btn solicitacoes-btn--principal">
-                        Filtrar
-                    </button>
-
-                    <a th:href="@{/admin/solicitacoes}"
-                       class="solicitacoes-btn solicitacoes-btn--secundario">
-                        Limpar
-                    </a>
-
-                </div>
-
-            </form>
-
-        </div>
-
-
-        <!-- MENSAGEM DE SUCESSO -->
-
-        <div th:if="${sucesso}"
-             class="alert alert-success"
-             th:text="${sucesso}">
-        </div>
-
-
-        <!-- MENSAGEM DE ERRO -->
-
-        <div th:if="${erro}"
-             class="alert alert-error"
-             th:text="${erro}">
-        </div>
-
-
-        <!-- LISTA -->
-
-        <div class="card">
-
-            <h2 class="solicitacoes-card-titulo">
-                Solicitações
-            </h2>
-
-
-            <!-- NENHUMA SOLICITAÇÃO -->
-
-            <div th:if="${#lists.isEmpty(solicitacoes)}"
-                 class="solicitacoes-vazio">
-
-                <p>
-                    Nenhuma solicitação de adoção encontrada.
-                </p>
-
+        <form class="filtros" th:action="@{/admin/solicitacoes}" method="get">
+            <div class="filtros__campo">
+                <label for="status">Status</label>
+                <select id="status" name="status">
+                    <option value="">Todos</option>
+                    <option th:each="s : ${statusList}"
+                            th:value="${s.name()}"
+                            th:text="${s.descricao}"
+                            th:selected="${statusFiltro != null and statusFiltro.name() == s.name()}"></option>
+                </select>
             </div>
+            <button class="btn btn--primario" type="submit">Filtrar</button>
+        </form>
 
-
-            <!-- TABELA -->
-
-            <div th:unless="${#lists.isEmpty(solicitacoes)}"
-                 class="solicitacoes-tabela-wrapper">
-
-                <table class="solicitacoes-tabela">
-
-                    <thead>
-
+        <div class="tabela-wrapper">
+            <table class="tabela">
+                <thead>
                     <tr>
                         <th>ID</th>
                         <th>Interessado</th>
@@ -380,69 +36,30 @@
                         <th>Status</th>
                         <th>Ação</th>
                     </tr>
-
-                    </thead>
-
-
-                    <tbody>
-
+                </thead>
+                <tbody>
                     <tr th:each="solicitacao : ${solicitacoes}">
-
-                        <td class="solicitacoes-id"
-                            th:text="'#' + ${solicitacao.id}">
-                            #1
-                        </td>
-
-                        <td class="solicitacoes-nome"
-                            th:text="${solicitacao.nome}">
-                            Nome
-                        </td>
-
-                        <td class="solicitacoes-animal"
-                            th:text="${solicitacao.animalNome}">
-                            Animal
-                        </td>
-
-                        <td class="solicitacoes-data"
-                            th:text="${#temporals.format(
-                                solicitacao.dataSolicitacao,
-                                'dd/MM/yyyy HH:mm'
-                            )}">
-                            27/09/2026 20:00
-                        </td>
-
+                        <td th:text="${solicitacao.id}">1</td>
+                        <td th:text="${solicitacao.nome}">Nome</td>
+                        <td th:text="${solicitacao.animalNome}">Animal</td>
+                        <td th:text="${#temporals.format(solicitacao.dataSolicitacao, 'dd/MM/yyyy HH:mm')}">—</td>
                         <td>
-
-                            <span class="solicitacoes-status"
-                                  th:text="${solicitacao.status.descricao}">
-                                Nova
-                            </span>
-
+                            <span class="badge"
+                                  th:classappend="'badge--status-' + ${#strings.toLowerCase(solicitacao.status.name())}"
+                                  th:text="${solicitacao.status.descricao}">Nova</span>
                         </td>
-
                         <td>
-
-                            <a class="solicitacoes-acao"
-                               th:href="@{/admin/solicitacoes/{id}(id=${solicitacao.id})}">
-                                Ver detalhes
-                            </a>
-
+                            <a class="btn btn--pequeno"
+                               th:href="@{/admin/solicitacoes/{id}(id=${solicitacao.id})}">Ver detalhes</a>
                         </td>
-
                     </tr>
-
-                    </tbody>
-
-                </table>
-
-            </div>
-
+                    <tr th:if="${#lists.isEmpty(solicitacoes)}">
+                        <td colspan="6" class="vazio">Nenhuma solicitação de adoção encontrada.</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
-
-    </div>
-
-</div>
-
+    </section>
+</section>
 </body>
 </html>
-
