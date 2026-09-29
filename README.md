@@ -539,3 +539,4 @@ Na primeira execução, o `DataSeeder`:
 
 Projeto educacional — sinta-se livre para usar como base de estudos ou para
 o seu próprio projeto de ONG. 🐶🐱❤️
+.
