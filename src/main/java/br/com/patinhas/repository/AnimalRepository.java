@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import br.com.patinhas.entity.enums.SituacaoAnimal;
 
 import java.util.List;
 
@@ -23,6 +24,8 @@ public interface AnimalRepository extends JpaRepository<Animal, Long> {
     long countByStatusAdocaoAndAtivoTrue(StatusAdocao statusAdocao);
 
     long countByAtivoTrue();
+
+    long countBySituacaoAnimalAndAtivoTrue(SituacaoAnimal situacaoAnimal);
 
     List<Animal> findAllByAtivoTrueAndDestaqueTrueOrderByDataCadastroDesc();
 
