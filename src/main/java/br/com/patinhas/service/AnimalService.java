@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import br.com.patinhas.entity.enums.SituacaoAnimal;
 import br.com.patinhas.dto.request.AnimalRequestDTO;
 import br.com.patinhas.dto.response.AnimalResponseDTO;
 import br.com.patinhas.entity.Animal;
@@ -201,4 +202,9 @@ public class AnimalService {
     public long contarAtivos() {
         return animalRepository.countByAtivoTrue();
     }
+    @Transactional(readOnly = true)
+    public long contarEmTratamentoOuStandBy() {
+    return animalRepository.countBySituacaoAnimalAndAtivoTrue(SituacaoAnimal.EM_TRATAMENTO)
+            + animalRepository.countBySituacaoAnimalAndAtivoTrue(SituacaoAnimal.STAND_BY);
+}
 }
