@@ -303,4 +303,19 @@ public class SolicitacaoAdocaoService {
                                 "Solicitação de adoção não encontrada."
                         ));
     }
+    @Transactional(readOnly = true)
+    public long contarPendentes() {
+    return solicitacaoAdocaoRepository.countByStatus(StatusSolicitacaoAdocao.NOVA)
+            + solicitacaoAdocaoRepository.countByStatus(StatusSolicitacaoAdocao.EM_ANALISE);
+    }
+
+    @Transactional(readOnly = true)
+    public long contarNovas() {
+    return solicitacaoAdocaoRepository.countByStatus(StatusSolicitacaoAdocao.NOVA);
+    }
+
+    @Transactional(readOnly = true)
+    public long contarConcluidas() {
+    return solicitacaoAdocaoRepository.countByStatus(StatusSolicitacaoAdocao.CONCLUIDA);
+    }
 }
