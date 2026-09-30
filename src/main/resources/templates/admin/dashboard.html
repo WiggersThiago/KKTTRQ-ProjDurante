@@ -27,16 +27,31 @@
                 <span class="dash-card__numero" th:text="${totalAnimais}">0</span>
                 <span class="dash-card__label">Animais ativos</span>
             </div>
+
             <div class="dash-card">
                 <span class="dash-card__icone">💚</span>
                 <span class="dash-card__numero" th:text="${animaisDisponiveis}">0</span>
                 <span class="dash-card__label">Disponíveis para adoção</span>
             </div>
+
             <div class="dash-card">
-                <span class="dash-card__icone">📅</span>
-                <span class="dash-card__numero" th:text="${eventosAtivos}">0</span>
-                <span class="dash-card__label">Eventos ativos</span>
+                <span class="dash-card__icone">🩺</span>
+                <span class="dash-card__numero" th:text="${animaisTratamento}">0</span>
+                <span class="dash-card__label">Em tratamento / stand by</span>
             </div>
+
+            <div class="dash-card">
+                <span class="dash-card__icone">🏠</span>
+                <span class="dash-card__numero" th:text="${adocoesConcluidas}">0</span>
+                <span class="dash-card__label">Adoções concluídas</span>
+            </div>
+
+            <div class="dash-card">
+                <span class="dash-card__icone">📋</span>
+                <span class="dash-card__numero" th:text="${solicitacoesPendentes}">0</span>
+                <span class="dash-card__label">Solicitações pendentes</span>
+            </div>
+
             <div class="dash-card dash-card--alerta">
                 <span class="dash-card__icone">⚠️</span>
                 <span class="dash-card__numero" th:text="${denunciasPendentes}">0</span>
