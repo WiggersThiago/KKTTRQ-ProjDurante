@@ -28,6 +28,9 @@ class AnimalServiceTest {
 
     @Mock
     private ImageStorageService imageStorageService;
+    
+    @Mock
+    private EspecieService especieService;
 
     @InjectMocks
     private AnimalService animalService;
@@ -44,6 +47,7 @@ class AnimalServiceTest {
                 .build();
 
         when(imageStorageService.salvar(null, "animais")).thenReturn(null);
+        when(especieService.buscarOuCriar(any())).thenReturn(null);
         when(animalRepository.save(any(Animal.class))).thenAnswer(invocation -> {
             Animal animal = invocation.getArgument(0);
             animal.setId(1L);
