@@ -181,9 +181,6 @@ public class AnimalService {
         animalRepository.save(animal);
     }
 
-    /**
-     * Desativa o cadastro (remoção lógica). O registro permanece no histórico da listagem admin.
-     */
     @Transactional
     public void desativar(Long id) {
         log.info("Desativando animal id={}", id);
@@ -207,4 +204,29 @@ public class AnimalService {
     return animalRepository.countBySituacaoAnimalAndAtivoTrue(SituacaoAnimal.EM_TRATAMENTO)
             + animalRepository.countBySituacaoAnimalAndAtivoTrue(SituacaoAnimal.STAND_BY);
 }
+
+    @Transactional(readOnly = true)
+    public List<Object[]> contarAdocoesPorMes() {
+        return animalRepository.contarAdocoesPorMes();
+    }
+
+    @Transactional(readOnly = true)
+    public List<Object[]> contarAnimaisPorEspecie() {
+        return animalRepository.contarAnimaisPorEspecie();
+    }
+
+    @Transactional(readOnly = true)
+    public List<Object[]> contarAnimaisPorStatus() {
+        return animalRepository.contarAnimaisPorStatus();
+    }
+
+    @Transactional(readOnly = true)
+    public Double calcularTempoMedioAteAdocao() {
+        return animalRepository.calcularTempoMedioAteAdocao();
+    }
+
+    @Transactional(readOnly = true)
+    public List<Object[]> calcularTempoMedioAteAdocaoPorEspecie() {
+        return animalRepository.calcularTempoMedioAteAdocaoPorEspecie();
+    }
 }

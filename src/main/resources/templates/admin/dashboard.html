@@ -5,6 +5,7 @@
 <body>
 <section>
     <section class="container secao admin">
+
         <header class="admin__header admin__header--dashboard">
             <div class="admin__header-marca">
                 <img th:replace="~{fragments/brand :: logo('marca-logo marca-logo--admin')}" />
@@ -22,6 +23,7 @@
         </nav>
 
         <div class="dashboard-cards">
+
             <div class="dash-card">
                 <span class="dash-card__icone">🐶</span>
                 <span class="dash-card__numero" th:text="${totalAnimais}">0</span>
@@ -57,8 +59,111 @@
                 <span class="dash-card__numero" th:text="${denunciasPendentes}">0</span>
                 <span class="dash-card__label">Denúncias pendentes</span>
             </div>
+
         </div>
+
+        <div class="dashboard-graficos">
+
+            <div class="dashboard-grafico">
+                <h2>Adoções por mês</h2>
+                <div class="dashboard-grafico__area">
+                    <canvas id="graficoAdocoes"></canvas>
+                </div>
+            </div>
+
+            <div class="dashboard-grafico">
+                <h2>Animais por espécie</h2>
+                <div class="dashboard-grafico__area">
+                    <canvas id="graficoEspecies"></canvas>
+                </div>
+            </div>
+
+            <div class="dashboard-grafico">
+                <h2>Animais por status</h2>
+                <div class="dashboard-grafico__area dashboard-grafico__area--status">
+                    <canvas id="graficoStatus"></canvas>
+                </div>
+            </div>
+
+            <div class="dashboard-grafico dashboard-grafico--media">
+                <h2>Tempo médio até adoção</h2>
+
+                <div class="dashboard-media">
+                    <strong th:text="${tempoMedioAteAdocao != null ? #numbers.formatDecimal(tempoMedioAteAdocao, 1, 1) : '0,0'}">
+                        0,0
+                    </strong>
+                    <span>dias</span>
+                </div>
+            </div>
+
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+        <script th:inline="javascript">
+            const adocoesPorMes = /*[[${adocoesPorMes}]]*/ [];
+            const animaisPorEspecie = /*[[${animaisPorEspecie}]]*/ [];
+            const animaisPorStatus = /*[[${animaisPorStatus}]]*/ [];
+
+            new Chart(document.getElementById('graficoAdocoes'), {
+                type: 'line',
+                data: {
+                    labels: adocoesPorMes.map(item => item[0]),
+                    datasets: [{
+                        label: 'Adoções',
+                        data: adocoesPorMes.map(item => item[1]),
+                        tension: 0.3,
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+
+new Chart(document.getElementById('graficoEspecies'), {
+    type: 'bar',
+    data: {
+        labels: animaisPorEspecie.map(item => item[0]),
+        datasets: [{
+            label: 'Animais',
+            data: animaisPorEspecie.map(item => item[1])
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    stepSize: 1,
+                    precision: 0
+                }
+            }
+        }
+    }
+});
+
+            new Chart(document.getElementById('graficoStatus'), {
+                type: 'doughnut',
+                data: {
+                    labels: animaisPorStatus.map(item => item[0]),
+                    datasets: [{
+                        label: 'Animais',
+                        data: animaisPorStatus.map(item => item[1])
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false
+                }
+            });
+        </script>
+
     </section>
 </section>
+
 </body>
 </html>
