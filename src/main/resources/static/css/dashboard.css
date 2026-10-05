@@ -338,3 +338,64 @@
     .grid-2 { grid-template-columns: 1fr; }
     .admin { padding: 1.25rem; }
 }
+/* ============ Dashboard gráficos ============ */
+
+.dashboard-graficos {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.dashboard-grafico {
+    background: #fff;
+    border-radius: var(--raio);
+    padding: 1.25rem;
+    box-shadow: var(--sombra);
+    min-width: 0;
+}
+
+.dashboard-grafico h2 {
+    margin: 0 0 1rem;
+    font-size: 1.25rem;
+}
+
+.dashboard-grafico__area {
+    position: relative;
+    width: 100%;
+    height: 230px;
+}
+
+.dashboard-grafico__area--status {
+    height: 230px;
+}
+
+.dashboard-grafico--media {
+    min-height: 290px;
+}
+
+.dashboard-media {
+    height: 230px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin: 0;
+}
+
+.dashboard-media strong {
+    font-size: 2.5rem;
+}
+
+.dashboard-media span {
+    font-size: 1.1rem;
+    color: var(--cor-texto-suave);
+}
+
+@media (max-width: 700px) {
+
+    .dashboard-graficos {
+        grid-template-columns: 1fr;
+    }
+
+}

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import br.com.patinhas.entity.enums.SituacaoAnimal;
 import br.com.patinhas.dto.request.AnimalRequestDTO;
 import br.com.patinhas.dto.response.AnimalResponseDTO;
 import br.com.patinhas.entity.Animal;
@@ -180,9 +181,6 @@ public class AnimalService {
         animalRepository.save(animal);
     }
 
-    /**
-     * Desativa o cadastro (remoção lógica). O registro permanece no histórico da listagem admin.
-     */
     @Transactional
     public void desativar(Long id) {
         log.info("Desativando animal id={}", id);
@@ -200,5 +198,46 @@ public class AnimalService {
     @Transactional(readOnly = true)
     public long contarAtivos() {
         return animalRepository.countByAtivoTrue();
+    }
+
+    @Transactional(readOnly = true)
+    public long contarEmTratamentoOuStandBy() {
+        return animalRepository.countBySituacaoAnimalAndAtivoTrue(SituacaoAnimal.EM_TRATAMENTO)
+                + animalRepository.countBySituacaoAnimalAndAtivoTrue(SituacaoAnimal.STAND_BY);
+    }
+
+    @Transactional(readOnly = true)
+    public long contarAdocoesConcluidas() {
+        return animalRepository.countByDataAdocaoIsNotNull();
+    }
+
+    @Transactional(readOnly = true)
+    public List<Object[]> contarAdocoesPorMes() {
+        return animalRepository.contarAdocoesPorMes();
+    }
+
+    @Transactional(readOnly = true)
+    public List<Object[]> contarAnimaisPorEspecie() {
+        return animalRepository.contarAnimaisPorEspecie();
+    }
+
+    @Transactional(readOnly = true)
+    public List<Object[]> contarAnimaisPorStatus() {
+        return animalRepository.contarAnimaisPorStatus().stream()
+                .map(linha -> new Object[]{
+                        ((StatusAdocao) linha[0]).getDescricao(),
+                        linha[1]
+                })
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public Double calcularTempoMedioAteAdocao() {
+        return animalRepository.calcularTempoMedioAteAdocao();
+    }
+
+    @Transactional(readOnly = true)
+    public List<Object[]> calcularTempoMedioAteAdocaoPorEspecie() {
+        return animalRepository.calcularTempoMedioAteAdocaoPorEspecie();
     }
 }

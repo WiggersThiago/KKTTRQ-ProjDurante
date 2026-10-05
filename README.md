@@ -538,4 +538,5 @@ Na primeira execução, o `DataSeeder`:
 ## Licença
 
 Projeto educacional — sinta-se livre para usar como base de estudos ou para
-o seu próprio projeto de ONG. 🐶🐱❤️
+<<<<<<< HEAD
+o seu próprio projeto de ONG. 🐶🐱❤️s2
