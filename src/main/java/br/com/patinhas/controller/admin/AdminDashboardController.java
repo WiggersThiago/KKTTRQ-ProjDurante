@@ -29,15 +29,12 @@ public class AdminDashboardController {
         model.addAttribute("eventosAtivos", eventoService.contarAtivos());
         model.addAttribute("denunciasPendentes", denunciaService.contarPendentes());
         model.addAttribute("animaisTratamento", animalService.contarEmTratamentoOuStandBy());
-        model.addAttribute("adocoesConcluidas", solicitacaoAdocaoService.contarConcluidas());
+        model.addAttribute("adocoesConcluidas", animalService.contarAdocoesConcluidas());
         model.addAttribute("solicitacoesPendentes", solicitacaoAdocaoService.contarPendentes());
-        model.addAttribute("solicitacoesNovas", solicitacaoAdocaoService.contarNovas());
         model.addAttribute("adocoesPorMes", animalService.contarAdocoesPorMes());
         model.addAttribute("animaisPorEspecie", animalService.contarAnimaisPorEspecie());
         model.addAttribute("animaisPorStatus", animalService.contarAnimaisPorStatus());
         model.addAttribute("tempoMedioAteAdocao", animalService.calcularTempoMedioAteAdocao());
-        model.addAttribute("tempoMedioAteAdocaoPorEspecie",
-                animalService.calcularTempoMedioAteAdocaoPorEspecie());
         return "admin/dashboard";
     }
 }

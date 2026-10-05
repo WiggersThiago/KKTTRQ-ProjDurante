@@ -199,11 +199,17 @@ public class AnimalService {
     public long contarAtivos() {
         return animalRepository.countByAtivoTrue();
     }
+
     @Transactional(readOnly = true)
     public long contarEmTratamentoOuStandBy() {
-    return animalRepository.countBySituacaoAnimalAndAtivoTrue(SituacaoAnimal.EM_TRATAMENTO)
-            + animalRepository.countBySituacaoAnimalAndAtivoTrue(SituacaoAnimal.STAND_BY);
-}
+        return animalRepository.countBySituacaoAnimalAndAtivoTrue(SituacaoAnimal.EM_TRATAMENTO)
+                + animalRepository.countBySituacaoAnimalAndAtivoTrue(SituacaoAnimal.STAND_BY);
+    }
+
+    @Transactional(readOnly = true)
+    public long contarAdocoesConcluidas() {
+        return animalRepository.countByDataAdocaoIsNotNull();
+    }
 
     @Transactional(readOnly = true)
     public List<Object[]> contarAdocoesPorMes() {
@@ -217,7 +223,12 @@ public class AnimalService {
 
     @Transactional(readOnly = true)
     public List<Object[]> contarAnimaisPorStatus() {
-        return animalRepository.contarAnimaisPorStatus();
+        return animalRepository.contarAnimaisPorStatus().stream()
+                .map(linha -> new Object[]{
+                        ((StatusAdocao) linha[0]).getDescricao(),
+                        linha[1]
+                })
+                .toList();
     }
 
     @Transactional(readOnly = true)

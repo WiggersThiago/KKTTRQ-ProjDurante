@@ -27,6 +27,8 @@ public interface AnimalRepository extends JpaRepository<Animal, Long> {
 
   long countBySituacaoAnimalAndAtivoTrue(SituacaoAnimal situacaoAnimal);
 
+  long countByDataAdocaoIsNotNull();
+
   List<Animal> findAllByAtivoTrueAndDestaqueTrueOrderByDataCadastroDesc();
 
   @Query("""
@@ -56,7 +58,8 @@ public interface AnimalRepository extends JpaRepository<Animal, Long> {
           a.especie.nome,
           COUNT(a)
       FROM Animal a
-      WHERE a.especie IS NOT NULL
+      WHERE a.ativo = true
+        AND a.especie IS NOT NULL
       GROUP BY a.especie.nome
       ORDER BY COUNT(a) DESC
       """)
@@ -67,6 +70,7 @@ public interface AnimalRepository extends JpaRepository<Animal, Long> {
           a.statusAdocao,
           COUNT(a)
       FROM Animal a
+      WHERE a.ativo = true
       GROUP BY a.statusAdocao
       ORDER BY COUNT(a) DESC
       """)

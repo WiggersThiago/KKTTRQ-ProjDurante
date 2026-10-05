@@ -19,4 +19,6 @@ public interface SolicitacaoAdocaoRepository extends JpaRepository<SolicitacaoAd
             StatusSolicitacaoAdocao status
     );
     long countByStatus(StatusSolicitacaoAdocao status);
+
+    long countByStatusIn(List<StatusSolicitacaoAdocao> status);
 }
