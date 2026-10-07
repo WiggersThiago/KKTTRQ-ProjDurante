@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="pt-BR"
+      xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: html(
+          tituloPagina='Produto de estoque',
+          cssExtra=${ {'/css/dashboard.css'} },
+          conteudo=~{::section}
+      )}">
+
+<body>
+
+<section>
+
+    <section class="container secao admin">
+
+        <div th:replace="~{fragments/admin-nav :: voltarPainel}"></div>
+
+        <header class="admin__header">
+
+            <h1>
+                <span th:if="${produtoId == null}">
+                    Novo produto
+                </span>
+
+                <span th:if="${produtoId != null}">
+                    Editar produto
+                </span>
+            </h1>
+
+        </header>
+
+
+        <div class="alerta"
+             th:if="${erro}"
+             th:text="${erro}">
+        </div>
+
+
+        <form class="formulario formulario--admin"
+
+              th:action="${produtoId == null
+                    ? '/admin/estoque/produtos'
+                    : '/admin/estoque/produtos/' + produtoId}"
+
+              th:object="${produto}"
+
+              method="post">
+
+
+            <div class="campo">
+
+                <label for="nome">
+                    Nome *
+                </label>
+
+                <input
+                        type="text"
+                        id="nome"
+                        th:field="*{nome}"
+                        placeholder="Ex: Ração para cães"
+                        required>
+
+            </div>
+
+
+            <div class="campo">
+
+                <label for="categoriaId">
+                    Categoria *
+                </label>
+
+                <select
+                        id="categoriaId"
+                        name="categoriaId"
+                        required>
+
+                    <option value="">
+                        Selecione...
+                    </option>
+
+                    <option
+                            th:each="categoria : ${categorias}"
+                            th:value="${categoria.id}"
+                            th:text="${categoria.nome}"
+                            th:selected="${categoria.id == categoriaId}">
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="campo">
+
+                <label for="unidadeId">
+                    Unidade *
+                </label>
+
+                <select
+                        id="unidadeId"
+                        name="unidadeId"
+                        required>
+
+                    <option value="">
+                        Selecione...
+                    </option>
+
+                    <option
+                            th:each="unidade : ${unidades}"
+                            th:value="${unidade.id}"
+                            th:text="${unidade.nome}"
+                            th:selected="${unidade.id == unidadeId}">
+                    </option>
+
+                </select>
+
+            </div>
+
+
+            <div class="grid-2">
+
+                <div class="campo">
+
+                    <label for="estoqueMinimo">
+                        Estoque mínimo *
+                    </label>
+
+                    <input
+                            type="number"
+                            id="estoqueMinimo"
+                            th:field="*{estoqueMinimo}"
+                            min="0"
+                            step="0.01"
+                            required>
+
+                </div>
+
+
+                <div class="campo">
+
+                    <label for="estoqueMaximo">
+                        Estoque máximo *
+                    </label>
+
+                    <input
+                            type="number"
+                            id="estoqueMaximo"
+                            th:field="*{estoqueMaximo}"
+                            min="0"
+                            step="0.01"
+                            required>
+
+                </div>
+
+            </div>
+
+
+            <!-- NÃO EDITÁVEL -->
+
+            <div class="campo"
+                 th:if="${produtoId != null}">
+
+                <label>
+                    Estoque atual
+                </label>
+
+                <input
+                        type="text"
+                        th:value="${produto.estoqueAtual}"
+                        disabled>
+
+                <small class="texto-apoio">
+                    O estoque atual não pode ser alterado diretamente.
+                </small>
+
+            </div>
+
+
+            <div class="form-acoes">
+
+                <a
+                        class="btn btn--secundario"
+                        th:href="@{/admin/estoque}">
+                    Cancelar
+                </a>
+
+                <button
+                        type="submit"
+                        class="btn btn--primario">
+                    Salvar
+                </button>
+
+            </div>
+
+        </form>
+
+    </section>
+
+</section>
+
+</body>
+</html>

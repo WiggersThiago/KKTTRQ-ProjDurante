@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-BR"
+      xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: html(
+          tituloPagina='Categoria de estoque',
+          cssExtra=${ {'/css/dashboard.css'} },
+          conteudo=~{::section}
+      )}">
+
+<body>
+
+<section>
+
+    <section class="container secao admin">
+
+        <div th:replace="~{fragments/admin-nav :: voltarPainel}"></div>
+
+        <header class="admin__header">
+
+            <h1>Nova categoria</h1>
+
+        </header>
+
+        <form class="formulario formulario--admin"
+              th:action="@{/admin/estoque/categorias}"
+              th:object="${categoria}"
+              method="post">
+
+            <div class="campo">
+
+                <label for="nome">
+                    Nome *
+                </label>
+
+                <input
+                        type="text"
+                        id="nome"
+                        th:field="*{nome}"
+                        placeholder="Ex: Alimentação"
+                        required>
+
+            </div>
+
+            <div class="form-acoes">
+
+                <a class="btn btn--secundario"
+                   th:href="@{/admin/estoque}">
+                    Cancelar
+                </a>
+
+                <button type="submit"
+                        class="btn btn--primario">
+                    Salvar
+                </button>
+
+            </div>
+
+        </form>
+
+    </section>
+
+</section>
+
+</body>
+</html>
