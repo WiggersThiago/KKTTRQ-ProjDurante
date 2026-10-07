@@ -22,11 +22,12 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import br.com.patinhas.dto.request.AnimalRequestDTO;
-import br.com.patinhas.entity.enums.SituacaoAnimal;
 import br.com.patinhas.entity.enums.PorteAnimal;
 import br.com.patinhas.entity.enums.SexoAnimal;
+import br.com.patinhas.entity.enums.SituacaoAnimal;
 import br.com.patinhas.entity.enums.StatusAdocao;
 import br.com.patinhas.exception.BusinessException;
+import br.com.patinhas.service.AnimalHistoricoService;
 import br.com.patinhas.service.AnimalService;
 import br.com.patinhas.service.EspecieService;
 import br.com.patinhas.service.ImageStorageService;
@@ -42,6 +43,7 @@ public class AdminAnimalController {
     private final AnimalService animalService;
     private final ImageStorageService imageStorageService;
     private final EspecieService especieService;
+    private final AnimalHistoricoService animalHistoricoService;
 
     @GetMapping
     public String listar(Model model) {
@@ -158,6 +160,15 @@ public class AdminAnimalController {
         animalService.desativar(id);
         redirectAttributes.addFlashAttribute("sucesso", "Animal desativado com sucesso.");
         return "redirect:/admin/animais";
+    }
+    @GetMapping("/{id}/historico")
+    public String historico(@PathVariable Long id, Model model) {
+        var animal = animalService.buscarPorId(id);
+
+        model.addAttribute("animal", animal);
+        model.addAttribute("historico", animalHistoricoService.listarPorAnimal(id));
+
+        return "admin/animal-historico";
     }
 
     private void adicionarEnumsAoModel(Model model) {

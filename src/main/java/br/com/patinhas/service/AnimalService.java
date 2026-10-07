@@ -9,11 +9,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import br.com.patinhas.entity.enums.SituacaoAnimal;
 import br.com.patinhas.dto.request.AnimalRequestDTO;
 import br.com.patinhas.dto.response.AnimalResponseDTO;
 import br.com.patinhas.entity.Animal;
+import br.com.patinhas.entity.enums.SituacaoAnimal;
 import br.com.patinhas.entity.enums.StatusAdocao;
+import br.com.patinhas.entity.enums.TipoHistoricoAnimal;
 import br.com.patinhas.exception.ResourceNotFoundException;
 import br.com.patinhas.repository.AnimalRepository;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,7 @@ public class AnimalService {
     private final AnimalRepository animalRepository;
     private final ImageStorageService imageStorageService;
     private final EspecieService especieService;
+    private final AnimalHistoricoService animalHistoricoService;
 
     @Transactional(readOnly = true)
     public List<AnimalResponseDTO> listarDestaque() {
@@ -53,7 +55,8 @@ public class AnimalService {
 
     @Transactional(readOnly = true)
     public List<AnimalResponseDTO> listarAdmin() {
-        return animalRepository.findAllByOrderByAtivoDescDataCadastroDesc().stream()
+        return animalRepository.findAllByOrderByAtivoDescDataCadastroDesc()
+                .stream()
                 .map(AnimalResponseDTO::fromEntity)
                 .toList();
     }
@@ -70,15 +73,24 @@ public class AnimalService {
     }
 
     @Transactional(readOnly = true)
-    public Page<AnimalResponseDTO> filtrar(String nome, StatusAdocao status, Pageable pageable) {
-        boolean semFiltros = (nome == null || nome.isBlank()) && status == null;
+    public Page<AnimalResponseDTO> filtrar(
+            String nome,
+            StatusAdocao status,
+            Pageable pageable) {
+
+        boolean semFiltros =
+                (nome == null || nome.isBlank()) && status == null;
+
         if (semFiltros) {
             return listarDisponiveis(pageable);
         }
+
         String nomePattern = (nome == null || nome.isBlank())
                 ? null
                 : "%" + nome.toLowerCase() + "%";
-        return animalRepository.buscarComFiltros(nomePattern, status, pageable)
+
+        return animalRepository
+                .buscarComFiltros(nomePattern, status, pageable)
                 .map(AnimalResponseDTO::fromEntity);
     }
 
@@ -88,15 +100,19 @@ public class AnimalService {
     }
 
     @Transactional
-    public AnimalResponseDTO cadastrar(AnimalRequestDTO dto, MultipartFile imagem) {
+    public AnimalResponseDTO cadastrar(
+            AnimalRequestDTO dto,
+            MultipartFile imagem) {
+
         log.info("Cadastrando novo animal: {}", dto.getNome());
+
         var especie = especieService.buscarOuCriar(dto.getEspecie());
+
         StatusAdocao status = dto.getStatusAdocao() == null
-        ? StatusAdocao.DISPONIVEL
-        : dto.getStatusAdocao();
+                ? StatusAdocao.DISPONIVEL
+                : dto.getStatusAdocao();
 
         Animal animal = Animal.builder()
-
                 .nome(dto.getNome())
                 .idade(dto.getIdade())
                 .especie(especie)
@@ -104,95 +120,208 @@ public class AnimalService {
                 .porte(dto.getPorte())
                 .sexo(dto.getSexo())
                 .statusAdocao(status)
-                .dataDisponivel(status == StatusAdocao.DISPONIVEL
-                    ? LocalDateTime.now()
-                    : null)
+                .dataDisponivel(
+                        status == StatusAdocao.DISPONIVEL
+                                ? LocalDateTime.now()
+                                : null
+                )
                 .situacaoAnimal(dto.getSituacaoAnimal())
                 .castrado(Boolean.TRUE.equals(dto.getCastrado()))
                 .vacinado(Boolean.TRUE.equals(dto.getVacinado()))
                 .destaque(Boolean.TRUE.equals(dto.getDestaque()))
                 .ativo(true)
                 .build();
-        animal.setFotoUrl(imageStorageService.salvar(imagem, "animais"));
-        return AnimalResponseDTO.fromEntity(animalRepository.save(animal));
+
+        animal.setFotoUrl(
+                imageStorageService.salvar(imagem, "animais")
+        );
+
+        Animal animalSalvo = animalRepository.save(animal);
+
+        // Cria o primeiro acontecimento da linha do tempo do animal
+        animalHistoricoService.registrar(
+                animalSalvo,
+                TipoHistoricoAnimal.CADASTRO,
+                animalSalvo.getDataCadastro(),
+                "Animal cadastrado no sistema",
+                true
+        );
+
+        return AnimalResponseDTO.fromEntity(animalSalvo);
     }
 
     @Transactional
-    public AnimalResponseDTO atualizar(Long id, AnimalRequestDTO dto) {
+    public AnimalResponseDTO atualizar(
+            Long id,
+            AnimalRequestDTO dto) {
+
         return atualizar(id, dto, null, false);
     }
 
     @Transactional
-    public AnimalResponseDTO atualizar(Long id, AnimalRequestDTO dto, MultipartFile imagem, boolean removerImagem) {
+    public AnimalResponseDTO atualizar(
+            Long id,
+            AnimalRequestDTO dto,
+            MultipartFile imagem,
+            boolean removerImagem) {
+
         log.info("Atualizando animal id={}", id);
+
         Animal animal = buscarEntidade(id);
-        var especie = especieService.buscarOuCriar(dto.getEspecie());
+
+        // Guarda a situação antes da alteração
+        SituacaoAnimal situacaoAnterior =
+                animal.getSituacaoAnimal();
+
+        var especie =
+                especieService.buscarOuCriar(dto.getEspecie());
+
         animal.setNome(dto.getNome());
         animal.setIdade(dto.getIdade());
         animal.setDescricao(dto.getDescricao());
         animal.setPorte(dto.getPorte());
         animal.setSexo(dto.getSexo());
         animal.setEspecie(especie);
-        
+
         if (dto.getStatusAdocao() != null) {
-        aplicarStatusAdocao(animal, dto.getStatusAdocao());
-}
-        animal.setSituacaoAnimal(dto.getSituacaoAnimal());
-        animal.setCastrado(Boolean.TRUE.equals(dto.getCastrado()));
-        animal.setVacinado(Boolean.TRUE.equals(dto.getVacinado()));
-        animal.setDestaque(Boolean.TRUE.equals(dto.getDestaque()));
+            aplicarStatusAdocao(
+                    animal,
+                    dto.getStatusAdocao()
+            );
+        }
+
+        animal.setSituacaoAnimal(
+                dto.getSituacaoAnimal()
+        );
+
+        // Registra somente quando o animal entra em tratamento
+        if (situacaoAnterior != SituacaoAnimal.EM_TRATAMENTO
+                && dto.getSituacaoAnimal()
+                == SituacaoAnimal.EM_TRATAMENTO) {
+
+            animalHistoricoService.registrar(
+                    animal,
+                    TipoHistoricoAnimal.TRATAMENTO,
+                    "Animal entrou em tratamento",
+                    true
+            );
+        }
+
+        animal.setCastrado(
+                Boolean.TRUE.equals(dto.getCastrado())
+        );
+
+        animal.setVacinado(
+                Boolean.TRUE.equals(dto.getVacinado())
+        );
+
+        animal.setDestaque(
+                Boolean.TRUE.equals(dto.getDestaque())
+        );
+
         if (dto.getAtivo() != null) {
             animal.setAtivo(dto.getAtivo());
         }
-        atualizarImagem(animal, imagem, removerImagem);
-        return AnimalResponseDTO.fromEntity(animalRepository.save(animal));
+
+        atualizarImagem(
+                animal,
+                imagem,
+                removerImagem
+        );
+
+        return AnimalResponseDTO.fromEntity(
+                animalRepository.save(animal)
+        );
     }
 
-    private void atualizarImagem(Animal animal, MultipartFile imagem, boolean removerImagem) {
+    private void atualizarImagem(
+            Animal animal,
+            MultipartFile imagem,
+            boolean removerImagem) {
+
         if (removerImagem) {
-            imageStorageService.remover(animal.getFotoUrl());
+            imageStorageService.remover(
+                    animal.getFotoUrl()
+            );
+
             animal.setFotoUrl(null);
             return;
         }
+
         if (imagem != null && !imagem.isEmpty()) {
-            String novoCaminho = imageStorageService.salvar(imagem, "animais");
-            imageStorageService.substituir(animal.getFotoUrl(), novoCaminho);
+
+            String novoCaminho =
+                    imageStorageService.salvar(
+                            imagem,
+                            "animais"
+                    );
+
+            imageStorageService.substituir(
+                    animal.getFotoUrl(),
+                    novoCaminho
+            );
+
             animal.setFotoUrl(novoCaminho);
         }
     }
 
-    private void aplicarStatusAdocao(Animal animal, StatusAdocao novoStatus) {
+    private void aplicarStatusAdocao(
+            Animal animal,
+            StatusAdocao novoStatus) {
 
-    if (novoStatus == StatusAdocao.DISPONIVEL && animal.getDataDisponivel() == null) {
-        animal.setDataDisponivel(LocalDateTime.now());
+        if (novoStatus == StatusAdocao.DISPONIVEL
+                && animal.getDataDisponivel() == null) {
+
+            animal.setDataDisponivel(
+                    LocalDateTime.now()
+            );
+        }
+
+        if (novoStatus == StatusAdocao.ADOTADO
+                && animal.getDataAdocao() == null) {
+
+            animal.setDataAdocao(
+                    LocalDateTime.now()
+            );
+        }
+
+        animal.setStatusAdocao(novoStatus);
     }
-    
-    if (novoStatus == StatusAdocao.ADOTADO && animal.getDataAdocao() == null) {
-    animal.setDataAdocao(LocalDateTime.now());
-    }  
-     animal.setStatusAdocao(novoStatus);
 
-
-}
     @Transactional
-    public void atualizarStatus(Long id, StatusAdocao novoStatus) {
+    public void atualizarStatus(
+            Long id,
+            StatusAdocao novoStatus) {
+
         Animal animal = buscarEntidade(id);
-        aplicarStatusAdocao(animal, novoStatus);
+
+        aplicarStatusAdocao(
+                animal,
+                novoStatus
+        );
+
         animalRepository.save(animal);
     }
 
     @Transactional
     public void desativar(Long id) {
+
         log.info("Desativando animal id={}", id);
+
         Animal animal = buscarEntidade(id);
+
         animal.setAtivo(false);
         animal.setDestaque(false);
+
         animalRepository.save(animal);
     }
 
     @Transactional(readOnly = true)
     public long contarDisponiveis() {
-        return animalRepository.countByStatusAdocaoAndAtivoTrue(StatusAdocao.DISPONIVEL);
+        return animalRepository
+                .countByStatusAdocaoAndAtivoTrue(
+                        StatusAdocao.DISPONIVEL
+                );
     }
 
     @Transactional(readOnly = true)
@@ -202,13 +331,20 @@ public class AnimalService {
 
     @Transactional(readOnly = true)
     public long contarEmTratamentoOuStandBy() {
-        return animalRepository.countBySituacaoAnimalAndAtivoTrue(SituacaoAnimal.EM_TRATAMENTO)
-                + animalRepository.countBySituacaoAnimalAndAtivoTrue(SituacaoAnimal.STAND_BY);
+        return animalRepository
+                .countBySituacaoAnimalAndAtivoTrue(
+                        SituacaoAnimal.EM_TRATAMENTO
+                )
+                + animalRepository
+                .countBySituacaoAnimalAndAtivoTrue(
+                        SituacaoAnimal.STAND_BY
+                );
     }
 
     @Transactional(readOnly = true)
     public long contarAdocoesConcluidas() {
-        return animalRepository.countByDataAdocaoIsNotNull();
+        return animalRepository
+                .countByDataAdocaoIsNotNull();
     }
 
     @Transactional(readOnly = true)
@@ -223,9 +359,13 @@ public class AnimalService {
 
     @Transactional(readOnly = true)
     public List<Object[]> contarAnimaisPorStatus() {
-        return animalRepository.contarAnimaisPorStatus().stream()
+
+        return animalRepository
+                .contarAnimaisPorStatus()
+                .stream()
                 .map(linha -> new Object[]{
-                        ((StatusAdocao) linha[0]).getDescricao(),
+                        ((StatusAdocao) linha[0])
+                                .getDescricao(),
                         linha[1]
                 })
                 .toList();
@@ -233,11 +373,15 @@ public class AnimalService {
 
     @Transactional(readOnly = true)
     public Double calcularTempoMedioAteAdocao() {
-        return animalRepository.calcularTempoMedioAteAdocao();
+        return animalRepository
+                .calcularTempoMedioAteAdocao();
     }
 
     @Transactional(readOnly = true)
-    public List<Object[]> calcularTempoMedioAteAdocaoPorEspecie() {
-        return animalRepository.calcularTempoMedioAteAdocaoPorEspecie();
+    public List<Object[]>
+            calcularTempoMedioAteAdocaoPorEspecie() {
+
+        return animalRepository
+                .calcularTempoMedioAteAdocaoPorEspecie();
     }
 }

@@ -64,6 +64,10 @@
                         <td th:text="${animal.ativo ? 'Sim' : 'Não'}">Sim</td>
                         <td class="acoes">
                             <a class="btn btn--pequeno" th:href="@{|/admin/animais/${animal.id}/editar|}">Editar</a>
+                            <a class="btn btn--pequeno"
+                                th:href="@{|/admin/animais/${animal.id}/historico|}">
+                                    Histórico
+                            </a>
                             <form th:action="@{|/admin/animais/${animal.id}/desativar|}" method="post"
                                   th:if="${animal.ativo}"
                                   onsubmit="return confirm('Desativar este animal? Ele sairá do site, mas permanecerá no histórico.');">

@@ -1,5 +1,13 @@
 package br.com.patinhas.service;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import br.com.patinhas.dto.request.SolicitacaoAdocaoRequestDTO;
 import br.com.patinhas.dto.request.SolicitacaoAdocaoUpdateStatusDTO;
 import br.com.patinhas.dto.response.SolicitacaoAdocaoHistoricoResponseDTO;
@@ -16,13 +24,6 @@ import br.com.patinhas.repository.SolicitacaoAdocaoHistoricoRepository;
 import br.com.patinhas.repository.SolicitacaoAdocaoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.time.LocalDateTime;
-import java.util.List;
 
 @Slf4j
 @Service
@@ -32,7 +33,7 @@ public class SolicitacaoAdocaoService {
     private final SolicitacaoAdocaoRepository solicitacaoAdocaoRepository;
     private final SolicitacaoAdocaoHistoricoRepository historicoRepository;
     private final AnimalRepository animalRepository;
-
+    private final AnimalHistoricoService animalHistoricoService;
     @Transactional
     public SolicitacaoAdocaoResponseDTO cadastrar(SolicitacaoAdocaoRequestDTO dto) {
 
@@ -64,7 +65,14 @@ public class SolicitacaoAdocaoService {
                 null,
                 StatusSolicitacaoAdocao.NOVA,
                 "Solicitação criada."
+                
         );
+        animalHistoricoService.registrar(
+                animal,
+                br.com.patinhas.entity.enums.TipoHistoricoAnimal.INTERESSE_RECEBIDO,
+                "Interesse de adoção recebido",
+                true
+);
 
         log.info(
                 "Nova solicitação de adoção criada. id={}, animalId={}",
@@ -247,6 +255,17 @@ public class SolicitacaoAdocaoService {
             animal.setStatusAdocao(StatusAdocao.EM_PROCESSO);
             animalRepository.save(animal);
         }
+        if (novoStatus == StatusSolicitacaoAdocao.APROVADA) {
+            animal.setStatusAdocao(StatusAdocao.EM_PROCESSO);
+            animalRepository.save(animal);
+
+            animalHistoricoService.registrar(
+            animal,
+            br.com.patinhas.entity.enums.TipoHistoricoAnimal.ADOCAO_APROVADA,
+            "Adoção aprovada",
+            true
+    );
+}
 
         if (novoStatus == StatusSolicitacaoAdocao.CONCLUIDA) {
             LocalDateTime agora = LocalDateTime.now();
@@ -256,7 +275,15 @@ public class SolicitacaoAdocaoService {
             }
             animalRepository.save(animal);
             solicitacao.setDataConclusao(agora);
+            animalHistoricoService.registrar(
+                    animal,
+                    br.com.patinhas.entity.enums.TipoHistoricoAnimal.ADOCAO_CONCLUIDA,
+                    agora,
+             "Adoção concluída",
+         true
+        );
         }
+        
 
         if (novoStatus == StatusSolicitacaoAdocao.RECUSADA
                 && statusAnterior == StatusSolicitacaoAdocao.APROVADA

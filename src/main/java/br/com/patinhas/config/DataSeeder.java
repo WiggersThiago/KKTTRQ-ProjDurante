@@ -1,17 +1,20 @@
 package br.com.patinhas.config;
 
-import br.com.patinhas.entity.InformacaoONG;
-import br.com.patinhas.entity.Usuario;
-import br.com.patinhas.entity.enums.RoleUsuario;
-import br.com.patinhas.repository.InformacaoONGRepository;
-import br.com.patinhas.repository.UsuarioRepository;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+
+import br.com.patinhas.entity.InformacaoONG;
+import br.com.patinhas.entity.Usuario;
+import br.com.patinhas.entity.enums.RoleUsuario;
+import br.com.patinhas.repository.AnimalRepository;
+import br.com.patinhas.repository.InformacaoONGRepository;
+import br.com.patinhas.repository.UsuarioRepository;
+import br.com.patinhas.service.AnimalHistoricoService;
 import br.com.patinhas.service.EspecieService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 /**
  * Inicializa os dados mínimos do sistema:
  *
@@ -29,6 +32,8 @@ public class DataSeeder implements CommandLineRunner {
     private final InformacaoONGRepository informacaoONGRepository;
     private final PasswordEncoder passwordEncoder;
     private final EspecieService especieService;
+    private final AnimalRepository animalRepository;
+    private final AnimalHistoricoService animalHistoricoService;
 
     @Value("${patinhas.admin.email}")
     private String adminEmail;
@@ -44,6 +49,7 @@ public class DataSeeder implements CommandLineRunner {
         criarAdminPadrao();
         criarInformacoesPadrao();
         criarEspeciesPadrao();
+        criarHistoricoAnimaisExistentes();
     }
 
     private void criarAdminPadrao() {
@@ -84,4 +90,11 @@ public class DataSeeder implements CommandLineRunner {
         especieService.buscarOuCriar("Gato");
         log.info("Espécies padrão verificadas.");
     }
+    private void criarHistoricoAnimaisExistentes() {
+        animalRepository.findAll().forEach(animal ->
+        animalHistoricoService.garantirHistoricoCadastro(animal)
+    );
+
+    log.info("Histórico de cadastro dos animais existentes verificado.");
+}
 }

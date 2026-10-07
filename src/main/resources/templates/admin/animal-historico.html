@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pt-BR"
+      xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: html(tituloPagina='Histórico do animal', cssExtra=${ {'/css/dashboard.css'} }, conteudo=~{::section})}">
+<body>
+<section>
+    <section class="container secao admin admin--centro">
+
+        <nav class="admin-breadcrumb" aria-label="Navegação">
+            <a th:href="@{/admin/dashboard}">Painel</a>
+            <span class="admin-breadcrumb__sep">/</span>
+            <a th:href="@{/admin/animais}">← Voltar aos animais</a>
+        </nav>
+
+        <h1>
+            Histórico de
+            <span th:text="${animal.nome}">Animal</span>
+        </h1>
+
+        <p class="texto-apoio">
+            Acompanhe os acontecimentos registrados durante a permanência deste animal na ONG.
+        </p>
+
+        <div class="card">
+            <p>
+                <strong>Animal:</strong>
+                <span th:text="${animal.nome}">Nome</span>
+            </p>
+
+            <p>
+                <strong>Espécie:</strong>
+                <span th:text="${animal.especie != null ? animal.especie : '-'}">Espécie</span>
+            </p>
+
+            <p>
+                <strong>Status atual:</strong>
+                <span class="badge"
+                      th:classappend="'badge--' + ${#strings.toLowerCase(animal.statusAdocao.name())}"
+                      th:text="${animal.statusAdocao.descricao}">
+                    Disponível
+                </span>
+            </p>
+        </div>
+
+        <h2>Histórico</h2>
+
+        <div class="card" th:if="${!#lists.isEmpty(historico)}">
+            <ul class="historico">
+
+                <li class="historico__item" th:each="h : ${historico}">
+
+                    <div class="historico__meta">
+                        <span th:text="${#temporals.format(h.data, 'dd/MM/yyyy HH:mm')}">
+                            01/01/2026 10:00
+                        </span>
+
+                        <span th:text="${h.automatico ? 'Automático' : 'Manual'}">
+                            Automático
+                        </span>
+                    </div>
+
+                    <p class="historico__status"
+                       th:text="${h.tipo.descricao}">
+                        Cadastro
+                    </p>
+
+                    <p class="historico__anotacao"
+                       th:text="${h.texto}">
+                        Animal cadastrado no sistema
+                    </p>
+
+                </li>
+
+            </ul>
+        </div>
+
+        <p class="historico__vazio"
+           th:if="${#lists.isEmpty(historico)}">
+            Nenhum acontecimento registrado para este animal.
+        </p>
+
+    </section>
+</section>
+</body>
+</html>
