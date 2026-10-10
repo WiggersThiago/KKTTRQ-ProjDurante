@@ -20,9 +20,8 @@ import br.com.patinhas.repository.AnimalRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-/**
- * Camada de regras de negócio para Animais.
- */
+/* Camada de regras de negócio para Animais.*/
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -269,6 +268,12 @@ public class AnimalService {
             Animal animal,
             StatusAdocao novoStatus) {
 
+        StatusAdocao statusAnterior = animal.getStatusAdocao();
+
+        if (statusAnterior == novoStatus) {
+            return;
+        }
+
         if (novoStatus == StatusAdocao.DISPONIVEL
                 && animal.getDataDisponivel() == null) {
 
@@ -286,6 +291,36 @@ public class AnimalService {
         }
 
         animal.setStatusAdocao(novoStatus);
+
+        animalHistoricoService.registrar(
+                animal,
+                TipoHistoricoAnimal.ALTERACAO_STATUS,
+                "Status de adoção alterado de "
+                        + (statusAnterior != null
+                            ? statusAnterior.getDescricao()
+                            : "Não informado")
+                        + " para "
+                        + novoStatus.getDescricao(),
+                true
+        );
+
+        if (novoStatus == StatusAdocao.DISPONIVEL) {
+            animalHistoricoService.registrar(
+                    animal,
+                    TipoHistoricoAnimal.DISPONIBILIZACAO_ADOCAO,
+                    "Animal ficou disponível para adoção",
+                    true
+            );
+        }
+
+        if (novoStatus == StatusAdocao.ADOTADO) {
+            animalHistoricoService.registrar(
+                    animal,
+                    TipoHistoricoAnimal.ADOCAO_CONCLUIDA,
+                    "Adoção concluída por alteração direta do status do animal",
+                    true
+            );
+        }
     }
 
     @Transactional

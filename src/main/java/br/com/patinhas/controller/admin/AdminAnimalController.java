@@ -26,6 +26,7 @@ import br.com.patinhas.entity.enums.PorteAnimal;
 import br.com.patinhas.entity.enums.SexoAnimal;
 import br.com.patinhas.entity.enums.SituacaoAnimal;
 import br.com.patinhas.entity.enums.StatusAdocao;
+import br.com.patinhas.entity.enums.TipoHistoricoAnimal;
 import br.com.patinhas.exception.BusinessException;
 import br.com.patinhas.service.AnimalHistoricoService;
 import br.com.patinhas.service.AnimalService;
@@ -161,14 +162,48 @@ public class AdminAnimalController {
         redirectAttributes.addFlashAttribute("sucesso", "Animal desativado com sucesso.");
         return "redirect:/admin/animais";
     }
+
     @GetMapping("/{id}/historico")
     public String historico(@PathVariable Long id, Model model) {
         var animal = animalService.buscarPorId(id);
 
         model.addAttribute("animal", animal);
         model.addAttribute("historico", animalHistoricoService.listarPorAnimal(id));
+        model.addAttribute("tiposHistorico", TipoHistoricoAnimal.values());
 
         return "admin/animal-historico";
+    }
+
+    @PostMapping("/{id}/historico")
+    public String registrarHistorico(
+            @PathVariable Long id,
+            @RequestParam TipoHistoricoAnimal tipo,
+            @RequestParam String texto,
+            RedirectAttributes redirectAttributes) {
+
+        if (texto == null || texto.isBlank() || texto.length() > 500) {
+            redirectAttributes.addFlashAttribute(
+                    "erro",
+                    "A descrição deve conter entre 1 e 500 caracteres."
+            );
+            return "redirect:/admin/animais/" + id + "/historico";
+        }
+
+        var animal = animalService.buscarEntidade(id);
+
+        animalHistoricoService.registrar(
+                animal,
+                tipo,
+                texto,
+                false
+        );
+
+        redirectAttributes.addFlashAttribute(
+                "sucesso",
+                "Acontecimento registrado com sucesso!"
+        );
+
+        return "redirect:/admin/animais/" + id + "/historico";
     }
 
     private void adicionarEnumsAoModel(Model model) {

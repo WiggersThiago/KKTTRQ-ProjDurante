@@ -17,6 +17,7 @@
             <span th:text="${animal.nome}">Animal</span>
         </h1>
 
+
         <p class="texto-apoio">
             Acompanhe os acontecimentos registrados durante a permanência deste animal na ONG.
         </p>
@@ -41,6 +42,51 @@
                 </span>
             </p>
         </div>
+
+
+       <!-- Formulário para registrar acontecimentos manualmente -->
+        <div class="card">
+            <h2>Registrar acontecimento</h2>
+                <div class="alerta alerta--sucesso"
+                    th:if="${sucesso}"
+                    th:text="${sucesso}">
+                </div>
+                <div class="alerta alerta--erro" th:if="${erro}" th:text="${erro}"></div>
+
+            <form class="formulario formulario--admin"
+                th:action="@{/admin/animais/{id}/historico(id=${animal.id})}"
+                method="post">
+                <div class="campo">
+                    <label for="tipo">Tipo de acontecimento</label>
+
+                    <select id="tipo" name="tipo" required>
+                        <option value="">Selecione um acontecimento</option>
+
+                        <option th:each="tipo : ${tiposHistorico}"
+                                th:value="${tipo.name()}"
+                                th:text="${tipo.descricao}">
+                        </option>
+                    </select>
+                </div>
+
+                <div class="campo">
+                    <label for="texto">Descrição</label>
+
+                    <textarea id="texto"
+                            name="texto"
+                            rows="3"
+                            maxlength="500"
+                            placeholder="Descreva o que aconteceu com o animal..."
+                            required></textarea>
+                </div>
+
+                <button type="submit" class="btn btn--primario">
+                    Registrar acontecimento
+                </button>
+
+            </form>
+        </div>
+
 
         <h2>Histórico</h2>
 

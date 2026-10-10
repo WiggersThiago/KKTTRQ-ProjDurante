@@ -17,6 +17,7 @@ import br.com.patinhas.entity.SolicitacaoAdocao;
 import br.com.patinhas.entity.SolicitacaoAdocaoHistorico;
 import br.com.patinhas.entity.enums.StatusAdocao;
 import br.com.patinhas.entity.enums.StatusSolicitacaoAdocao;
+import br.com.patinhas.entity.enums.TipoHistoricoAnimal;
 import br.com.patinhas.exception.BusinessException;
 import br.com.patinhas.exception.ResourceNotFoundException;
 import br.com.patinhas.repository.AnimalRepository;
@@ -34,12 +35,20 @@ public class SolicitacaoAdocaoService {
     private final SolicitacaoAdocaoHistoricoRepository historicoRepository;
     private final AnimalRepository animalRepository;
     private final AnimalHistoricoService animalHistoricoService;
+
+
+    // CADASTRAR SOLICITAÇÃO
+
     @Transactional
-    public SolicitacaoAdocaoResponseDTO cadastrar(SolicitacaoAdocaoRequestDTO dto) {
+    public SolicitacaoAdocaoResponseDTO cadastrar(
+            SolicitacaoAdocaoRequestDTO dto) {
 
         Animal animal = animalRepository.findById(dto.getAnimalId())
                 .orElseThrow(() ->
-                        new ResourceNotFoundException("Animal não encontrado."));
+                        new ResourceNotFoundException(
+                                "Animal não encontrado."
+                        )
+                );
 
         validarDisponivelParaAdocao(animal);
 
@@ -65,14 +74,15 @@ public class SolicitacaoAdocaoService {
                 null,
                 StatusSolicitacaoAdocao.NOVA,
                 "Solicitação criada."
-                
         );
+
+        // Histórico do animal: interesse recebido
         animalHistoricoService.registrar(
                 animal,
-                br.com.patinhas.entity.enums.TipoHistoricoAnimal.INTERESSE_RECEBIDO,
+                TipoHistoricoAnimal.INTERESSE_RECEBIDO,
                 "Interesse de adoção recebido",
                 true
-);
+        );
 
         log.info(
                 "Nova solicitação de adoção criada. id={}, animalId={}",
@@ -82,6 +92,9 @@ public class SolicitacaoAdocaoService {
 
         return SolicitacaoAdocaoResponseDTO.fromEntity(solicitacao);
     }
+
+
+    // LISTAGENS E CONSULTAS
 
     @Transactional(readOnly = true)
     public List<SolicitacaoAdocaoResponseDTO> listarTodas() {
@@ -113,7 +126,8 @@ public class SolicitacaoAdocaoService {
     }
 
     @Transactional(readOnly = true)
-    public List<SolicitacaoAdocaoHistoricoResponseDTO> listarHistorico(Long id) {
+    public List<SolicitacaoAdocaoHistoricoResponseDTO> listarHistorico(
+            Long id) {
 
         buscarEntidade(id);
 
@@ -124,6 +138,8 @@ public class SolicitacaoAdocaoService {
                 .toList();
     }
 
+
+    // ATUALIZAR STATUS DA SOLICITAÇÃO
     @Transactional
     public void atualizarStatus(
             Long id,
@@ -140,9 +156,17 @@ public class SolicitacaoAdocaoService {
             );
         }
 
-        validarMudancaDeStatus(solicitacao, statusAnterior, novoStatus);
+        validarMudancaDeStatus(
+                solicitacao,
+                statusAnterior,
+                novoStatus
+        );
 
-        aplicarRegraDoNovoStatus(solicitacao, statusAnterior, novoStatus);
+        aplicarRegraDoNovoStatus(
+                solicitacao,
+                statusAnterior,
+                novoStatus
+        );
 
         solicitacao.setStatus(novoStatus);
 
@@ -163,19 +187,30 @@ public class SolicitacaoAdocaoService {
         );
     }
 
+
+    // TRATAMENTO DE TEXTOS
+
+
     private String textoObrigatorioNoBanco(String valor) {
+
         if (valor == null || valor.isBlank()) {
             return "";
         }
+
         return valor.trim();
     }
 
     private String textoOpcional(String valor) {
+
         if (valor == null || valor.isBlank()) {
             return null;
         }
+
         return valor.trim();
     }
+
+
+    // VALIDAR DISPONIBILIDADE
 
     private void validarDisponivelParaAdocao(Animal animal) {
 
@@ -188,61 +223,99 @@ public class SolicitacaoAdocaoService {
         }
     }
 
-    public List<StatusSolicitacaoAdocao> proximosStatus(StatusSolicitacaoAdocao atual) {
+
+    // PRÓXIMOS STATUS PERMITIDOS
+
+    public List<StatusSolicitacaoAdocao> proximosStatus(
+            StatusSolicitacaoAdocao atual) {
+
         if (atual == null) {
             return List.of();
         }
+
         return switch (atual) {
+
             case NOVA -> List.of(
                     StatusSolicitacaoAdocao.EM_ANALISE,
-                    StatusSolicitacaoAdocao.RECUSADA);
+                    StatusSolicitacaoAdocao.RECUSADA
+            );
+
             case EM_ANALISE -> List.of(
                     StatusSolicitacaoAdocao.CONTATADO,
-                    StatusSolicitacaoAdocao.RECUSADA);
+                    StatusSolicitacaoAdocao.RECUSADA
+            );
+
             case CONTATADO -> List.of(
                     StatusSolicitacaoAdocao.APROVADA,
-                    StatusSolicitacaoAdocao.RECUSADA);
+                    StatusSolicitacaoAdocao.RECUSADA
+            );
+
             case APROVADA -> List.of(
                     StatusSolicitacaoAdocao.CONCLUIDA,
-                    StatusSolicitacaoAdocao.RECUSADA);
+                    StatusSolicitacaoAdocao.RECUSADA
+            );
+
             case CONCLUIDA, RECUSADA -> List.of();
         };
     }
 
+
+    // VALIDAR MUDANÇA DE STATUS
+    @Transactional
     private void validarMudancaDeStatus(
             SolicitacaoAdocao solicitacao,
             StatusSolicitacaoAdocao statusAnterior,
             StatusSolicitacaoAdocao novoStatus) {
 
         if (!proximosStatus(statusAnterior).contains(novoStatus)) {
+
             throw new BusinessException(
                     "Essa mudança de status não faz parte da esteira da solicitação."
             );
         }
 
         if (novoStatus == StatusSolicitacaoAdocao.APROVADA) {
+
             Animal animal = solicitacao.getAnimal();
 
             if (animal.getStatusAdocao() != StatusAdocao.DISPONIVEL) {
+
                 throw new BusinessException(
                         "Este animal não está disponível para aprovação."
                 );
             }
 
             boolean outraAprovada =
-                    solicitacaoAdocaoRepository.existsByAnimalIdAndStatus(
-                            animal.getId(),
-                            StatusSolicitacaoAdocao.APROVADA
-                    );
+                    solicitacaoAdocaoRepository
+                            .existsByAnimalIdAndStatus(
+                                    animal.getId(),
+                                    StatusSolicitacaoAdocao.APROVADA
+                            );
 
             if (outraAprovada) {
+
                 throw new BusinessException(
                         "Já existe uma solicitação aprovada para este animal. "
                                 + "Recuse a aprovada antes de aprovar outra."
                 );
             }
         }
+
+        // Impede concluir uma solicitação se o animal não estiver mais no processo de adoção.
+        if (novoStatus == StatusSolicitacaoAdocao.CONCLUIDA) {
+
+            Animal animal = solicitacao.getAnimal();
+
+            if (animal.getStatusAdocao() != StatusAdocao.EM_PROCESSO) {
+
+                throw new BusinessException(
+                        "O animal não está em processo de adoção."
+                );
+            }
+        }
     }
+
+    // APLICAR REGRAS DE ALTERAÇÃO DE STATUS
 
     private void aplicarRegraDoNovoStatus(
             SolicitacaoAdocao solicitacao,
@@ -251,47 +324,103 @@ public class SolicitacaoAdocaoService {
 
         Animal animal = solicitacao.getAnimal();
 
-        if (novoStatus == StatusSolicitacaoAdocao.APROVADA) {
-            animal.setStatusAdocao(StatusAdocao.EM_PROCESSO);
-            animalRepository.save(animal);
+        // Registra o encerramento do interesse quando uma solicitação é recusada
+        if (novoStatus == StatusSolicitacaoAdocao.RECUSADA) {
+            animalHistoricoService.registrar(
+                    animal,
+                    TipoHistoricoAnimal.INTERESSE_CANCELADO,
+                    "Interesse de adoção encerrado após recusa da solicitação",
+                    true
+            );
         }
+
+        // ADOÇÃO APROVADA
+
+
         if (novoStatus == StatusSolicitacaoAdocao.APROVADA) {
+
             animal.setStatusAdocao(StatusAdocao.EM_PROCESSO);
+
             animalRepository.save(animal);
 
             animalHistoricoService.registrar(
-            animal,
-            br.com.patinhas.entity.enums.TipoHistoricoAnimal.ADOCAO_APROVADA,
-            "Adoção aprovada",
-            true
-    );
-}
+                    animal,
+                    TipoHistoricoAnimal.ADOCAO_APROVADA,
+                    "Adoção aprovada",
+                    true
+            );
+
+            animalHistoricoService.registrar(
+                    animal,
+                    TipoHistoricoAnimal.ALTERACAO_STATUS,
+                    "Status de adoção alterado de Disponível para Em processo",
+                    true
+            );
+        }
+
+
+        // ADOÇÃO CONCLUÍDA
+
 
         if (novoStatus == StatusSolicitacaoAdocao.CONCLUIDA) {
+
             LocalDateTime agora = LocalDateTime.now();
+
             animal.setStatusAdocao(StatusAdocao.ADOTADO);
+
             if (animal.getDataAdocao() == null) {
                 animal.setDataAdocao(agora);
             }
+
             animalRepository.save(animal);
-            solicitacao.setDataConclusao(agora);
+
             animalHistoricoService.registrar(
                     animal,
-                    br.com.patinhas.entity.enums.TipoHistoricoAnimal.ADOCAO_CONCLUIDA,
+                    TipoHistoricoAnimal.ALTERACAO_STATUS,
+                    "Status de adoção alterado de Em processo para Adotado",
+                    true
+            );
+
+            solicitacao.setDataConclusao(agora);
+
+            animalHistoricoService.registrar(
+                    animal,
+                    TipoHistoricoAnimal.ADOCAO_CONCLUIDA,
                     agora,
-             "Adoção concluída",
-         true
-        );
+                    "Adoção concluída",
+                    true
+            );
         }
-        
+
+
+        // SOLICITAÇÃO RECUSADA APÓS APROVAÇÃO
 
         if (novoStatus == StatusSolicitacaoAdocao.RECUSADA
                 && statusAnterior == StatusSolicitacaoAdocao.APROVADA
                 && animal.getStatusAdocao() == StatusAdocao.EM_PROCESSO) {
+
             animal.setStatusAdocao(StatusAdocao.DISPONIVEL);
+
             animalRepository.save(animal);
+
+            animalHistoricoService.registrar(
+                    animal,
+                    TipoHistoricoAnimal.ALTERACAO_STATUS,
+                    "Status de adoção alterado de Em processo para Disponível",
+                    true
+            );
+
+            animalHistoricoService.registrar(
+                    animal,
+                    TipoHistoricoAnimal.DISPONIBILIZACAO_ADOCAO,
+                    "Animal voltou a ficar disponível para adoção após recusa da solicitação",
+                    true
+            );
         }
     }
+
+
+    // REGISTRAR HISTÓRICO DA SOLICITAÇÃO
 
     private void registrarHistorico(
             SolicitacaoAdocao solicitacao,
@@ -322,31 +451,48 @@ public class SolicitacaoAdocaoService {
         historicoRepository.save(historico);
     }
 
+
+    // BUSCAR SOLICITAÇÃO
+
     private SolicitacaoAdocao buscarEntidade(Long id) {
 
         return solicitacaoAdocaoRepository.findById(id)
                 .orElseThrow(() ->
                         new ResourceNotFoundException(
                                 "Solicitação de adoção não encontrada."
-                        ));
+                        )
+                );
     }
+
+
+    // CONTADORES DO DASHBOARD
+
     @Transactional(readOnly = true)
     public long contarPendentes() {
-        return solicitacaoAdocaoRepository.countByStatusIn(List.of(
-                StatusSolicitacaoAdocao.NOVA,
-                StatusSolicitacaoAdocao.EM_ANALISE,
-                StatusSolicitacaoAdocao.CONTATADO,
-                StatusSolicitacaoAdocao.APROVADA
-        ));
+
+        return solicitacaoAdocaoRepository.countByStatusIn(
+                List.of(
+                        StatusSolicitacaoAdocao.NOVA,
+                        StatusSolicitacaoAdocao.EM_ANALISE,
+                        StatusSolicitacaoAdocao.CONTATADO,
+                        StatusSolicitacaoAdocao.APROVADA
+                )
+        );
     }
 
     @Transactional(readOnly = true)
     public long contarNovas() {
-        return solicitacaoAdocaoRepository.countByStatus(StatusSolicitacaoAdocao.NOVA);
+
+        return solicitacaoAdocaoRepository.countByStatus(
+                StatusSolicitacaoAdocao.NOVA
+        );
     }
 
     @Transactional(readOnly = true)
     public long contarConcluidas() {
-        return solicitacaoAdocaoRepository.countByStatus(StatusSolicitacaoAdocao.CONCLUIDA);
+
+        return solicitacaoAdocaoRepository.countByStatus(
+                StatusSolicitacaoAdocao.CONCLUIDA
+        );
     }
 }
