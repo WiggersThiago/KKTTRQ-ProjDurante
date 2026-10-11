@@ -1,253 +1,53 @@
 <!DOCTYPE html>
 <html lang="pt-BR"
       xmlns:th="http://www.thymeleaf.org"
-      th:replace="~{layout/base :: html(
-          tituloPagina='Estoque',
-          cssExtra=${ {'/css/dashboard.css'} },
-          conteudo=~{::section}
-      )}">
-
+      th:replace="~{layout/base :: html(tituloPagina='Estoque', cssExtra=${ {'/css/dashboard.css'} }, conteudo=~{::section})}">
 <body>
-
 <section>
-
     <section class="container secao admin">
-
-        <div th:replace="~{fragments/admin-nav :: voltarPainel}"></div>
-
         <header class="admin__header admin__header--linha">
-
             <div>
+                <a class="link-voltar" th:href="@{/admin/dashboard}">← Painel</a>
                 <h1>Estoque</h1>
-
-                <p class="texto-apoio">
-                    Gerencie categorias, unidades e produtos disponíveis na ONG.
-                </p>
+                <p class="texto-apoio">Cadastre o que a ONG tem na prateleira e acompanhe os níveis mínimos e máximos.</p>
             </div>
-
-            <a class="btn btn--primario"
-               th:href="@{/admin/estoque/produtos/novo}">
-                + Novo produto
-            </a>
-
+            <div class="form-acoes"><a class="btn btn--texto" th:href="@{/admin/estoque/entrada}">Registrar entrada</a><a class="btn btn--primario" th:href="@{/admin/estoque/produtos/novo}">+ Novo produto</a></div>
         </header>
 
-        <div class="alerta alerta--sucesso"
-             th:if="${sucesso}"
-             th:text="${sucesso}">
+        <div class="estoque-menu">
+            <a th:href="@{/admin/estoque/produtos}">Produtos</a>
+            <a th:href="@{/admin/estoque/categorias}">Categorias</a>
+            <a th:href="@{/admin/estoque/unidades}">Unidades</a>
         </div>
 
-        <div class="alerta"
-             th:if="${erro}"
-             th:text="${erro}">
+        <div class="dashboard-cards estoque-resumo">
+            <div class="dash-card">
+                <span class="dash-card__icone">📦</span>
+                <span class="dash-card__numero" th:text="${totalProdutos}">0</span>
+                <span class="dash-card__label">Produtos cadastrados</span>
+            </div>
+            <div class="dash-card">
+                <span class="dash-card__icone">🏷️</span>
+                <span class="dash-card__numero" th:text="${totalCategorias}">0</span>
+                <span class="dash-card__label">Categorias</span>
+            </div>
+            <div class="dash-card">
+                <span class="dash-card__icone">⚖️</span>
+                <span class="dash-card__numero" th:text="${totalUnidades}">0</span>
+                <span class="dash-card__label">Unidades</span>
+            </div>
+            <div class="dash-card dash-card--alerta">
+                <span class="dash-card__icone">⚠️</span>
+                <span class="dash-card__numero" th:text="${produtosAbaixoMinimo}">0</span>
+                <span class="dash-card__label">Abaixo do mínimo</span>
+            </div>
         </div>
 
-
-        <!-- ======================= -->
-        <!-- CATEGORIAS -->
-        <!-- ======================= -->
-
-        <h2>Categorias</h2>
-
-        <a class="btn btn--pequeno"
-           th:href="@{/admin/estoque/categorias/nova}">
-            + Nova categoria
-        </a>
-
-        <div class="tabela-wrapper">
-
-            <table class="tabela">
-
-                <thead>
-
-                <tr>
-                    <th>ID</th>
-                    <th>Nome</th>
-                    <th>Ações</th>
-                </tr>
-
-                </thead>
-
-                <tbody>
-
-                <tr th:each="categoria : ${categorias}">
-
-                    <td th:text="${categoria.id}">1</td>
-
-                    <td th:text="${categoria.nome}">
-                        Alimentação
-                    </td>
-
-                    <td class="acoes">
-
-                        <form th:action="@{|/admin/estoque/categorias/${categoria.id}/excluir|}"
-                              method="post"
-                              onsubmit="return confirm('Excluir esta categoria?');">
-
-                            <button type="submit"
-                                    class="btn btn--pequeno btn--aviso">
-                                Excluir
-                            </button>
-
-                        </form>
-
-                    </td>
-
-                </tr>
-
-                </tbody>
-
-            </table>
-
+        <div class="card estoque-nota">
+            <strong>Saldo atual começa em 0.</strong>
+            <p>O cadastro do produto não permite alterar o saldo diretamente. Use “Registrar entrada” para somar quantidades recebidas ao produto já cadastrado.</p>
         </div>
-
-
-        <!-- ======================= -->
-        <!-- UNIDADES -->
-        <!-- ======================= -->
-
-        <h2>Unidades</h2>
-
-        <a class="btn btn--pequeno"
-           th:href="@{/admin/estoque/unidades/nova}">
-            + Nova unidade
-        </a>
-
-        <div class="tabela-wrapper">
-
-            <table class="tabela">
-
-                <thead>
-
-                <tr>
-                    <th>ID</th>
-                    <th>Nome</th>
-                    <th>Ações</th>
-                </tr>
-
-                </thead>
-
-                <tbody>
-
-                <tr th:each="unidade : ${unidades}">
-
-                    <td th:text="${unidade.id}">
-                        1
-                    </td>
-
-                    <td th:text="${unidade.nome}">
-                        kg
-                    </td>
-
-                    <td class="acoes">
-
-                        <form th:action="@{|/admin/estoque/unidades/${unidade.id}/excluir|}"
-                              method="post"
-                              onsubmit="return confirm('Excluir esta unidade?');">
-
-                            <button type="submit"
-                                    class="btn btn--pequeno btn--aviso">
-                                Excluir
-                            </button>
-
-                        </form>
-
-                    </td>
-
-                </tr>
-
-                </tbody>
-
-            </table>
-
-        </div>
-
-
-        <!-- ======================= -->
-        <!-- PRODUTOS -->
-        <!-- ======================= -->
-
-        <h2>Produtos</h2>
-
-        <div class="tabela-wrapper">
-
-            <table class="tabela">
-
-                <thead>
-
-                <tr>
-                    <th>ID</th>
-                    <th>Produto</th>
-                    <th>Categoria</th>
-                    <th>Unidade</th>
-                    <th>Mínimo</th>
-                    <th>Atual</th>
-                    <th>Máximo</th>
-                    <th>Ações</th>
-                </tr>
-
-                </thead>
-
-                <tbody>
-
-                <tr th:each="produto : ${produtos}">
-
-                    <td th:text="${produto.id}">
-                        1
-                    </td>
-
-                    <td th:text="${produto.nome}">
-                        Ração
-                    </td>
-
-                    <td th:text="${produto.categoria.nome}">
-                        Alimentação
-                    </td>
-
-                    <td th:text="${produto.unidade.nome}">
-                        kg
-                    </td>
-
-                    <td th:text="${produto.estoqueMinimo}">
-                        10
-                    </td>
-
-                    <td th:text="${produto.estoqueAtual}">
-                        0
-                    </td>
-
-                    <td th:text="${produto.estoqueMaximo}">
-                        50
-                    </td>
-
-                    <td class="acoes">
-
-                        <a class="btn btn--pequeno"
-                           th:href="@{|/admin/estoque/produtos/${produto.id}/editar|}">
-                            Editar
-                        </a>
-
-                    </td>
-
-                </tr>
-
-                <tr th:if="${#lists.isEmpty(produtos)}">
-
-                    <td colspan="8" class="vazio">
-                        Nenhum produto cadastrado.
-                    </td>
-
-                </tr>
-
-                </tbody>
-
-            </table>
-
-        </div>
-
     </section>
-
 </section>
-
 </body>
 </html>

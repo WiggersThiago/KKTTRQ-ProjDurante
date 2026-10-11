@@ -1,65 +1,41 @@
 <!DOCTYPE html>
 <html lang="pt-BR"
       xmlns:th="http://www.thymeleaf.org"
-      th:replace="~{layout/base :: html(
-          tituloPagina='Categoria de estoque',
-          cssExtra=${ {'/css/dashboard.css'} },
-          conteudo=~{::section}
-      )}">
-
+      th:replace="~{layout/base :: html(tituloPagina=${modoEdicao ? 'Editar categoria' : 'Nova categoria'}, cssExtra=${ {'/css/dashboard.css'} }, conteudo=~{::section})}">
 <body>
-
 <section>
+    <section class="container secao admin admin--centro">
+        <a class="link-voltar link-voltar--admin" th:href="@{/admin/estoque/categorias}">← Voltar às categorias</a>
+        <h1 th:text="${modoEdicao ? 'Editar categoria' : 'Nova categoria'}">Nova categoria</h1>
+        <nav class="estoque-menu" aria-label="Navegação do estoque">
+            <a th:href="@{/admin/estoque}">Visão geral</a>
+            <a th:href="@{/admin/estoque/produtos}">Produtos</a>
+            <a th:href="@{/admin/estoque/categorias}">Categorias</a>
+            <a th:href="@{/admin/estoque/unidades}">Unidades</a>
+            <a th:href="@{/admin/estoque/entrada}">Registrar entrada</a>
+        </nav>
 
-    <section class="container secao admin">
-
-        <div th:replace="~{fragments/admin-nav :: voltarPainel}"></div>
-
-        <header class="admin__header">
-
-            <h1>Nova categoria</h1>
-
-        </header>
 
         <form class="formulario formulario--admin"
-              th:action="@{/admin/estoque/categorias}"
-              th:object="${categoria}"
-              method="post">
+              th:action="${modoEdicao ? '/admin/estoque/categorias/' + categoriaId : '/admin/estoque/categorias'}"
+              th:object="${categoria}" method="post">
+            <div class="alerta alerta--erro" th:if="${erroNegocio}" th:text="${erroNegocio}"></div>
+            <div class="alerta alerta--erro" th:if="${#fields.hasErrors('*')}">
+                Confira os campos antes de salvar.
+            </div>
 
             <div class="campo">
-
-                <label for="nome">
-                    Nome *
-                </label>
-
-                <input
-                        type="text"
-                        id="nome"
-                        th:field="*{nome}"
-                        placeholder="Ex: Alimentação"
-                        required>
-
+                <label for="nome">Nome *</label>
+                <input type="text" id="nome" th:field="*{nome}" maxlength="100" placeholder="Ex.: Alimentação" />
+                <small class="campo__erro" th:errors="*{nome}"></small>
             </div>
 
             <div class="form-acoes">
-
-                <a class="btn btn--secundario"
-                   th:href="@{/admin/estoque}">
-                    Cancelar
-                </a>
-
-                <button type="submit"
-                        class="btn btn--primario">
-                    Salvar
-                </button>
-
+                <a class="btn btn--texto" th:href="@{/admin/estoque/categorias}">Cancelar</a>
+                <button type="submit" class="btn btn--primario">Salvar</button>
             </div>
-
         </form>
-
     </section>
-
 </section>
-
 </body>
 </html>

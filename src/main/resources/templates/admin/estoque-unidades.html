@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-BR"
+      xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: html(tituloPagina='Unidades de medida', cssExtra=${ {'/css/dashboard.css'} }, conteudo=~{::section})}">
+<body>
+<section>
+    <section class="container secao admin">
+        <a class="link-voltar link-voltar--admin" th:href="@{/admin/estoque}">← Voltar ao estoque</a>
+
+        <header class="admin__header admin__header--linha">
+            <div>
+                <h1>Unidades de medida</h1>
+                <p class="texto-apoio">Ex.: kg, un, L.</p>
+            </div>
+            <a class="btn btn--primario" th:href="@{/admin/estoque/unidades/novo}">+ Nova unidade</a>
+        </header>
+        <nav class="estoque-menu" aria-label="Navegação do estoque">
+            <a th:href="@{/admin/estoque}">Visão geral</a>
+            <a th:href="@{/admin/estoque/produtos}">Produtos</a>
+            <a th:href="@{/admin/estoque/categorias}">Categorias</a>
+            <a th:href="@{/admin/estoque/unidades}">Unidades</a>
+            <a th:href="@{/admin/estoque/entrada}">Registrar entrada</a>
+        </nav>
+
+
+        <div class="alerta alerta--sucesso" th:if="${sucesso}" th:text="${sucesso}"></div>
+        <div class="alerta alerta--erro" th:if="${erro}" th:text="${erro}"></div>
+
+        <div class="tabela-wrapper">
+            <table class="tabela">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Unidade</th>
+                    <th>Ações</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="unidade : ${unidades}">
+                    <td th:text="${unidade.id}">1</td>
+                    <td th:text="${unidade.nome}">kg</td>
+                    <td class="acoes">
+                        <a class="btn btn--pequeno" th:href="@{|/admin/estoque/unidades/${unidade.id}/editar|}">Editar</a>
+                        <form th:action="@{|/admin/estoque/unidades/${unidade.id}/excluir|}" method="post"
+                              onsubmit="return confirm('Excluir esta unidade?');">
+                            <button type="submit" class="btn btn--pequeno btn--perigo">Excluir</button>
+                        </form>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(unidades)}">
+                    <td colspan="3" class="vazio">Nenhuma unidade cadastrada.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</section>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-BR"
+      xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: html(tituloPagina='Registrar entrada de estoque', cssExtra=${ {'/css/dashboard.css'} }, conteudo=~{::section})}">
+<body>
+<section>
+    <section class="container secao admin admin--centro">
+        <a class="link-voltar link-voltar--admin" th:href="@{/admin/estoque/produtos}">← Voltar aos produtos</a>
+        <h1>Registrar entrada de estoque</h1>
+        <nav class="estoque-menu" aria-label="Navegação do estoque">
+            <a th:href="@{/admin/estoque}">Visão geral</a>
+            <a th:href="@{/admin/estoque/produtos}">Produtos</a>
+            <a th:href="@{/admin/estoque/categorias}">Categorias</a>
+            <a th:href="@{/admin/estoque/unidades}">Unidades</a>
+            <a th:href="@{/admin/estoque/entrada}">Registrar entrada</a>
+        </nav>
+
+        <p class="texto-apoio">Informe o nome já cadastrado e a quantidade recebida. O nome é localizado ignorando maiúsculas, minúsculas e espaços nas extremidades; a quantidade é somada ao saldo existente.</p>
+
+        <form class="formulario formulario--admin"
+              th:action="@{/admin/estoque/entrada}"
+              th:object="${entrada}" method="post">
+            <div class="alerta alerta--erro" th:if="${erroNegocio}" th:text="${erroNegocio}"></div>
+            <div class="alerta alerta--erro" th:if="${#fields.hasErrors('*')}">Confira os campos antes de salvar.</div>
+
+            <div class="campo">
+                <label for="nome">Nome do produto já cadastrado *</label>
+                <input type="text" id="nome" th:field="*{nome}" maxlength="150" placeholder="Ex.: Ração para cães" required />
+                <small class="campo__erro" th:errors="*{nome}"></small>
+            </div>
+
+            <div class="campo">
+                <label for="quantidade">Quantidade recebida *</label>
+                <input type="number" id="quantidade" th:field="*{quantidade}" min="0.001" step="0.001" placeholder="Ex.: 5" required />
+                <small class="campo__erro" th:errors="*{quantidade}"></small>
+            </div>
+
+            <div class="alerta">
+                Esta tela não cria produtos automaticamente. Se o nome não existir, cadastre o produto primeiro. Exemplo: se existem 10 kg de “Ração” e informar 5 para “RAÇÃO”, o saldo ficará 15 kg no mesmo cadastro.
+            </div>
+
+            <div class="form-acoes">
+                <a class="btn btn--texto" th:href="@{/admin/estoque/produtos}">Cancelar</a>
+                <button type="submit" class="btn btn--primario">Registrar entrada</button>
+            </div>
+        </form>
+    </section>
+</section>
+</body>
+</html>
