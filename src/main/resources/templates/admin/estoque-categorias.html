@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="pt-BR"
+      xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: html(tituloPagina='Categorias de estoque', cssExtra=${ {'/css/dashboard.css'} }, conteudo=~{::section})}">
+<body>
+<section>
+    <section class="container secao admin">
+        <a class="link-voltar link-voltar--admin" th:href="@{/admin/estoque}">← Voltar ao estoque</a>
+
+        <header class="admin__header admin__header--linha">
+            <div>
+                <h1>Categorias</h1>
+                <p class="texto-apoio">Ex.: alimentação, higiene, veterinário.</p>
+            </div>
+            <a class="btn btn--primario" th:href="@{/admin/estoque/categorias/novo}">+ Nova categoria</a>
+        </header>
+        <nav class="estoque-menu" aria-label="Navegação do estoque">
+            <a th:href="@{/admin/estoque}">Visão geral</a>
+            <a th:href="@{/admin/estoque/produtos}">Produtos</a>
+            <a th:href="@{/admin/estoque/categorias}">Categorias</a>
+            <a th:href="@{/admin/estoque/unidades}">Unidades</a>
+            <a th:href="@{/admin/estoque/entrada}">Registrar entrada</a>
+        </nav>
+
+
+        <div class="alerta alerta--sucesso" th:if="${sucesso}" th:text="${sucesso}"></div>
+        <div class="alerta alerta--erro" th:if="${erro}" th:text="${erro}"></div>
+
+        <div class="tabela-wrapper">
+            <table class="tabela">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nome</th>
+                    <th>Ações</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="categoria : ${categorias}">
+                    <td th:text="${categoria.id}">1</td>
+                    <td th:text="${categoria.nome}">Alimentação</td>
+                    <td class="acoes">
+                        <a class="btn btn--pequeno" th:href="@{|/admin/estoque/categorias/${categoria.id}/editar|}">Editar</a>
+                        <form th:action="@{|/admin/estoque/categorias/${categoria.id}/excluir|}" method="post"
+                              onsubmit="return confirm('Excluir esta categoria?');">
+                            <button type="submit" class="btn btn--pequeno btn--perigo">Excluir</button>
+                        </form>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(categorias)}">
+                    <td colspan="3" class="vazio">Nenhuma categoria cadastrada.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</section>
+</body>
+</html>

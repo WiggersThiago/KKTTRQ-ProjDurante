@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pt-BR"
+      xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: html(tituloPagina='Estoque', cssExtra=${ {'/css/dashboard.css'} }, conteudo=~{::section})}">
+<body>
+<section>
+    <section class="container secao admin">
+        <header class="admin__header admin__header--linha">
+            <div>
+                <a class="link-voltar" th:href="@{/admin/dashboard}">← Painel</a>
+                <h1>Estoque</h1>
+                <p class="texto-apoio">Cadastre o que a ONG tem na prateleira e acompanhe os níveis mínimos e máximos.</p>
+            </div>
+            <div class="form-acoes"><a class="btn btn--texto" th:href="@{/admin/estoque/entrada}">Registrar entrada</a><a class="btn btn--primario" th:href="@{/admin/estoque/produtos/novo}">+ Novo produto</a></div>
+        </header>
+
+        <div class="estoque-menu">
+            <a th:href="@{/admin/estoque/produtos}">Produtos</a>
+            <a th:href="@{/admin/estoque/categorias}">Categorias</a>
+            <a th:href="@{/admin/estoque/unidades}">Unidades</a>
+        </div>
+
+        <div class="dashboard-cards estoque-resumo">
+            <div class="dash-card">
+                <span class="dash-card__icone">📦</span>
+                <span class="dash-card__numero" th:text="${totalProdutos}">0</span>
+                <span class="dash-card__label">Produtos cadastrados</span>
+            </div>
+            <div class="dash-card">
+                <span class="dash-card__icone">🏷️</span>
+                <span class="dash-card__numero" th:text="${totalCategorias}">0</span>
+                <span class="dash-card__label">Categorias</span>
+            </div>
+            <div class="dash-card">
+                <span class="dash-card__icone">⚖️</span>
+                <span class="dash-card__numero" th:text="${totalUnidades}">0</span>
+                <span class="dash-card__label">Unidades</span>
+            </div>
+            <div class="dash-card dash-card--alerta">
+                <span class="dash-card__icone">⚠️</span>
+                <span class="dash-card__numero" th:text="${produtosAbaixoMinimo}">0</span>
+                <span class="dash-card__label">Abaixo do mínimo</span>
+            </div>
+        </div>
+
+        <div class="card estoque-nota">
+            <strong>Saldo atual começa em 0.</strong>
+            <p>O cadastro do produto não permite alterar o saldo diretamente. Use “Registrar entrada” para somar quantidades recebidas ao produto já cadastrado.</p>
+        </div>
+    </section>
+</section>
+</body>
+</html>
