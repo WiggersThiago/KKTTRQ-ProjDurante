@@ -2,6 +2,7 @@ package br.com.patinhas.service;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +25,7 @@ public class ProdutoEstoqueService {
     private final ProdutoEstoqueRepository produtoRepository;
     private final CategoriaEstoqueRepository categoriaRepository;
     private final UnidadeMedidaRepository unidadeRepository;
+    private final MovimentacaoEstoqueService movimentacaoService;
 
     @Transactional(readOnly = true)
     public List<ProdutoEstoque> listarTodos() {
@@ -36,6 +38,18 @@ public class ProdutoEstoqueService {
                 .orElseThrow(() -> new ResourceNotFoundException("Produto de estoque", id));
     }
 
+    /** Grava o saldo calculado só na memória, depois que a transação de leitura já fechou. */
+    public void preencherSaldos(List<ProdutoEstoque> produtos) {
+        Map<Long, BigDecimal> saldos = movimentacaoService.saldosPorProduto();
+        for (ProdutoEstoque produto : produtos) {
+            produto.setEstoqueAtual(saldos.getOrDefault(produto.getId(), BigDecimal.ZERO));
+        }
+    }
+
+    public void preencherSaldo(ProdutoEstoque produto) {
+        produto.setEstoqueAtual(movimentacaoService.saldoDoProduto(produto.getId()));
+    }
+
     @Transactional(readOnly = true)
     public long contarProdutos() {
         return produtoRepository.count();
@@ -43,7 +57,10 @@ public class ProdutoEstoqueService {
 
     @Transactional(readOnly = true)
     public long contarAbaixoDoMinimo() {
-        return produtoRepository.countAbaixoDoMinimo();
+        Map<Long, BigDecimal> saldos = movimentacaoService.saldosPorProduto();
+        return produtoRepository.findAllComRelacionamentos().stream()
+                .filter(produto -> abaixoDoMinimo(produto, saldos.getOrDefault(produto.getId(), BigDecimal.ZERO)))
+                .count();
     }
 
     @Transactional
@@ -58,8 +75,7 @@ public class ProdutoEstoqueService {
         produtoRepository.findByNomeNormalizado(nome).ifPresent(existente -> {
             if (id == null || !existente.getId().equals(id)) {
                 throw new BusinessException(
-                        "Já existe um produto com esse nome. Não foi criado outro produto. " +
-                        "Para somar quantidade ao produto existente, use 'Registrar entrada'.");
+                        "Já existe um produto com esse nome. Para mudar o saldo, registre uma movimentação.");
             }
         });
 
@@ -75,39 +91,31 @@ public class ProdutoEstoqueService {
         produto.setEstoqueMinimo(dto.getEstoqueMinimo());
         produto.setEstoqueMaximo(dto.getEstoqueMaximo());
 
-        // O saldo atual nunca vem do formulário de cadastro/edição.
-        // Produto novo começa em zero; edição preserva o saldo existente.
         if (produto.getEstoqueAtual() == null) {
             produto.setEstoqueAtual(BigDecimal.ZERO);
         }
 
-        produtoRepository.save(produto);
-    }
+        produtoRepository.saveAndFlush(produto);
 
-    /** Soma uma entrada ao produto já cadastrado, usando nome sem diferenciar caixa/espaços. */
-    @Transactional
-    public ProdutoEstoque registrarEntradaPorNome(String nomeInformado, BigDecimal quantidade) {
-        String nome = normalizarNome(nomeInformado);
-
-        if (quantidade == null || quantidade.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new BusinessException("A quantidade de entrada deve ser maior que zero.");
+        // Edição não mexe em saldo. Quantidade inicial, se vier, é a primeira entrada.
+        if (id == null) {
+            movimentacaoService.registrarQuantidadeInicial(produto.getId(), dto.getQuantidadeInicial());
         }
-
-        ProdutoEstoque produto = produtoRepository.findByNomeNormalizado(nome)
-                .orElseThrow(() -> new BusinessException(
-                        "Nenhum produto foi encontrado com esse nome. Cadastre o produto primeiro; " +
-                        "a entrada não cria produtos automaticamente."));
-
-        BigDecimal saldoAtual = produto.getEstoqueAtual() == null
-                ? BigDecimal.ZERO : produto.getEstoqueAtual();
-        produto.setEstoqueAtual(saldoAtual.add(quantidade));
-        return produtoRepository.save(produto);
     }
 
     @Transactional
     public void excluir(Long id) {
         buscarPorId(id);
+        if (movimentacaoService.existeMovimentacao(id)) {
+            throw new BusinessException(
+                    "Não é possível excluir o produto porque ele já tem movimentação. O histórico é o saldo.");
+        }
         produtoRepository.deleteById(id);
+    }
+
+    private boolean abaixoDoMinimo(ProdutoEstoque produto, BigDecimal saldo) {
+        return saldo != null && produto.getEstoqueMinimo() != null
+                && saldo.compareTo(produto.getEstoqueMinimo()) < 0;
     }
 
     private void validarFaixa(BigDecimal minimo, BigDecimal maximo) {

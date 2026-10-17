@@ -4,10 +4,12 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import br.com.patinhas.entity.ProdutoEstoque;
+import jakarta.persistence.LockModeType;
 
 public interface ProdutoEstoqueRepository extends JpaRepository<ProdutoEstoque, Long> {
 
@@ -25,6 +27,7 @@ public interface ProdutoEstoqueRepository extends JpaRepository<ProdutoEstoque, 
 
     boolean existsByUnidadeId(Long unidadeId);
 
-    @Query("select count(p) from ProdutoEstoque p where p.estoqueAtual < p.estoqueMinimo")
-    long countAbaixoDoMinimo();
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("select p from ProdutoEstoque p where p.id = :id")
+    Optional<ProdutoEstoque> findByIdComBloqueio(@Param("id") Long id);
 }

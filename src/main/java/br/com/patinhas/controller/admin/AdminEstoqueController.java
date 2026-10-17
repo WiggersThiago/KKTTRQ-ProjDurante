@@ -1,5 +1,7 @@
 package br.com.patinhas.controller.admin;
 
+import java.math.BigDecimal;
+
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -9,14 +11,17 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import br.com.patinhas.dto.request.CategoriaEstoqueRequestDTO;
-import br.com.patinhas.dto.request.EntradaEstoqueRequestDTO;
+import br.com.patinhas.dto.request.MovimentacaoEstoqueRequestDTO;
 import br.com.patinhas.dto.request.ProdutoEstoqueRequestDTO;
 import br.com.patinhas.dto.request.UnidadeMedidaRequestDTO;
+import br.com.patinhas.entity.enums.TipoMovimentacaoEstoque;
 import br.com.patinhas.exception.BusinessException;
 import br.com.patinhas.service.CategoriaEstoqueService;
+import br.com.patinhas.service.MovimentacaoEstoqueService;
 import br.com.patinhas.service.ProdutoEstoqueService;
 import br.com.patinhas.service.UnidadeMedidaService;
 import jakarta.validation.Valid;
@@ -31,6 +36,7 @@ public class AdminEstoqueController {
     private final CategoriaEstoqueService categoriaService;
     private final UnidadeMedidaService unidadeService;
     private final ProdutoEstoqueService produtoService;
+    private final MovimentacaoEstoqueService movimentacaoService;
 
     @GetMapping({"", "/"})
     public String estoque(Model model) {
@@ -42,30 +48,61 @@ public class AdminEstoqueController {
     }
 
     @GetMapping("/entrada")
-    public String formularioEntrada(Model model) {
-        if (!model.containsAttribute("entrada")) {
-            model.addAttribute("entrada", new EntradaEstoqueRequestDTO());
-        }
-        return "admin/estoque-entrada-form";
+    public String entradaAntiga() {
+        return "redirect:/admin/estoque/movimentacoes/nova?tipo=ENTRADA";
     }
 
-    @PostMapping("/entrada")
-    public String registrarEntrada(@Valid @ModelAttribute("entrada") EntradaEstoqueRequestDTO dto,
-                                   BindingResult bindingResult,
-                                   Model model,
-                                   RedirectAttributes redirectAttributes) {
+    @GetMapping("/movimentacoes")
+    public String movimentacoes(@RequestParam(required = false) Long produtoId, Model model) {
+        model.addAttribute("movimentacoes", movimentacaoService.listar(produtoId));
+        var produtos = produtoService.listarTodos();
+        produtoService.preencherSaldos(produtos);
+        model.addAttribute("produtos", produtos);
+        model.addAttribute("produtoIdFiltro", produtoId);
+        if (produtoId != null) {
+            var produto = produtoService.buscarPorId(produtoId);
+            produtoService.preencherSaldo(produto);
+            model.addAttribute("produtoFiltrado", produto);
+        }
+        return "admin/estoque-movimentacoes";
+    }
+
+    @GetMapping("/movimentacoes/nova")
+    public String novaMovimentacao(@RequestParam(required = false) Long produtoId,
+                                   @RequestParam(required = false) TipoMovimentacaoEstoque tipo,
+                                   Model model) {
+        if (!model.containsAttribute("movimentacao")) {
+            var dto = new MovimentacaoEstoqueRequestDTO();
+            dto.setDataMovimentacao(java.time.LocalDate.now());
+            dto.setTipo(tipo == null ? TipoMovimentacaoEstoque.ENTRADA : tipo);
+            dto.setProdutoId(produtoId);
+            model.addAttribute("movimentacao", dto);
+        }
+        prepararFormMovimentacao(model);
+        return "admin/estoque-movimentacao-form";
+    }
+
+    @PostMapping("/movimentacoes")
+    public String registrarMovimentacao(@Valid @ModelAttribute("movimentacao") MovimentacaoEstoqueRequestDTO dto,
+                                        BindingResult bindingResult,
+                                        Model model,
+                                        RedirectAttributes redirectAttributes) {
         if (bindingResult.hasErrors()) {
-            return "admin/estoque-entrada-form";
+            prepararFormMovimentacao(model);
+            return "admin/estoque-movimentacao-form";
         }
         try {
-            var produto = produtoService.registrarEntradaPorNome(dto.getNome(), dto.getQuantidade());
+            var movimentacao = movimentacaoService.registrar(dto);
+            String sinal = dto.getTipo() == TipoMovimentacaoEstoque.ENTRADA ? "+" : "−";
             redirectAttributes.addFlashAttribute("sucesso",
-                    "Entrada registrada: +" + dto.getQuantidade().stripTrailingZeros().toPlainString() +
-                    " em " + produto.getNome() + ".");
-            return "redirect:/admin/estoque/produtos";
+                    "Movimentação registrada: " + sinal + numero(dto.getQuantidade()) +
+                    " em " + movimentacao.getProduto().getNome() +
+                    ". Saldo: " + numero(movimentacao.getProduto().getEstoqueAtual()) + ".");
+            return "redirect:/admin/estoque/movimentacoes?produtoId=" + dto.getProdutoId();
         } catch (BusinessException e) {
             model.addAttribute("erroNegocio", e.getMessage());
-            return "admin/estoque-entrada-form";
+            prepararFormMovimentacao(model);
+            return "admin/estoque-movimentacao-form";
         }
     }
 
@@ -227,7 +264,9 @@ public class AdminEstoqueController {
 
     @GetMapping("/produtos")
     public String produtos(Model model) {
-        model.addAttribute("produtos", produtoService.listarTodos());
+        var produtos = produtoService.listarTodos();
+        produtoService.preencherSaldos(produtos);
+        model.addAttribute("produtos", produtos);
         return "admin/estoque-produtos";
     }
 
@@ -252,6 +291,7 @@ public class AdminEstoqueController {
                 .estoqueMaximo(produto.getEstoqueMaximo())
                 .build());
         model.addAttribute("produtoId", id);
+        produtoService.preencherSaldo(produto);
         model.addAttribute("estoqueAtual", produto.getEstoqueAtual());
         adicionarListasProduto(model);
         model.addAttribute("modoEdicao", true);
@@ -270,7 +310,14 @@ public class AdminEstoqueController {
         }
         try {
             produtoService.salvar(null, dto);
-            redirectAttributes.addFlashAttribute("sucesso", "Produto cadastrado com sucesso! O estoque atual começou em 0.");
+            if (dto.getQuantidadeInicial() != null && dto.getQuantidadeInicial().compareTo(BigDecimal.ZERO) > 0) {
+                redirectAttributes.addFlashAttribute("sucesso",
+                        "Produto cadastrado. A quantidade inicial de " + numero(dto.getQuantidadeInicial()) +
+                        " entrou como primeira movimentação.");
+            } else {
+                redirectAttributes.addFlashAttribute("sucesso",
+                        "Produto cadastrado com saldo 0. O saldo só muda por movimentação.");
+            }
             return "redirect:/admin/estoque/produtos";
         } catch (BusinessException e) {
             model.addAttribute("erroNegocio", e.getMessage());
@@ -287,6 +334,7 @@ public class AdminEstoqueController {
                                    Model model,
                                    RedirectAttributes redirectAttributes) {
         var existente = produtoService.buscarPorId(id);
+        produtoService.preencherSaldo(existente);
         if (bindingResult.hasErrors()) {
             model.addAttribute("produtoId", id);
             model.addAttribute("estoqueAtual", existente.getEstoqueAtual());
@@ -296,7 +344,7 @@ public class AdminEstoqueController {
         }
         try {
             produtoService.salvar(id, dto);
-            redirectAttributes.addFlashAttribute("sucesso", "Produto atualizado com sucesso!");
+            redirectAttributes.addFlashAttribute("sucesso", "Produto atualizado. O saldo não foi alterado por este formulário.");
             return "redirect:/admin/estoque/produtos";
         } catch (BusinessException e) {
             model.addAttribute("produtoId", id);
@@ -322,5 +370,16 @@ public class AdminEstoqueController {
     private void adicionarListasProduto(Model model) {
         model.addAttribute("categorias", categoriaService.listarTodas());
         model.addAttribute("unidades", unidadeService.listarTodas());
+    }
+
+    private void prepararFormMovimentacao(Model model) {
+        var produtos = produtoService.listarTodos();
+        produtoService.preencherSaldos(produtos);
+        model.addAttribute("produtos", produtos);
+        model.addAttribute("tipos", TipoMovimentacaoEstoque.values());
+    }
+
+    private String numero(BigDecimal valor) {
+        return valor.stripTrailingZeros().toPlainString().replace('.', ',');
     }
 }

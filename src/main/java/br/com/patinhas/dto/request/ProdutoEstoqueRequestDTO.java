@@ -35,4 +35,9 @@ public class ProdutoEstoqueRequestDTO {
     @DecimalMin(value = "0.0", inclusive = true, message = "O estoque máximo não pode ser negativo.")
     @Digits(integer = 12, fraction = 3, message = "Informe um valor de até 12 dígitos e 3 casas decimais.")
     private BigDecimal estoqueMaximo;
+
+    /** Só vale na criação. Vira a primeira entrada. Na edição é ignorada. */
+    @DecimalMin(value = "0.0", inclusive = true, message = "A quantidade inicial não pode ser negativa.")
+    @Digits(integer = 12, fraction = 3, message = "Informe um valor de até 12 dígitos e 3 casas decimais.")
+    private BigDecimal quantidadeInicial;
 }

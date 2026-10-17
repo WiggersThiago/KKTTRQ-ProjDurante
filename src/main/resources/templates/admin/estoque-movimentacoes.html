@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-BR"
+      xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: html(tituloPagina='Histórico de estoque', cssExtra=${ {'/css/dashboard.css'} }, conteudo=~{::section})}">
+<body>
+<section>
+    <section class="container secao admin">
+        <a class="link-voltar link-voltar--admin" th:href="@{/admin/estoque}">← Voltar ao estoque</a>
+
+        <header class="admin__header admin__header--linha">
+            <div>
+                <h1>Histórico</h1>
+                <p class="texto-apoio">Quem movimentou o quê, quando. O saldo do produto é a soma destas linhas: entradas menos saídas.</p>
+            </div>
+            <a class="btn btn--primario" th:href="@{/admin/estoque/movimentacoes/nova}">Movimentar</a>
+        </header>
+        <nav th:replace="~{fragments/estoque-nav :: menu}"></nav>
+
+        <div class="alerta alerta--sucesso" th:if="${sucesso}" th:text="${sucesso}"></div>
+        <div class="alerta alerta--erro" th:if="${erro}" th:text="${erro}"></div>
+
+        <form class="filtros" th:action="@{/admin/estoque/movimentacoes}" method="get">
+            <div class="filtros__campo">
+                <label for="produtoId">Produto</label>
+                <select id="produtoId" name="produtoId">
+                    <option value="">Todos</option>
+                    <option th:each="produto : ${produtos}"
+                            th:value="${produto.id}"
+                            th:text="${produto.nome}"
+                            th:selected="${produtoIdFiltro != null and produtoIdFiltro.equals(produto.id)}"></option>
+                </select>
+            </div>
+            <button class="btn btn--primario" type="submit">Filtrar</button>
+        </form>
+
+        <p class="texto-apoio" th:if="${produtoFiltrado != null}">
+            Saldo de <strong th:text="${produtoFiltrado.nome}">Produto</strong>:
+            <strong th:text="${#numbers.formatDecimal(produtoFiltrado.estoqueAtual, 1, 3)}">0</strong>
+            <span th:text="${produtoFiltrado.unidade.nome}">un</span>
+        </p>
+
+        <div class="tabela-wrapper">
+            <table class="tabela tabela--estoque">
+                <thead>
+                <tr>
+                    <th>Registrado em</th>
+                    <th>Data</th>
+                    <th>Tipo</th>
+                    <th>Produto</th>
+                    <th>Quantidade</th>
+                    <th>Quem</th>
+                    <th>Observação</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="item : ${movimentacoes}">
+                    <td th:text="${#temporals.format(item.registradoEm, 'dd/MM/yyyy HH:mm')}">17/10/2026 18:00</td>
+                    <td th:text="${#temporals.format(item.dataMovimentacao, 'dd/MM/yyyy')}">17/10/2026</td>
+                    <td>
+                        <span class="badge badge--entrada" th:if="${item.tipo.name() == 'ENTRADA'}" th:text="${item.tipo.descricao}">Entrada</span>
+                        <span class="badge badge--saida" th:if="${item.tipo.name() == 'SAIDA'}" th:text="${item.tipo.descricao}">Saída</span>
+                    </td>
+                    <td th:text="${item.produto.nome}">Ração</td>
+                    <td class="numero-estoque"
+                        th:text="${(item.tipo.name() == 'ENTRADA' ? '+' : '−') + #numbers.formatDecimal(item.quantidade, 1, 3) + ' ' + item.produto.unidade.nome}">+1 kg</td>
+                    <td th:text="${item.usuario.nome}">Admin</td>
+                    <td th:text="${item.observacao != null ? item.observacao : '—'}">—</td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(movimentacoes)}">
+                    <td colspan="7" class="vazio">Nenhuma movimentação registrada.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</section>
+</body>
+</html>

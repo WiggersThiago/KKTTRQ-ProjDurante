@@ -11,14 +11,10 @@
                 <h1>Estoque</h1>
                 <p class="texto-apoio">Cadastre o que a ONG tem na prateleira e acompanhe os níveis mínimos e máximos.</p>
             </div>
-            <div class="form-acoes"><a class="btn btn--texto" th:href="@{/admin/estoque/entrada}">Registrar entrada</a><a class="btn btn--primario" th:href="@{/admin/estoque/produtos/novo}">+ Novo produto</a></div>
+            <div class="form-acoes"><a class="btn btn--texto" th:href="@{/admin/estoque/movimentacoes/nova}">Movimentar</a><a class="btn btn--primario" th:href="@{/admin/estoque/produtos/novo}">+ Novo produto</a></div>
         </header>
 
-        <div class="estoque-menu">
-            <a th:href="@{/admin/estoque/produtos}">Produtos</a>
-            <a th:href="@{/admin/estoque/categorias}">Categorias</a>
-            <a th:href="@{/admin/estoque/unidades}">Unidades</a>
-        </div>
+        <nav th:replace="~{fragments/estoque-nav :: menu}"></nav>
 
         <div class="dashboard-cards estoque-resumo">
             <div class="dash-card">
@@ -44,8 +40,8 @@
         </div>
 
         <div class="card estoque-nota">
-            <strong>Saldo atual começa em 0.</strong>
-            <p>O cadastro do produto não permite alterar o saldo diretamente. Use “Registrar entrada” para somar quantidades recebidas ao produto já cadastrado.</p>
+            <strong>O saldo é entradas menos saídas.</strong>
+            <p>O cadastro não altera quantidade. Produto novo começa em 0, ou a quantidade inicial vira a primeira entrada. Saída que deixaria negativo é recusada.</p>
         </div>
     </section>
 </section>

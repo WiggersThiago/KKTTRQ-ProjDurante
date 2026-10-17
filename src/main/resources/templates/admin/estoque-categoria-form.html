@@ -7,13 +7,7 @@
     <section class="container secao admin admin--centro">
         <a class="link-voltar link-voltar--admin" th:href="@{/admin/estoque/categorias}">← Voltar às categorias</a>
         <h1 th:text="${modoEdicao ? 'Editar categoria' : 'Nova categoria'}">Nova categoria</h1>
-        <nav class="estoque-menu" aria-label="Navegação do estoque">
-            <a th:href="@{/admin/estoque}">Visão geral</a>
-            <a th:href="@{/admin/estoque/produtos}">Produtos</a>
-            <a th:href="@{/admin/estoque/categorias}">Categorias</a>
-            <a th:href="@{/admin/estoque/unidades}">Unidades</a>
-            <a th:href="@{/admin/estoque/entrada}">Registrar entrada</a>
-        </nav>
+        <nav th:replace="~{fragments/estoque-nav :: menu}"></nav>
 
 
         <form class="formulario formulario--admin"

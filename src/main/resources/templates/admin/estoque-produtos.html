@@ -10,20 +10,14 @@
         <header class="admin__header admin__header--linha">
             <div>
                 <h1>Produtos</h1>
-                <p class="texto-apoio">O saldo é atualizado por entradas de estoque e não pode ser editado diretamente no cadastro.</p>
+                <p class="texto-apoio">A coluna Saldo é a soma das movimentações. Não se edita neste cadastro.</p>
             </div>
             <div class="form-acoes">
-                <a class="btn btn--texto" th:href="@{/admin/estoque/entrada}">Registrar entrada</a>
+                <a class="btn btn--texto" th:href="@{/admin/estoque/movimentacoes}">Histórico</a>
                 <a class="btn btn--primario" th:href="@{/admin/estoque/produtos/novo}">+ Novo produto</a>
             </div>
         </header>
-        <nav class="estoque-menu" aria-label="Navegação do estoque">
-            <a th:href="@{/admin/estoque}">Visão geral</a>
-            <a th:href="@{/admin/estoque/produtos}">Produtos</a>
-            <a th:href="@{/admin/estoque/categorias}">Categorias</a>
-            <a th:href="@{/admin/estoque/unidades}">Unidades</a>
-            <a th:href="@{/admin/estoque/entrada}">Registrar entrada</a>
-        </nav>
+        <nav th:replace="~{fragments/estoque-nav :: menu}"></nav>
 
 
         <div class="alerta alerta--sucesso" th:if="${sucesso}" th:text="${sucesso}"></div>
@@ -36,7 +30,7 @@
                     <th>Produto</th>
                     <th>Categoria</th>
                     <th>Unidade</th>
-                    <th>Atual</th>
+                    <th>Saldo</th>
                     <th>Mínimo</th>
                     <th>Máximo</th>
                     <th>Status</th>
@@ -58,8 +52,10 @@
                     </td>
                     <td class="acoes">
                         <a class="btn btn--pequeno" th:href="@{|/admin/estoque/produtos/${produto.id}/editar|}">Editar</a>
+                        <a class="btn btn--pequeno" th:href="@{/admin/estoque/movimentacoes/nova(produtoId=${produto.id})}">Movimentar</a>
+                        <a class="btn btn--pequeno" th:href="@{/admin/estoque/movimentacoes(produtoId=${produto.id})}">Histórico</a>
                         <form th:action="@{|/admin/estoque/produtos/${produto.id}/excluir|}" method="post"
-                              onsubmit="return confirm('Excluir este produto? O registro do saldo também será removido.');">
+                              onsubmit="return confirm('Excluir este produto? Só funciona se ele não tiver movimentação.');">
                             <button type="submit" class="btn btn--pequeno btn--perigo">Excluir</button>
                         </form>
                     </td>

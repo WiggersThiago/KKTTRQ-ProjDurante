@@ -14,13 +14,7 @@
             </div>
             <a class="btn btn--primario" th:href="@{/admin/estoque/categorias/novo}">+ Nova categoria</a>
         </header>
-        <nav class="estoque-menu" aria-label="Navegação do estoque">
-            <a th:href="@{/admin/estoque}">Visão geral</a>
-            <a th:href="@{/admin/estoque/produtos}">Produtos</a>
-            <a th:href="@{/admin/estoque/categorias}">Categorias</a>
-            <a th:href="@{/admin/estoque/unidades}">Unidades</a>
-            <a th:href="@{/admin/estoque/entrada}">Registrar entrada</a>
-        </nav>
+        <nav th:replace="~{fragments/estoque-nav :: menu}"></nav>
 
 
         <div class="alerta alerta--sucesso" th:if="${sucesso}" th:text="${sucesso}"></div>

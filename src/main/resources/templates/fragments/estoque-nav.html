@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html lang="pt-BR" xmlns:th="http://www.thymeleaf.org">
+<body>
+<nav th:fragment="menu" class="estoque-menu" aria-label="Navegação do estoque">
+    <a th:href="@{/admin/estoque}">Visão geral</a>
+    <a th:href="@{/admin/estoque/produtos}">Produtos</a>
+    <a th:href="@{/admin/estoque/categorias}">Categorias</a>
+    <a th:href="@{/admin/estoque/unidades}">Unidades</a>
+    <a th:href="@{/admin/estoque/movimentacoes}">Histórico</a>
+    <a th:href="@{/admin/estoque/movimentacoes/nova}">Movimentar</a>
+</nav>
+</body>
+</html>

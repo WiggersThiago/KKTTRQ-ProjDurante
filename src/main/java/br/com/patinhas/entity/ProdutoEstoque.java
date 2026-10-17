@@ -38,6 +38,11 @@ public class ProdutoEstoque {
     @Column(name = "estoque_maximo", nullable = false, precision = 15, scale = 3)
     private BigDecimal estoqueMaximo;
 
+    /**
+     * Cache do saldo. A tela não usa este número como verdade:
+     * antes de exibir, o serviço sobrescreve com entradas − saídas.
+     * Só uma movimentação grava aqui.
+     */
     @Column(name = "estoque_atual", nullable = false, precision = 15, scale = 3)
     @Builder.Default
     private BigDecimal estoqueAtual = BigDecimal.ZERO;

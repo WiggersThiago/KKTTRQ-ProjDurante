@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="pt-BR"
+      xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/base :: html(tituloPagina='Movimentar estoque', cssExtra=${ {'/css/dashboard.css'} }, conteudo=~{::section})}">
+<body>
+<section>
+    <section class="container secao admin admin--centro">
+        <a class="link-voltar link-voltar--admin" th:href="@{/admin/estoque/movimentacoes}">← Voltar ao histórico</a>
+        <h1>Movimentar estoque</h1>
+        <nav th:replace="~{fragments/estoque-nav :: menu}"></nav>
+
+        <p class="texto-apoio">Entrada soma. Saída diminui. O saldo da lista é a conta das movimentações. Saída que deixaria negativo é recusada. Esta tela não edita lançamento antigo: para corrigir, lance o movimento inverso.</p>
+
+        <form class="formulario formulario--admin"
+              th:action="@{/admin/estoque/movimentacoes}"
+              th:object="${movimentacao}" method="post">
+            <div class="alerta alerta--erro" th:if="${erroNegocio}" th:text="${erroNegocio}"></div>
+            <div class="alerta alerta--erro" th:if="${#fields.hasErrors('*')}">Confira os campos antes de salvar.</div>
+
+            <div class="grid-2">
+                <div class="campo">
+                    <label for="tipo">Tipo *</label>
+                    <select id="tipo" th:field="*{tipo}">
+                        <option th:each="tipoItem : ${tipos}"
+                                th:value="${tipoItem}"
+                                th:text="${tipoItem.descricao}"></option>
+                    </select>
+                    <small class="campo__erro" th:errors="*{tipo}"></small>
+                </div>
+                <div class="campo">
+                    <label for="dataMovimentacao">Data *</label>
+                    <input type="date" id="dataMovimentacao" th:field="*{dataMovimentacao}" required />
+                    <small class="campo__erro" th:errors="*{dataMovimentacao}"></small>
+                </div>
+            </div>
+
+            <div class="campo">
+                <label for="produtoId">Produto *</label>
+                <select id="produtoId" th:field="*{produtoId}" required>
+                    <option value="">Selecione...</option>
+                    <option th:each="produto : ${produtos}"
+                            th:value="${produto.id}"
+                            th:text="${produto.nome + ' — saldo ' + #numbers.formatDecimal(produto.estoqueAtual, 1, 3) + ' ' + produto.unidade.nome}"></option>
+                </select>
+                <small class="campo__erro" th:errors="*{produtoId}"></small>
+                <small th:if="${#lists.isEmpty(produtos)}">Nenhum produto cadastrado. Cadastre o produto antes de movimentar.</small>
+            </div>
+
+            <div class="campo">
+                <label for="quantidade">Quantidade *</label>
+                <input type="number" id="quantidade" th:field="*{quantidade}" min="0.001" step="0.001" placeholder="Ex.: 5" required />
+                <small class="campo__erro" th:errors="*{quantidade}"></small>
+            </div>
+
+            <div class="campo">
+                <label for="observacao">Observação</label>
+                <textarea id="observacao" th:field="*{observacao}" maxlength="500" rows="3" placeholder="Ex.: doação, consumo do canil"></textarea>
+                <small class="campo__erro" th:errors="*{observacao}"></small>
+            </div>
+
+            <div class="form-acoes">
+                <a class="btn btn--texto" th:href="@{/admin/estoque/movimentacoes}">Cancelar</a>
+                <button type="submit" class="btn btn--primario">Registrar</button>
+            </div>
+        </form>
+    </section>
+</section>
+</body>
+</html>
