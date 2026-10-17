@@ -91,10 +91,7 @@ public class DataSeeder implements CommandLineRunner {
         log.info("Espécies padrão verificadas.");
     }
     private void criarHistoricoAnimaisExistentes() {
-        animalRepository.findAll().forEach(animal ->
-        animalHistoricoService.garantirHistoricoCadastro(animal)
-    );
-
-    log.info("Histórico de cadastro dos animais existentes verificado.");
-}
+        animalRepository.findAll().forEach(animalHistoricoService::garantirHistoricoCadastro);
+        log.info("Histórico de cadastro dos animais existentes verificado.");
+    }
 }

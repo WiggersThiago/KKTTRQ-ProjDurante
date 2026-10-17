@@ -324,7 +324,6 @@ public class SolicitacaoAdocaoService {
 
         Animal animal = solicitacao.getAnimal();
 
-        // Registra o encerramento do interesse quando uma solicitação é recusada
         if (novoStatus == StatusSolicitacaoAdocao.RECUSADA) {
             animalHistoricoService.registrar(
                     animal,
@@ -334,13 +333,8 @@ public class SolicitacaoAdocaoService {
             );
         }
 
-        // ADOÇÃO APROVADA
-
-
         if (novoStatus == StatusSolicitacaoAdocao.APROVADA) {
-
             animal.setStatusAdocao(StatusAdocao.EM_PROCESSO);
-
             animalRepository.save(animal);
 
             animalHistoricoService.registrar(
@@ -349,21 +343,9 @@ public class SolicitacaoAdocaoService {
                     "Adoção aprovada",
                     true
             );
-
-            animalHistoricoService.registrar(
-                    animal,
-                    TipoHistoricoAnimal.ALTERACAO_STATUS,
-                    "Status de adoção alterado de Disponível para Em processo",
-                    true
-            );
         }
 
-
-        // ADOÇÃO CONCLUÍDA
-
-
         if (novoStatus == StatusSolicitacaoAdocao.CONCLUIDA) {
-
             LocalDateTime agora = LocalDateTime.now();
 
             animal.setStatusAdocao(StatusAdocao.ADOTADO);
@@ -373,14 +355,6 @@ public class SolicitacaoAdocaoService {
             }
 
             animalRepository.save(animal);
-
-            animalHistoricoService.registrar(
-                    animal,
-                    TipoHistoricoAnimal.ALTERACAO_STATUS,
-                    "Status de adoção alterado de Em processo para Adotado",
-                    true
-            );
-
             solicitacao.setDataConclusao(agora);
 
             animalHistoricoService.registrar(
@@ -392,23 +366,12 @@ public class SolicitacaoAdocaoService {
             );
         }
 
-
-        // SOLICITAÇÃO RECUSADA APÓS APROVAÇÃO
-
         if (novoStatus == StatusSolicitacaoAdocao.RECUSADA
                 && statusAnterior == StatusSolicitacaoAdocao.APROVADA
                 && animal.getStatusAdocao() == StatusAdocao.EM_PROCESSO) {
 
             animal.setStatusAdocao(StatusAdocao.DISPONIVEL);
-
             animalRepository.save(animal);
-
-            animalHistoricoService.registrar(
-                    animal,
-                    TipoHistoricoAnimal.ALTERACAO_STATUS,
-                    "Status de adoção alterado de Em processo para Disponível",
-                    true
-            );
 
             animalHistoricoService.registrar(
                     animal,

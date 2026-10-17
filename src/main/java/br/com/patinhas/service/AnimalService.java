@@ -137,7 +137,6 @@ public class AnimalService {
 
         Animal animalSalvo = animalRepository.save(animal);
 
-        // Cria o primeiro acontecimento da linha do tempo do animal
         animalHistoricoService.registrar(
                 animalSalvo,
                 TipoHistoricoAnimal.CADASTRO,
@@ -145,6 +144,20 @@ public class AnimalService {
                 "Animal cadastrado no sistema",
                 true
         );
+
+        if (animalSalvo.getStatusAdocao() == StatusAdocao.DISPONIVEL) {
+            animalHistoricoService.registrar(
+                    animalSalvo,
+                    TipoHistoricoAnimal.DISPONIBILIZACAO_ADOCAO,
+                    animalSalvo.getDataDisponivel() != null
+                            ? animalSalvo.getDataDisponivel()
+                            : animalSalvo.getDataCadastro(),
+                    "Animal ficou disponível para adoção",
+                    true
+            );
+        }
+
+        registrarSeEntrouEmTratamento(null, animalSalvo.getSituacaoAnimal(), animalSalvo);
 
         return AnimalResponseDTO.fromEntity(animalSalvo);
     }
@@ -193,18 +206,11 @@ public class AnimalService {
                 dto.getSituacaoAnimal()
         );
 
-        // Registra somente quando o animal entra em tratamento
-        if (situacaoAnterior != SituacaoAnimal.EM_TRATAMENTO
-                && dto.getSituacaoAnimal()
-                == SituacaoAnimal.EM_TRATAMENTO) {
-
-            animalHistoricoService.registrar(
-                    animal,
-                    TipoHistoricoAnimal.TRATAMENTO,
-                    "Animal entrou em tratamento",
-                    true
-            );
-        }
+        registrarSeEntrouEmTratamento(
+                situacaoAnterior,
+                dto.getSituacaoAnimal(),
+                animal
+        );
 
         animal.setCastrado(
                 Boolean.TRUE.equals(dto.getCastrado())
@@ -292,17 +298,13 @@ public class AnimalService {
 
         animal.setStatusAdocao(novoStatus);
 
-        animalHistoricoService.registrar(
-                animal,
-                TipoHistoricoAnimal.ALTERACAO_STATUS,
-                "Status de adoção alterado de "
-                        + (statusAnterior != null
-                            ? statusAnterior.getDescricao()
-                            : "Não informado")
-                        + " para "
-                        + novoStatus.getDescricao(),
-                true
-        );
+        registrarEventoDeStatusAdocao(animal, statusAnterior, novoStatus);
+    }
+
+    private void registrarEventoDeStatusAdocao(
+            Animal animal,
+            StatusAdocao statusAnterior,
+            StatusAdocao novoStatus) {
 
         if (novoStatus == StatusAdocao.DISPONIVEL) {
             animalHistoricoService.registrar(
@@ -311,16 +313,39 @@ public class AnimalService {
                     "Animal ficou disponível para adoção",
                     true
             );
+            return;
         }
 
-        if (novoStatus == StatusAdocao.ADOTADO) {
+        animalHistoricoService.registrar(
+                animal,
+                TipoHistoricoAnimal.ALTERACAO_STATUS,
+                "Status de adoção alterado de "
+                        + descricaoStatus(statusAnterior)
+                        + " para "
+                        + descricaoStatus(novoStatus),
+                true
+        );
+    }
+
+    private void registrarSeEntrouEmTratamento(
+            SituacaoAnimal situacaoAnterior,
+            SituacaoAnimal situacaoNova,
+            Animal animal) {
+
+        if (situacaoAnterior != SituacaoAnimal.EM_TRATAMENTO
+                && situacaoNova == SituacaoAnimal.EM_TRATAMENTO) {
+
             animalHistoricoService.registrar(
                     animal,
-                    TipoHistoricoAnimal.ADOCAO_CONCLUIDA,
-                    "Adoção concluída por alteração direta do status do animal",
+                    TipoHistoricoAnimal.TRATAMENTO,
+                    "Animal entrou em tratamento",
                     true
             );
         }
+    }
+
+    private String descricaoStatus(StatusAdocao status) {
+        return status != null ? status.getDescricao() : "Não informado";
     }
 
     @Transactional

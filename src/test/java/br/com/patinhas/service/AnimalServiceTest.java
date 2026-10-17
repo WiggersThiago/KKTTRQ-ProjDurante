@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -23,6 +25,9 @@ import br.com.patinhas.dto.response.AnimalResponseDTO;
 import br.com.patinhas.entity.Animal;
 import br.com.patinhas.entity.enums.PorteAnimal;
 import br.com.patinhas.entity.enums.SexoAnimal;
+import br.com.patinhas.entity.enums.SituacaoAnimal;
+import br.com.patinhas.entity.enums.StatusAdocao;
+import br.com.patinhas.entity.enums.TipoHistoricoAnimal;
 import br.com.patinhas.exception.ResourceNotFoundException;
 import br.com.patinhas.repository.AnimalRepository;
 
@@ -67,9 +72,143 @@ class AnimalServiceTest {
         AnimalResponseDTO resultado = animalService.cadastrar(dto);
 
         verify(animalRepository).save(any(Animal.class));
+        verify(animalHistoricoService).registrar(
+                any(Animal.class),
+                eq(TipoHistoricoAnimal.CADASTRO),
+                any(LocalDateTime.class),
+                eq("Animal cadastrado no sistema"),
+                eq(true)
+        );
+        verify(animalHistoricoService).registrar(
+                any(Animal.class),
+                eq(TipoHistoricoAnimal.DISPONIBILIZACAO_ADOCAO),
+                any(LocalDateTime.class),
+                eq("Animal ficou disponível para adoção"),
+                eq(true)
+        );
+        verify(animalHistoricoService, never()).registrar(
+                any(Animal.class),
+                eq(TipoHistoricoAnimal.TRATAMENTO),
+                any(),
+                eq(true)
+        );
         assertNotNull(resultado);
         assertEquals("Rex", resultado.getNome());
         assertTrue(resultado.getAtivo());
+    }
+
+    @Test
+    void cadastrar_emTratamentoIndisponivel_deveRegistrarCadastroETratamento() {
+        AnimalRequestDTO dto = AnimalRequestDTO.builder()
+                .nome("Luna")
+                .idade(2)
+                .porte(PorteAnimal.PEQUENO)
+                .sexo(SexoAnimal.FEMEA)
+                .statusAdocao(StatusAdocao.INDISPONIVEL)
+                .situacaoAnimal(SituacaoAnimal.EM_TRATAMENTO)
+                .castrado(true)
+                .vacinado(true)
+                .build();
+
+        when(imageStorageService.salvar(null, "animais")).thenReturn(null);
+        when(especieService.buscarOuCriar(any())).thenReturn(null);
+        when(animalRepository.save(any(Animal.class))).thenAnswer(invocation -> {
+            Animal animal = invocation.getArgument(0);
+            animal.setId(2L);
+            animal.setDataCadastro(LocalDateTime.now());
+            return animal;
+        });
+
+        animalService.cadastrar(dto);
+
+        verify(animalHistoricoService).registrar(
+                any(Animal.class),
+                eq(TipoHistoricoAnimal.CADASTRO),
+                any(LocalDateTime.class),
+                eq("Animal cadastrado no sistema"),
+                eq(true)
+        );
+        verify(animalHistoricoService).registrar(
+                any(Animal.class),
+                eq(TipoHistoricoAnimal.TRATAMENTO),
+                eq("Animal entrou em tratamento"),
+                eq(true)
+        );
+        verify(animalHistoricoService, never()).registrar(
+                any(Animal.class),
+                eq(TipoHistoricoAnimal.DISPONIBILIZACAO_ADOCAO),
+                any(LocalDateTime.class),
+                any(),
+                eq(true)
+        );
+    }
+
+    @Test
+    void atualizarStatus_paraDisponivel_deveRegistrarSomenteDisponibilizacao() {
+        Animal animal = Animal.builder()
+                .id(1L)
+                .nome("Rex")
+                .idade(3)
+                .porte(PorteAnimal.MEDIO)
+                .sexo(SexoAnimal.MACHO)
+                .statusAdocao(StatusAdocao.INDISPONIVEL)
+                .ativo(true)
+                .build();
+
+        when(animalRepository.findById(1L)).thenReturn(Optional.of(animal));
+        when(animalRepository.save(animal)).thenReturn(animal);
+
+        animalService.atualizarStatus(1L, StatusAdocao.DISPONIVEL);
+
+        verify(animalHistoricoService).registrar(
+                eq(animal),
+                eq(TipoHistoricoAnimal.DISPONIBILIZACAO_ADOCAO),
+                eq("Animal ficou disponível para adoção"),
+                eq(true)
+        );
+        verify(animalHistoricoService, never()).registrar(
+                any(Animal.class),
+                eq(TipoHistoricoAnimal.ALTERACAO_STATUS),
+                any(),
+                eq(true)
+        );
+        verify(animalHistoricoService, never()).registrar(
+                any(Animal.class),
+                eq(TipoHistoricoAnimal.ADOCAO_CONCLUIDA),
+                any(),
+                eq(true)
+        );
+    }
+
+    @Test
+    void atualizarStatus_paraIndisponivel_deveRegistrarAlteracaoDeStatus() {
+        Animal animal = Animal.builder()
+                .id(1L)
+                .nome("Rex")
+                .idade(3)
+                .porte(PorteAnimal.MEDIO)
+                .sexo(SexoAnimal.MACHO)
+                .statusAdocao(StatusAdocao.DISPONIVEL)
+                .ativo(true)
+                .build();
+
+        when(animalRepository.findById(1L)).thenReturn(Optional.of(animal));
+        when(animalRepository.save(animal)).thenReturn(animal);
+
+        animalService.atualizarStatus(1L, StatusAdocao.INDISPONIVEL);
+
+        verify(animalHistoricoService).registrar(
+                eq(animal),
+                eq(TipoHistoricoAnimal.ALTERACAO_STATUS),
+                eq("Status de adoção alterado de Disponível para adoção para Indisponível"),
+                eq(true)
+        );
+        verify(animalHistoricoService, never()).registrar(
+                any(Animal.class),
+                eq(TipoHistoricoAnimal.DISPONIBILIZACAO_ADOCAO),
+                any(),
+                eq(true)
+        );
     }
 
     @Test

@@ -53,27 +53,28 @@ public class AnimalHistoricoService {
                 .build();
 
         return animalHistoricoRepository.save(historico);
-            }
+    }
+
     @Transactional
     public void garantirHistoricoCadastro(Animal animal) {
+        boolean jaExiste = animalHistoricoRepository.existsByAnimalIdAndTipo(
+                animal.getId(),
+                TipoHistoricoAnimal.CADASTRO
+        );
 
-            boolean jaExiste = animalHistoricoRepository.existsByAnimalIdAndTipo(
-                    animal.getId(),
-                    TipoHistoricoAnimal.CADASTRO
-            );
+        if (jaExiste) {
+            return;
+        }
 
-            if (jaExiste) {
-                return;
-            }
-
-            registrar(
-                    animal,
-                    TipoHistoricoAnimal.CADASTRO,
-                    animal.getDataCadastro(),
-                    "Animal cadastrado no sistema",
-                    true
-            );
+        registrar(
+                animal,
+                TipoHistoricoAnimal.CADASTRO,
+                animal.getDataCadastro(),
+                "Animal cadastrado no sistema",
+                true
+        );
     }
+
     @Transactional(readOnly = true)
     public List<AnimalHistorico> listarPorAnimal(Long animalId) {
         return animalHistoricoRepository.findByAnimalIdOrderByDataAsc(animalId);
