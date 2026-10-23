@@ -58,4 +58,31 @@ public class ProdutoEstoque {
     public boolean estoqueAcimaDoMaximo() {
         return estoqueAtual != null && estoqueMaximo != null && estoqueAtual.compareTo(estoqueMaximo) > 0;
     }
+
+    @Transient
+    public String getStatusEstoque() {
+        if (estoqueAtual == null || estoqueMinimo == null || estoqueMaximo == null) {
+            return "INDEFINIDO";
+        }
+
+        if (estoqueAtual.compareTo(estoqueMinimo) <= 0) {
+            return "CRITICO";
+        }
+
+        if (estoqueAtual.compareTo(estoqueMaximo) > 0) {
+            return "EXCEDENTE";
+        }
+
+        BigDecimal faixaAtencao = estoqueMaximo
+                .subtract(estoqueMinimo)
+                .multiply(new BigDecimal("0.20"));
+
+        BigDecimal limiteAtencao = estoqueMinimo.add(faixaAtencao);
+
+        if (estoqueAtual.compareTo(limiteAtencao) <= 0) {
+            return "ATENCAO";
+        }
+
+        return "NORMAL";
+    }
 }
