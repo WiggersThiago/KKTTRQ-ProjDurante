@@ -428,3 +428,60 @@
     background-color: #dbeafe;
     color: #1e40af;
 }
+
+/* Menu de navegacao do estoque */
+.estoque-menu {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin: 1.25rem 0 1.5rem;
+}
+
+.estoque-menu a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.65rem 1rem;
+    background-color: #fff4eb;
+    color: #a34616;
+    border: 1px solid #ffd3b8;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.estoque-menu a:hover {
+    background-color: #ff8748;
+    color: #ffffff;
+}
+
+.estoque-menu a:focus-visible {
+    outline: 3px solid #a34616;
+    outline-offset: 3px;
+}
+
+@media (max-width: 600px) {
+    .estoque-menu {
+        gap: 0.5rem;
+    }
+
+    .estoque-menu a {
+        flex: 1 1 auto;
+    }
+}
+
+/* Destaque da pagina ativa no menu de estoque */
+.estoque-menu a.estoque-menu__ativo {
+    background-color: #ff8748;
+    color: #ffffff;
+    border-color: #ff8748;
+    font-weight: 700;
+    box-shadow: 0 2px 6px rgba(255, 135, 72, 0.2);
+}
+
+.estoque-menu a.estoque-menu__ativo:hover {
+    background-color: #e96e2c;
+    border-color: #e96e2c;
+}
