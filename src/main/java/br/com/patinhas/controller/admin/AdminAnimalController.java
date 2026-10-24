@@ -2,6 +2,8 @@ package br.com.patinhas.controller.admin;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDate;
+import java.util.List;
 
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -22,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import br.com.patinhas.dto.request.AnimalRequestDTO;
+import br.com.patinhas.dto.request.RegistroHistoricoAnimalDTO;
 import br.com.patinhas.entity.enums.PorteAnimal;
 import br.com.patinhas.entity.enums.SexoAnimal;
 import br.com.patinhas.entity.enums.SituacaoAnimal;
@@ -164,46 +167,79 @@ public class AdminAnimalController {
     }
 
     @GetMapping("/{id}/historico")
-    public String historico(@PathVariable Long id, Model model) {
-        var animal = animalService.buscarPorId(id);
+public String historico(@PathVariable Long id, Model model) {
+    var animal = animalService.buscarPorId(id);
 
-        model.addAttribute("animal", animal);
-        model.addAttribute("historico", animalHistoricoService.listarPorAnimal(id));
-        model.addAttribute("tiposHistorico", TipoHistoricoAnimal.values());
+    model.addAttribute("animal", animal);
+    model.addAttribute(
+            "historico",
+            animalHistoricoService.listarPorAnimal(id)
+    );
 
-        return "admin/animal-historico";
-    }
+    model.addAttribute("tiposHistorico", new TipoHistoricoAnimal[] {
+            TipoHistoricoAnimal.RESGATE,
+            TipoHistoricoAnimal.TRATAMENTO,
+            TipoHistoricoAnimal.DEVOLUCAO
+    });
+
+    model.addAttribute("dataHoje", LocalDate.now());
+
+    return "admin/animal-historico";
+}
 
     @PostMapping("/{id}/historico")
-    public String registrarHistorico(
-            @PathVariable Long id,
-            @RequestParam TipoHistoricoAnimal tipo,
-            @RequestParam String texto,
-            RedirectAttributes redirectAttributes) {
+public String registrarHistorico(
+        @PathVariable Long id,
+        @RequestParam TipoHistoricoAnimal tipo,
+        @RequestParam LocalDate data,
+        @RequestParam String texto,
+        RedirectAttributes redirectAttributes) {
 
-        if (texto == null || texto.isBlank() || texto.length() > 500) {
-            redirectAttributes.addFlashAttribute(
-                    "erro",
-                    "A descrição deve conter entre 1 e 500 caracteres."
-            );
-            return "redirect:/admin/animais/" + id + "/historico";
-        }
-
+    try {
         var animal = animalService.buscarEntidade(id);
 
-        animalHistoricoService.registrar(
+        animalHistoricoService.registrarAcontecimentoManual(
                 animal,
                 tipo,
-                texto,
-                false
+                data,
+                texto
         );
 
+        if (tipo == TipoHistoricoAnimal.DEVOLUCAO) {
+            redirectAttributes.addFlashAttribute(
+                    "sucesso",
+                    "Devolução registrada. O animal voltou para Disponível."
+            );
+        } else {
+            redirectAttributes.addFlashAttribute(
+                    "sucesso",
+                    "Acontecimento registrado com sucesso!"
+            );
+        }
+
+    } catch (IllegalArgumentException e) {
         redirectAttributes.addFlashAttribute(
-                "sucesso",
-                "Acontecimento registrado com sucesso!"
+                "erro",
+                e.getMessage()
         );
+    }
 
-        return "redirect:/admin/animais/" + id + "/historico";
+    return "redirect:/admin/animais/" + id + "/historico";
+}
+
+    private void prepararHistorico(Long id, Model model) {
+        model.addAttribute("animal", animalService.buscarPorId(id));
+        model.addAttribute("historico", animalHistoricoService.listarPorAnimal(id));
+        model.addAttribute("tiposHistorico", List.of(
+                TipoHistoricoAnimal.RESGATE,
+                TipoHistoricoAnimal.TRATAMENTO,
+                TipoHistoricoAnimal.DEVOLUCAO
+        ));
+        if (!model.containsAttribute("registro")) {
+            RegistroHistoricoAnimalDTO registro = new RegistroHistoricoAnimalDTO();
+            registro.setData(LocalDate.now());
+            model.addAttribute("registro", registro);
+        }
     }
 
     private void adicionarEnumsAoModel(Model model) {

@@ -17,9 +17,8 @@
             <span th:text="${animal.nome}">Animal</span>
         </h1>
 
-
         <p class="texto-apoio">
-            Acompanhe os acontecimentos registrados durante a permanência deste animal na ONG.
+            Registre os acontecimentos importantes da vida do animal na ONG.
         </p>
 
         <div class="card">
@@ -30,7 +29,9 @@
 
             <p>
                 <strong>Espécie:</strong>
-                <span th:text="${animal.especie != null ? animal.especie : '-'}">Espécie</span>
+                <span th:text="${animal.especie != null ? animal.especie : '-'}">
+                    Espécie
+                </span>
             </p>
 
             <p>
@@ -43,24 +44,28 @@
             </p>
         </div>
 
-
-       <!-- Formulário para registrar acontecimentos manualmente -->
         <div class="card">
             <h2>Registrar acontecimento</h2>
-                <div class="alerta alerta--sucesso"
-                    th:if="${sucesso}"
-                    th:text="${sucesso}">
-                </div>
-                <div class="alerta alerta--erro" th:if="${erro}" th:text="${erro}"></div>
+
+            <div class="alerta alerta--sucesso"
+                 th:if="${sucesso}"
+                 th:text="${sucesso}">
+            </div>
+
+            <div class="alerta alerta--erro"
+                 th:if="${erro}"
+                 th:text="${erro}">
+            </div>
 
             <form class="formulario formulario--admin"
-                th:action="@{/admin/animais/{id}/historico(id=${animal.id})}"
-                method="post">
+                  th:action="@{/admin/animais/{id}/historico(id=${animal.id})}"
+                  method="post">
+
                 <div class="campo">
                     <label for="tipo">Tipo de acontecimento</label>
 
                     <select id="tipo" name="tipo" required>
-                        <option value="">Selecione um acontecimento</option>
+                        <option value="">Selecione</option>
 
                         <option th:each="tipo : ${tiposHistorico}"
                                 th:value="${tipo.name()}"
@@ -70,29 +75,44 @@
                 </div>
 
                 <div class="campo">
-                    <label for="texto">Descrição</label>
+                    <label for="data">Data do acontecimento</label>
+
+                    <input id="data"
+                           name="data"
+                           type="date"
+                           th:value="${dataHoje}"
+                           required>
+                </div>
+
+                <div class="campo">
+                    <label for="texto">Observação</label>
 
                     <textarea id="texto"
-                            name="texto"
-                            rows="3"
-                            maxlength="500"
-                            placeholder="Descreva o que aconteceu com o animal..."
-                            required></textarea>
+                              name="texto"
+                              rows="3"
+                              maxlength="500"
+                              placeholder="Descreva o que aconteceu..."
+                              required></textarea>
+
+                    <small>Máximo de 500 caracteres.</small>
                 </div>
+
+                <p class="texto-apoio">
+                    <strong>Regra da devolução:</strong>
+                    o animal volta para Disponível, a data da adoção atual
+                    é limpa e o registro da solicitação concluída não é apagado.
+                </p>
 
                 <button type="submit" class="btn btn--primario">
                     Registrar acontecimento
                 </button>
-
             </form>
         </div>
-
 
         <h2>Histórico</h2>
 
         <div class="card" th:if="${!#lists.isEmpty(historico)}">
             <ul class="historico">
-
                 <li class="historico__item" th:each="h : ${historico}">
 
                     <div class="historico__meta">
@@ -101,22 +121,21 @@
                         </span>
 
                         <span th:text="${h.automatico ? 'Automático' : 'Manual'}">
-                            Automático
+                            Manual
                         </span>
                     </div>
 
                     <p class="historico__status"
                        th:text="${h.tipo.descricao}">
-                        Cadastro
+                        Resgate
                     </p>
 
                     <p class="historico__anotacao"
                        th:text="${h.texto}">
-                        Animal cadastrado no sistema
+                        Observação do acontecimento
                     </p>
 
                 </li>
-
             </ul>
         </div>
 

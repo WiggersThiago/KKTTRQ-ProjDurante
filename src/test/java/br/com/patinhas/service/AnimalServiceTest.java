@@ -12,6 +12,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
@@ -28,6 +29,7 @@ import br.com.patinhas.entity.enums.SexoAnimal;
 import br.com.patinhas.entity.enums.SituacaoAnimal;
 import br.com.patinhas.entity.enums.StatusAdocao;
 import br.com.patinhas.entity.enums.TipoHistoricoAnimal;
+import br.com.patinhas.exception.BusinessException;
 import br.com.patinhas.exception.ResourceNotFoundException;
 import br.com.patinhas.repository.AnimalRepository;
 
@@ -48,6 +50,93 @@ class AnimalServiceTest {
 
     @InjectMocks
     private AnimalService animalService;
+
+    @Test
+    void registrarAcontecimento_resgate_deveRegistrarDataEObservacaoSemMudarStatus() {
+        Animal animal = Animal.builder()
+                .id(1L)
+                .nome("Rex")
+                .idade(3)
+                .porte(PorteAnimal.MEDIO)
+                .sexo(SexoAnimal.MACHO)
+                .statusAdocao(StatusAdocao.INDISPONIVEL)
+                .ativo(true)
+                .build();
+        LocalDate data = LocalDate.of(2026, 10, 20);
+        when(animalRepository.findById(1L)).thenReturn(Optional.of(animal));
+        when(animalRepository.save(animal)).thenReturn(animal);
+
+        animalService.registrarAcontecimento(1L, TipoHistoricoAnimal.RESGATE, data, "  Encontrado na rua  ");
+
+        assertEquals(StatusAdocao.INDISPONIVEL, animal.getStatusAdocao());
+        verify(animalHistoricoService).registrar(
+                eq(animal),
+                eq(TipoHistoricoAnimal.RESGATE),
+                eq(data.atStartOfDay()),
+                eq("Encontrado na rua"),
+                eq(false)
+        );
+    }
+
+    @Test
+    void registrarAcontecimento_devolucao_deveDisponibilizarAnimalSemDataDeAdocaoAtual() {
+        Animal animal = Animal.builder()
+                .id(1L)
+                .nome("Rex")
+                .idade(3)
+                .porte(PorteAnimal.MEDIO)
+                .sexo(SexoAnimal.MACHO)
+                .statusAdocao(StatusAdocao.ADOTADO)
+                .dataAdocao(LocalDateTime.of(2026, 1, 10, 12, 0))
+                .ativo(true)
+                .build();
+        LocalDate data = LocalDate.of(2026, 10, 20);
+        when(animalRepository.findById(1L)).thenReturn(Optional.of(animal));
+        when(animalRepository.save(animal)).thenReturn(animal);
+
+        animalService.registrarAcontecimento(1L, TipoHistoricoAnimal.DEVOLUCAO, data, "Retorno à ONG");
+
+        assertEquals(StatusAdocao.DISPONIVEL, animal.getStatusAdocao());
+        assertEquals(data.atStartOfDay(), animal.getDataDisponivel());
+        assertEquals(null, animal.getDataAdocao());
+        verify(animalHistoricoService).registrar(
+                eq(animal),
+                eq(TipoHistoricoAnimal.DEVOLUCAO),
+                eq(data.atStartOfDay()),
+                eq("Retorno à ONG"),
+                eq(false)
+        );
+    }
+
+    @Test
+    void registrarAcontecimento_devolucaoDeAnimalNaoAdotado_deveRejeitar() {
+        Animal animal = Animal.builder()
+                .id(1L)
+                .nome("Rex")
+                .idade(3)
+                .porte(PorteAnimal.MEDIO)
+                .sexo(SexoAnimal.MACHO)
+                .statusAdocao(StatusAdocao.DISPONIVEL)
+                .ativo(true)
+                .build();
+        when(animalRepository.findById(1L)).thenReturn(Optional.of(animal));
+
+        assertThrows(BusinessException.class, () -> animalService.registrarAcontecimento(
+                1L,
+                TipoHistoricoAnimal.DEVOLUCAO,
+                LocalDate.of(2026, 10, 20),
+                "Retorno à ONG"
+        ));
+
+        verify(animalHistoricoService, never()).registrar(
+                any(Animal.class),
+                eq(TipoHistoricoAnimal.DEVOLUCAO),
+                any(LocalDateTime.class),
+                any(),
+                eq(false)
+        );
+        verify(animalRepository, never()).save(animal);
+    }
 
     @Test
     void cadastrar_deveChamarSaveERetornarAnimalResponseDTO() {

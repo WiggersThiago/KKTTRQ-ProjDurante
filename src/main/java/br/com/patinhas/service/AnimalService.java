@@ -1,6 +1,7 @@
 package br.com.patinhas.service;
 
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -15,6 +16,7 @@ import br.com.patinhas.entity.Animal;
 import br.com.patinhas.entity.enums.SituacaoAnimal;
 import br.com.patinhas.entity.enums.StatusAdocao;
 import br.com.patinhas.entity.enums.TipoHistoricoAnimal;
+import br.com.patinhas.exception.BusinessException;
 import br.com.patinhas.exception.ResourceNotFoundException;
 import br.com.patinhas.repository.AnimalRepository;
 import lombok.RequiredArgsConstructor;
@@ -69,6 +71,48 @@ public class AnimalService {
     public Animal buscarEntidade(Long id) {
         return animalRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Animal", id));
+    }
+
+    @Transactional
+    public void registrarAcontecimento(
+            Long id,
+            TipoHistoricoAnimal tipo,
+            LocalDate data,
+            String texto) {
+
+        if (tipo != TipoHistoricoAnimal.RESGATE
+                && tipo != TipoHistoricoAnimal.TRATAMENTO
+                && tipo != TipoHistoricoAnimal.DEVOLUCAO) {
+            throw new BusinessException("Tipo de acontecimento manual inválido.");
+        }
+        if (data == null) {
+            throw new BusinessException("Informe a data do acontecimento.");
+        }
+        if (texto == null || texto.isBlank() || texto.length() > 500) {
+            throw new BusinessException("A observação deve conter entre 1 e 500 caracteres.");
+        }
+
+        Animal animal = buscarEntidade(id);
+        LocalDateTime dataAcontecimento = data.atStartOfDay();
+
+        if (tipo == TipoHistoricoAnimal.DEVOLUCAO) {
+            if (animal.getStatusAdocao() != StatusAdocao.ADOTADO) {
+                throw new BusinessException("Só é possível registrar a devolução de um animal adotado.");
+            }
+
+            animal.setStatusAdocao(StatusAdocao.DISPONIVEL);
+            animal.setDataDisponivel(dataAcontecimento);
+            animal.setDataAdocao(null);
+        }
+
+        animalHistoricoService.registrar(
+                animal,
+                tipo,
+                dataAcontecimento,
+                texto.trim(),
+                false
+        );
+        animalRepository.save(animal);
     }
 
     @Transactional(readOnly = true)
