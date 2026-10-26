@@ -418,3 +418,32 @@
     }
 
 }
+/* Semáforo de estoque */
+.estoque-badge {
+    display: inline-block;
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.estoque-badge--critico {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+.estoque-badge--atencao {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+.estoque-badge--normal {
+    background-color: #dcfce7;
+    color: #166534;
+}
+
+.estoque-badge--alto {
+    background-color: #dbeafe;
+    color: #1e40af;
+}
