@@ -15,10 +15,12 @@ import br.com.patinhas.dto.response.AnimalResponseDTO;
 import br.com.patinhas.entity.Animal;
 import br.com.patinhas.entity.enums.SituacaoAnimal;
 import br.com.patinhas.entity.enums.StatusAdocao;
+import br.com.patinhas.entity.enums.StatusSolicitacaoAdocao;
 import br.com.patinhas.entity.enums.TipoHistoricoAnimal;
 import br.com.patinhas.exception.BusinessException;
 import br.com.patinhas.exception.ResourceNotFoundException;
 import br.com.patinhas.repository.AnimalRepository;
+import br.com.patinhas.repository.SolicitacaoAdocaoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -30,6 +32,7 @@ import lombok.extern.slf4j.Slf4j;
 public class AnimalService {
 
     private final AnimalRepository animalRepository;
+    private final SolicitacaoAdocaoRepository solicitacaoAdocaoRepository;
     private final ImageStorageService imageStorageService;
     private final EspecieService especieService;
     private final AnimalHistoricoService animalHistoricoService;
@@ -88,7 +91,9 @@ public class AnimalService {
         if (data == null) {
             throw new BusinessException("Informe a data do acontecimento.");
         }
-        if (texto == null || texto.isBlank() || texto.length() > 500) {
+
+        String observacao = texto == null ? "" : texto.trim();
+        if (observacao.isBlank() || observacao.length() > 500) {
             throw new BusinessException("A observação deve conter entre 1 e 500 caracteres.");
         }
 
@@ -99,17 +104,22 @@ public class AnimalService {
             if (animal.getStatusAdocao() != StatusAdocao.ADOTADO) {
                 throw new BusinessException("Só é possível registrar a devolução de um animal adotado.");
             }
-
+            if (solicitacaoAdocaoRepository.existsByAnimalIdAndStatus(
+                    animal.getId(),
+                    StatusSolicitacaoAdocao.APROVADA)) {
+                throw new BusinessException(
+                        "Existe uma solicitação aprovada em aberto para este animal. "
+                                + "Conclua ou recuse essa solicitação antes de registrar a devolução."
+                );
+            }
             animal.setStatusAdocao(StatusAdocao.DISPONIVEL);
-            animal.setDataDisponivel(dataAcontecimento);
-            animal.setDataAdocao(null);
         }
 
         animalHistoricoService.registrar(
                 animal,
                 tipo,
                 dataAcontecimento,
-                texto.trim(),
+                observacao,
                 false
         );
         animalRepository.save(animal);
@@ -332,12 +342,8 @@ public class AnimalService {
             );
         }
 
-        if (novoStatus == StatusAdocao.ADOTADO
-                && animal.getDataAdocao() == null) {
-
-            animal.setDataAdocao(
-                    LocalDateTime.now()
-            );
+        if (novoStatus == StatusAdocao.ADOTADO) {
+            animal.setDataAdocao(LocalDateTime.now());
         }
 
         animal.setStatusAdocao(novoStatus);

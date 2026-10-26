@@ -1,6 +1,8 @@
 package br.com.patinhas.service;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -38,6 +40,20 @@ public class ProdutoEstoqueService {
                 .orElseThrow(() -> new ResourceNotFoundException("Produto de estoque", id));
     }
 
+    /**
+     * Lista da tela de produtos: saldo das movimentações na memória e ordem do semáforo.
+     * Sem @Transactional de propósito. O saldo é preenchido depois que a leitura fecha,
+     * para não gravar o cache de estoque_atual.
+     */
+    public List<ProdutoEstoque> listarParaSemaforo() {
+        List<ProdutoEstoque> produtos = new ArrayList<>(produtoRepository.findAllComRelacionamentos());
+        preencherSaldos(produtos);
+        produtos.sort(Comparator
+                .comparingInt(ProdutoEstoqueService::prioridadeSemaforo)
+                .thenComparing(ProdutoEstoque::getNome, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
+        return produtos;
+    }
+
     /** Grava o saldo calculado só na memória, depois que a transação de leitura já fechou. */
     public void preencherSaldos(List<ProdutoEstoque> produtos) {
         Map<Long, BigDecimal> saldos = movimentacaoService.saldosPorProduto();
@@ -56,10 +72,10 @@ public class ProdutoEstoqueService {
     }
 
     @Transactional(readOnly = true)
-    public long contarAbaixoDoMinimo() {
+    public long contarCriticos() {
         Map<Long, BigDecimal> saldos = movimentacaoService.saldosPorProduto();
         return produtoRepository.findAllComRelacionamentos().stream()
-                .filter(produto -> abaixoDoMinimo(produto, saldos.getOrDefault(produto.getId(), BigDecimal.ZERO)))
+                .filter(produto -> saldoCritico(produto, saldos.getOrDefault(produto.getId(), BigDecimal.ZERO)))
                 .count();
     }
 
@@ -113,9 +129,19 @@ public class ProdutoEstoqueService {
         produtoRepository.deleteById(id);
     }
 
-    private boolean abaixoDoMinimo(ProdutoEstoque produto, BigDecimal saldo) {
+    private boolean saldoCritico(ProdutoEstoque produto, BigDecimal saldo) {
         return saldo != null && produto.getEstoqueMinimo() != null
-                && saldo.compareTo(produto.getEstoqueMinimo()) < 0;
+                && saldo.compareTo(produto.getEstoqueMinimo()) <= 0;
+    }
+
+    private static int prioridadeSemaforo(ProdutoEstoque produto) {
+        return switch (produto.getStatusEstoque()) {
+            case "CRITICO" -> 0;
+            case "ATENCAO" -> 1;
+            case "NORMAL" -> 2;
+            case "EXCEDENTE" -> 3;
+            default -> 4;
+        };
     }
 
     private void validarFaixa(BigDecimal minimo, BigDecimal maximo) {

@@ -349,10 +349,7 @@ public class SolicitacaoAdocaoService {
             LocalDateTime agora = LocalDateTime.now();
 
             animal.setStatusAdocao(StatusAdocao.ADOTADO);
-
-            if (animal.getDataAdocao() == null) {
-                animal.setDataAdocao(agora);
-            }
+            animal.setDataAdocao(agora);
 
             animalRepository.save(animal);
             solicitacao.setDataConclusao(agora);

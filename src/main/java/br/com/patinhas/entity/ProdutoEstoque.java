@@ -56,7 +56,7 @@ public class ProdutoEstoque {
 
     @Transient
     public boolean estoqueAbaixoDoMinimo() {
-        return estoqueAtual != null && estoqueMinimo != null && estoqueAtual.compareTo(estoqueMinimo) < 0;
+        return estoqueAtual != null && estoqueMinimo != null && estoqueAtual.compareTo(estoqueMinimo) <= 0;
     }
 
     @Transient

@@ -42,6 +42,20 @@
                     Disponível
                 </span>
             </p>
+
+            <p>
+                <strong>Situação:</strong>
+                <span th:text="${animal.situacaoAnimal != null ? animal.situacaoAnimal.descricao : '-'}">
+                    Normal
+                </span>
+            </p>
+
+            <p>
+                <strong>Data da adoção:</strong>
+                <span th:text="${animal.dataAdocao != null ? #temporals.format(animal.dataAdocao, 'dd/MM/yyyy HH:mm') : '-'}">
+                    -
+                </span>
+            </p>
         </div>
 
         <div class="card">
@@ -99,8 +113,11 @@
 
                 <p class="texto-apoio">
                     <strong>Regra da devolução:</strong>
-                    o animal volta para Disponível, a data da adoção atual
-                    é limpa e o registro da solicitação concluída não é apagado.
+                    só um animal adotado volta para Disponível.
+                    A data da adoção e a solicitação concluída permanecem.
+                    Situação e ativo não mudam.
+                    Se houver solicitação aprovada em aberto, a devolução é recusada.
+                    Resgate e tratamento só entram na timeline.
                 </p>
 
                 <button type="submit" class="btn btn--primario">

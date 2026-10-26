@@ -43,7 +43,7 @@ public class AdminEstoqueController {
         model.addAttribute("totalProdutos", produtoService.contarProdutos());
         model.addAttribute("totalCategorias", categoriaService.listarTodas().size());
         model.addAttribute("totalUnidades", unidadeService.listarTodas().size());
-        model.addAttribute("produtosAbaixoMinimo", produtoService.contarAbaixoDoMinimo());
+        model.addAttribute("produtosCriticos", produtoService.contarCriticos());
         return "admin/estoque";
     }
 
@@ -264,9 +264,7 @@ public class AdminEstoqueController {
 
     @GetMapping("/produtos")
     public String produtos(Model model) {
-        var produtos = produtoService.listarTodos();
-        produtoService.preencherSaldos(produtos);
-        model.addAttribute("produtos", produtos);
+        model.addAttribute("produtos", produtoService.listarParaSemaforo());
         return "admin/estoque-produtos";
     }
 

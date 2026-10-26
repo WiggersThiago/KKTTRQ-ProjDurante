@@ -28,16 +28,21 @@ import br.com.patinhas.entity.enums.PorteAnimal;
 import br.com.patinhas.entity.enums.SexoAnimal;
 import br.com.patinhas.entity.enums.SituacaoAnimal;
 import br.com.patinhas.entity.enums.StatusAdocao;
+import br.com.patinhas.entity.enums.StatusSolicitacaoAdocao;
 import br.com.patinhas.entity.enums.TipoHistoricoAnimal;
 import br.com.patinhas.exception.BusinessException;
 import br.com.patinhas.exception.ResourceNotFoundException;
 import br.com.patinhas.repository.AnimalRepository;
+import br.com.patinhas.repository.SolicitacaoAdocaoRepository;
 
 @ExtendWith(MockitoExtension.class)
 class AnimalServiceTest {
 
     @Mock
     private AnimalRepository animalRepository;
+
+    @Mock
+    private SolicitacaoAdocaoRepository solicitacaoAdocaoRepository;
 
     @Mock
     private ImageStorageService imageStorageService;
@@ -79,7 +84,8 @@ class AnimalServiceTest {
     }
 
     @Test
-    void registrarAcontecimento_devolucao_deveDisponibilizarAnimalSemDataDeAdocaoAtual() {
+    void registrarAcontecimento_devolucao_deveDisponibilizarSemApagarDataDeAdocao() {
+        LocalDateTime dataAdocao = LocalDateTime.of(2026, 1, 10, 12, 0);
         Animal animal = Animal.builder()
                 .id(1L)
                 .nome("Rex")
@@ -87,18 +93,24 @@ class AnimalServiceTest {
                 .porte(PorteAnimal.MEDIO)
                 .sexo(SexoAnimal.MACHO)
                 .statusAdocao(StatusAdocao.ADOTADO)
-                .dataAdocao(LocalDateTime.of(2026, 1, 10, 12, 0))
-                .ativo(true)
+                .situacaoAnimal(SituacaoAnimal.EM_TRATAMENTO)
+                .dataAdocao(dataAdocao)
+                .ativo(false)
                 .build();
         LocalDate data = LocalDate.of(2026, 10, 20);
         when(animalRepository.findById(1L)).thenReturn(Optional.of(animal));
+        when(solicitacaoAdocaoRepository.existsByAnimalIdAndStatus(
+                1L,
+                StatusSolicitacaoAdocao.APROVADA)).thenReturn(false);
         when(animalRepository.save(animal)).thenReturn(animal);
 
         animalService.registrarAcontecimento(1L, TipoHistoricoAnimal.DEVOLUCAO, data, "Retorno à ONG");
 
         assertEquals(StatusAdocao.DISPONIVEL, animal.getStatusAdocao());
-        assertEquals(data.atStartOfDay(), animal.getDataDisponivel());
-        assertEquals(null, animal.getDataAdocao());
+        assertEquals(dataAdocao, animal.getDataAdocao());
+        assertEquals(null, animal.getDataDisponivel());
+        assertEquals(SituacaoAnimal.EM_TRATAMENTO, animal.getSituacaoAnimal());
+        assertEquals(false, animal.getAtivo());
         verify(animalHistoricoService).registrar(
                 eq(animal),
                 eq(TipoHistoricoAnimal.DEVOLUCAO),
