@@ -69,6 +69,76 @@
 
         </div>
 
+        
+        <!-- Alertas de estoque - M4-DEV-004 -->
+        <section class="dashboard-estoque" aria-labelledby="titulo-alertas-estoque">
+
+            <div class="dashboard-estoque__cabecalho">
+                <div>
+                    <h2 id="titulo-alertas-estoque">Alertas de estoque</h2>
+                    <p>Confira os produtos que precisam de atenção.</p>
+                </div>
+
+                <a th:href="@{/admin/estoque}"
+                   class="dashboard-estoque__link">
+                    Ver estoque &rarr;
+                </a>
+            </div>
+
+            <div class="dashboard-estoque__cards">
+
+                <!-- Produtos críticos -->
+                <a th:href="@{/admin/estoque}"
+                   class="dashboard-estoque__card dashboard-estoque__card--critico">
+
+                    <span class="dashboard-estoque__icone">🚨</span>
+
+                    <span class="dashboard-estoque__numero"
+                          th:text="${estoqueCriticos}">0</span>
+
+                    <span class="dashboard-estoque__nome">Críticos</span>
+
+                    <span class="dashboard-estoque__descricao">
+                        No mínimo ou abaixo dele
+                    </span>
+                </a>
+
+                <!-- Produtos em atenção -->
+                <a th:href="@{/admin/estoque}"
+                   class="dashboard-estoque__card dashboard-estoque__card--atencao">
+
+                    <span class="dashboard-estoque__icone">⚠️</span>
+
+                    <span class="dashboard-estoque__numero"
+                          th:text="${estoqueAtencao}">0</span>
+
+                    <span class="dashboard-estoque__nome">Atenção</span>
+
+                    <span class="dashboard-estoque__descricao">
+                        Próximos do estoque mínimo
+                    </span>
+                </a>
+
+                <!-- Produtos excedentes -->
+                <a th:href="@{/admin/estoque}"
+                   class="dashboard-estoque__card dashboard-estoque__card--excedente">
+
+                    <span class="dashboard-estoque__icone">📦</span>
+
+                    <span class="dashboard-estoque__numero"
+                          th:text="${estoqueExcedentes}">0</span>
+
+                    <span class="dashboard-estoque__nome">Excedentes</span>
+
+                    <span class="dashboard-estoque__descricao">
+                        Acima do estoque máximo
+                    </span>
+                </a>
+
+            </div>
+        </section>
+
+
         <div class="dashboard-graficos">
 
             <div class="dashboard-grafico">
