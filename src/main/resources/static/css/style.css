@@ -342,6 +342,12 @@ h2 { font-size: 1.5rem; margin: 0 0 0.5rem; }
     display: flex;
     align-items: center;
     justify-content: center;
+
+/* Garante que elementos com hidden permaneçam ocultos */
+.card-animal__placeholder[hidden] {
+    display: none !important;
+}
+
 }
 .card-animal__corpo { padding: 1rem 1.25rem; }
 .card-animal__corpo h3 { margin: 0.25rem 0; }

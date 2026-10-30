@@ -472,3 +472,106 @@
     background-color: #dbeafe;
     color: #1e40af;
 }
+
+
+/* ============ Alertas de estoque no dashboard ============ */
+
+.dashboard-estoque {
+    margin: 2rem 0;
+    padding: 1.5rem;
+    background: #fff;
+    border-radius: var(--raio-grande);
+    box-shadow: var(--sombra);
+}
+
+.dashboard-estoque__cabecalho {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.dashboard-estoque__cabecalho h2 {
+    margin: 0 0 0.35rem;
+}
+
+.dashboard-estoque__cabecalho p {
+    margin: 0;
+    color: var(--cor-texto-suave);
+}
+
+.dashboard-estoque__link {
+    font-weight: 700;
+    color: var(--cor-secundaria);
+    text-decoration: underline;
+}
+
+.dashboard-estoque__cards {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+}
+
+.dashboard-estoque__card {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    padding: 1.25rem;
+    border-radius: var(--raio);
+    border: 1px solid var(--cor-borda);
+    border-left: 6px solid;
+    color: var(--cor-texto);
+    text-decoration: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dashboard-estoque__card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--sombra);
+}
+
+.dashboard-estoque__card--critico {
+    background: #fff1f0;
+    border-left-color: #c62828;
+}
+
+.dashboard-estoque__card--atencao {
+    background: #fff8e6;
+    border-left-color: #d99a00;
+}
+
+.dashboard-estoque__card--excedente {
+    background: #eef5ff;
+    border-left-color: #3974bd;
+}
+
+.dashboard-estoque__icone {
+    font-size: 1.7rem;
+}
+
+.dashboard-estoque__numero {
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+.dashboard-estoque__nome {
+    font-weight: 700;
+    font-size: 1.05rem;
+}
+
+.dashboard-estoque__descricao {
+    color: var(--cor-texto-suave);
+    font-size: 0.9rem;
+}
+
+@media (max-width: 700px) {
+    .dashboard-estoque__cards {
+        grid-template-columns: 1fr;
+    }
+
+    .dashboard-estoque {
+        padding: 1rem;
+    }
+}

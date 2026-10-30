@@ -105,8 +105,10 @@
             <button type="button" class="modal-animal__fechar" data-fechar-modal aria-label="Fechar">&times;</button>
 
             <div class="modal-animal__foto" id="modal-animal-foto">
-                <span class="card-animal__placeholder" id="modal-animal-placeholder" hidden>
-                    <img th:replace="~{fragments/brand :: trayicon('marca-trayicon marca-trayicon--placeholder')}" />
+                <span class="card-animal__placeholder"
+                    id="modal-animal-placeholder"
+                    hidden>
+                <span aria-hidden="true">🐾</span>
                 </span>
             </div>
 
