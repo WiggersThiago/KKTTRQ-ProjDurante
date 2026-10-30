@@ -12,142 +12,236 @@
         <form class="formulario formulario--admin"
               th:action="${modoEdicao ? '/admin/animais/' + animalId : '/admin/animais'}"
               th:object="${animal}" method="post" enctype="multipart/form-data">
-              
+
+
             <div class="alerta alerta--erro" th:if="${#fields.hasErrors('*')}">
                 <strong>Ops! 😿</strong>
                 <span>Confira os campos obrigatórios antes de salvar.</span>
             </div>
 
-            <div class="campo">
-                <label for="nome">Nome *</label>
-                <input type="text" id="nome" th:field="*{nome}" />
-                <small class="campo__erro" th:errors="*{nome}"></small>
-            </div>
-            <div class="campo">
-                <label for="especie">Espécie *</label>
+            <!-- 1. IDENTIFICAÇÃO -->
+            <div class="animal-form__secao">
+                <h2>Identificação</h2>
+                <p>Informações básicas sobre o animal.</p>
 
-                <input type="text"
-                    id="especie"
-                    th:field="*{especie}"
-                    list="listaEspecies"
-                    placeholder="Selecione ou digite uma nova espécie" />
-
-                <datalist id="listaEspecies">
-                    <option th:each="e : ${especies}"
-                            th:value="${e.nome}">
-                    </option>
-                </datalist>
-
-                <small class="campo__erro" th:errors="*{especie}"></small>
-            </div>
-
-            <div class="grid-2">
                 <div class="campo">
-                    <label for="idade">Idade *</label>
-                    <input type="number" id="idade" th:field="*{idade}" min="0" />
-                    <small class="campo__erro" th:errors="*{idade}"></small>
+                    <label for="nome">Nome *</label>
+                    <input type="text" id="nome" th:field="*{nome}" />
+                    <small class="campo__erro" th:errors="*{nome}"></small>
                 </div>
 
                 <div class="campo">
-                    <label for="porte">Porte *</label>
-                    <select id="porte" th:field="*{porte}">
-                        <option value="">Selecione...</option>
-                        <option th:each="p : ${portes}" th:value="${p}" th:text="${p.descricao}"></option>
-                    </select>
-                    <small class="campo__erro" th:errors="*{porte}"></small>
-                </div>
-            </div>
+                    <label for="especie">Espécie *</label>
+                    <input type="text"
+                           id="especie"
+                           th:field="*{especie}"
+                           list="listaEspecies"
+                           placeholder="Selecione ou digite uma nova espécie" />
 
-            <div class="grid-2">
+                    <datalist id="listaEspecies">
+                        <option th:each="e : ${especies}"
+                                th:value="${e.nome}">
+                        </option>
+                    </datalist>
+
+                    <small class="campo__erro" th:errors="*{especie}"></small>
+                </div>
+
+                <div class="grid-2">
+                    <div class="campo">
+                        <label for="idade">Idade *</label>
+                        <input type="number" id="idade"
+                               th:field="*{idade}" min="0" />
+                        <small class="campo__erro" th:errors="*{idade}"></small>
+                    </div>
+
+                    <div class="campo">
+                        <label for="porte">Porte *</label>
+                        <select id="porte" th:field="*{porte}">
+                            <option value="">Selecione...</option>
+                            <option th:each="p : ${portes}"
+                                    th:value="${p}"
+                                    th:text="${p.descricao}"></option>
+                        </select>
+                        <small class="campo__erro" th:errors="*{porte}"></small>
+                    </div>
+                </div>
+
                 <div class="campo">
                     <label for="sexo">Sexo *</label>
                     <select id="sexo" th:field="*{sexo}">
                         <option value="">Selecione...</option>
-                        <option th:each="s : ${sexos}" th:value="${s}" th:text="${s.descricao}"></option>
+                        <option th:each="s : ${sexos}"
+                                th:value="${s}"
+                                th:text="${s.descricao}"></option>
                     </select>
                     <small class="campo__erro" th:errors="*{sexo}"></small>
                 </div>
 
                 <div class="campo">
-                    <label for="statusAdocao">Status</label>
+                    <label for="descricao">Descrição</label>
+                    <textarea id="descricao"
+                              th:field="*{descricao}"
+                              rows="4"></textarea>
+                    <small class="campo__erro" th:errors="*{descricao}"></small>
+                </div>
+            </div>
+
+            <!-- 2. SAÚDE E CUIDADOS -->
+            <div class="animal-form__secao">
+                <h2>Saúde e cuidados</h2>
+                <p>Acompanhe a situação atual e os cuidados do animal.</p>
+
+                <div class="campo">
+                    <label for="situacaoAnimal">Situação do animal *</label>
+                    <select id="situacaoAnimal" th:field="*{situacaoAnimal}">
+                        <option value="">Selecione...</option>
+                        <option th:each="situacao : ${situacoes}"
+                                th:value="${situacao}"
+                                th:text="${situacao.descricao}">
+                        </option>
+                    </select>
+                    <small class="campo__erro" th:errors="*{situacaoAnimal}"></small>
+                </div>
+
+                <div class="grid-2">
+                    <label class="checkbox">
+                        <input type="checkbox" th:field="*{castrado}" />
+                        Castrado
+                    </label>
+
+                    <label class="checkbox">
+                        <input type="checkbox" th:field="*{vacinado}" />
+                        Vacinado
+                    </label>
+                </div>
+            </div>
+
+            <!-- 3. ADOÇÃO E VISIBILIDADE -->
+            <div class="animal-form__secao">
+                <h2>Adoção e visibilidade</h2>
+                <p>Controle a disponibilidade e a exibição do animal no site.</p>
+
+                <div class="campo">
+                    <label for="statusAdocao">Status de adoção</label>
                     <select id="statusAdocao" th:field="*{statusAdocao}">
                         <option value="">Selecione...</option>
-                        <option th:each="st : ${statusList}" th:value="${st}" th:text="${st.descricao}"></option>
+                        <option th:each="st : ${statusList}"
+                                th:value="${st}"
+                                th:text="${st.descricao}"></option>
                     </select>
                 </div>
+
+                <label class="checkbox">
+                    <input type="checkbox" th:field="*{destaque}" />
+                    Exibir na página inicial (destaque)
+                </label>
+
+                <label class="switch-campo" th:if="${modoEdicao}">
+                    <input type="checkbox" th:field="*{ativo}" />
+                    <span>Cadastro ativo (visível no site)</span>
+                </label>
             </div>
 
-             <div class="campo">
-                <label for="situacaoAnimal">Situação do animal *</label>
+            <!-- 4. FOTOGRAFIA -->
+            <div class="animal-form__secao">
+                <h2>Fotografia</h2>
+                <p>Adicione ou atualize a foto do animal.</p>
 
-                <select id="situacaoAnimal" th:field="*{situacaoAnimal}">
-                    <option value="">Selecione...</option>
-                    <option th:each="situacao : ${situacoes}"
-                            th:value="${situacao}"
-                            th:text="${situacao.descricao}">
-                    </option>
-                </select>
+                <div class="campo campo-imagem">
+                    <label for="imagem">Foto do animal</label>
 
-                <small class="campo__erro" th:errors="*{situacaoAnimal}"></small>
-            </div>
+                    <div class="imagem-atual"
+                         th:if="${modoEdicao and !#strings.isEmpty(fotoAtual)}">
+                        <img th:src="${fotoAtual}"
+                             alt="Foto atual do animal"
+                             class="imagem-atual__preview"/>
 
+                        <div class="imagem-atual__acoes">
+                            <a class="btn btn--pequeno"
+                               th:href="@{|/admin/animais/${animalId}/imagem/download|}">
+                                Baixar imagem
+                            </a>
 
-
-            <div class="campo">
-                <label for="descricao">Descrição</label>
-                <textarea id="descricao" th:field="*{descricao}" rows="4"></textarea>
-                <small class="campo__erro" th:errors="*{descricao}"></small>
-            </div>
-
-            <div class="campo campo-imagem">
-                <label for="imagem">Foto do animal</label>
-
-                <div class="imagem-atual" th:if="${modoEdicao and !#strings.isEmpty(fotoAtual)}">
-                    <img th:src="${fotoAtual}" alt="Foto atual do animal" class="imagem-atual__preview"/>
-                    <div class="imagem-atual__acoes">
-                        <a class="btn btn--pequeno"
-                           th:href="@{|/admin/animais/${animalId}/imagem/download|}">
-                            Baixar imagem
-                        </a>
-                        <label class="checkbox">
-                            <input type="checkbox" name="removerImagem" value="true"/>
-                            Remover imagem atual
-                        </label>
+                            <label class="checkbox">
+                                <input type="checkbox"
+                                       name="removerImagem"
+                                       value="true"/>
+                                Remover imagem atual
+                            </label>
+                        </div>
                     </div>
+
+                    <input type="file"
+                           id="imagem"
+                           name="imagem"
+                           accept="image/jpeg,image/png,image/webp,image/gif"/>
+
+                    <small class="texto-apoio">
+                        JPG, PNG, WEBP ou GIF, até 5 MB.
+                    </small>
+
+                    <small class="campo__erro"
+                           th:if="${erroImagem}"
+                           th:text="${erroImagem}"></small>
                 </div>
-
-                <input type="file" id="imagem" name="imagem" accept="image/jpeg,image/png,image/webp,image/gif"/>
-                <small class="texto-apoio">JPG, PNG, WEBP ou GIF — até 5 MB.</small>
-                <small class="campo__erro" th:if="${erroImagem}" th:text="${erroImagem}"></small>
             </div>
 
-            <div class="grid-2">
-                <label class="checkbox">
-                    <input type="checkbox" th:field="*{castrado}" />
-                    Castrado
-                </label>
-
-                <label class="checkbox">
-                    <input type="checkbox" th:field="*{vacinado}" />
-                    Vacinado
-                </label>
-            </div>
-
-            <label class="checkbox">
-                <input type="checkbox" th:field="*{destaque}" />
-                Exibir na página inicial (destaque)
-            </label>
-
-            <label class="switch-campo" th:if="${modoEdicao}">
-                <input type="checkbox" th:field="*{ativo}" />
-                <span>Cadastro ativo (visível no site)</span>
-            </label>
-
+            <!-- AÇÕES -->
             <div class="form-acoes">
-                <a class="btn btn--secundario" th:href="@{/admin/animais}">Cancelar</a>
-                <button type="submit" class="btn btn--primario">Salvar</button>
+                <a class="btn btn--secundario"
+                   th:href="@{/admin/animais}">Cancelar</a>
+
+                <button type="submit" class="btn btn--primario">
+                    Salvar
+                </button>
+            </div>
+
             </div>
         </form>
+
+        <!-- HISTÓRICO DO ANIMAL -->
+        <div class="animal-form__secao"
+             th:if="${modoEdicao}">
+
+            <h2>Histórico do animal</h2>
+            <p>Acompanhe os acontecimentos registrados durante a vida do animal no abrigo.</p>
+
+            <div class="form-acoes">
+                <a class="btn btn--primario"
+                   th:href="@{|/admin/animais/${animalId}/historico|}">
+                    Registrar acontecimento
+                </a>
+            </div>
+
+            <div class="historico"
+                 th:if="${not #lists.isEmpty(historico)}">
+
+                <div class="historico__item"
+                     th:each="h : ${historico}">
+
+                    <div class="historico__meta">
+                        <span th:text="${#temporals.format(h.data, 'dd/MM/yyyy HH:mm')}">
+                        </span>
+
+                        <span th:text="${h.automatico ? 'Automático' : 'Manual'}">
+                        </span>
+                    </div>
+
+                    <strong th:text="${h.tipo.descricao}"></strong>
+
+                    <p class="historico__anotacao"
+                       th:text="${h.texto}">
+                    </p>
+                </div>
+            </div>
+
+            <div class="historico__vazio"
+                 th:if="${#lists.isEmpty(historico)}">
+                Nenhum acontecimento registrado para este animal.
+            </div>
+        </div>
+
     </section>
 </section>
 </body>

@@ -107,6 +107,7 @@ public class AdminAnimalController {
         model.addAttribute("animalId", id);
         model.addAttribute("fotoAtual", animal.getFotoUrl());
         model.addAttribute("modoEdicao", true);
+        adicionarHistoricoAoModel(id, model);
         adicionarEnumsAoModel(model);
         return "admin/animal-form";
     }
@@ -125,6 +126,7 @@ public class AdminAnimalController {
             model.addAttribute("fotoAtual", existente.getFotoUrl());
             model.addAttribute("modoEdicao", true);
             adicionarEnumsAoModel(model);
+            adicionarHistoricoAoModel(id, model);
             return "admin/animal-form";
         }
         try {
@@ -137,6 +139,7 @@ public class AdminAnimalController {
             model.addAttribute("fotoAtual", existente.getFotoUrl());
             model.addAttribute("modoEdicao", true);
             adicionarEnumsAoModel(model);
+            adicionarHistoricoAoModel(id, model);
             return "admin/animal-form";
         }
     }
@@ -207,6 +210,13 @@ public class AdminAnimalController {
         }
 
         return "redirect:/admin/animais/" + id + "/historico";
+    }
+
+    private void adicionarHistoricoAoModel(Long id, Model model) {
+        model.addAttribute(
+                "historico",
+                animalHistoricoService.listarPorAnimal(id)
+        );
     }
 
     private void adicionarEnumsAoModel(Model model) {

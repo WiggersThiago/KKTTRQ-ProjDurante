@@ -411,6 +411,31 @@
     color: var(--cor-texto-suave);
 }
 
+/* Formulário organizado de animais */
+.animal-form__secao {
+    padding: 20px;
+    margin-bottom: 24px;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    background: #fff;
+}
+
+.animal-form__secao h2 {
+    margin: 0 0 6px;
+    font-size: 1.2rem;
+}
+
+.animal-form__secao > p {
+    margin: 0 0 20px;
+    color: #6b7280;
+    font-size: 0.9rem;
+}
+
+.animal-form__secao .campo:last-child {
+    margin-bottom: 0;
+}
+
+
 @media (max-width: 700px) {
 
     .dashboard-graficos {
